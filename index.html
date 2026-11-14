@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="zh-MY">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>e-Sijil Sekolah Malaysia — 表扬状 / 感谢状 / 参与奖状生成器</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2canvas CDN for High-DPI 2x PNG Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Google Fonts: Cinzel, Playfair Display, Plus Jakarta Sans, Noto Serif SC, Noto Sans SC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Dynamic @page Orientation Style (Updated via JS when switching Portrait / Landscape) -->
+  <style id="dynamic-page-style">
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+  </style>
+
+  <style>
+    /* UI Base Typography */
+    body {
+      font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Certificate Typography Families */
+    .font-cert-display {
+      font-family: 'Cinzel', 'Playfair Display', 'Times New Roman', serif;
+    }
+    .font-cert-serif {
+      font-family: 'Playfair Display', 'Noto Serif SC', 'Times New Roman', serif;
+    }
+    .font-cert-zh-serif {
+      font-family: 'Noto Serif SC', 'SimSun', serif;
+    }
+    .font-cert-zh-sans {
+      font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    /* Exact A4 Portrait & Landscape Sheet Dimensions */
+    .a4-sheet {
+      --safe-v: 22mm;
+      --safe-h: calc(var(--safe-v) + 4mm);
+      width: 210mm;
+      height: 297mm;
+      padding: var(--safe-v) var(--safe-h);
+      background-color: #fffefc;
+      position: relative;
+      box-sizing: border-box;
+      overflow: hidden;
+      flex-shrink: 0;
+      color: #0f172a;
+    }
+
+    .a4-sheet.is-landscape {
+      width: 297mm;
+      height: 210mm;
+    }
+
+    /* Pure Content Mode for Pre-Printed Sijil Paper */
+    .a4-sheet.is-preprinted {
+      background-color: #ffffff !important;
+    }
+
+    /* Subtle Drafting Workspace Grid */
+    .preview-workspace {
+      background-color: #e2e8f0;
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* White-background removal blend mode for scanned signatures & stamps */
+    .img-multiply {
+      mix-blend-mode: multiply;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* ========================================================================
+       PRINT STYLES — Zero-Margin Single & Multi-Page Batch A4 Output
+       ======================================================================== */
+    @media print {
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      body.print-single-mode #print-mount-single {
+        display: block !important;
+      }
+      body.print-single-mode #print-mount-batch {
+        display: none !important;
+      }
+
+      body.print-batch-mode #print-mount-single {
+        display: none !important;
+      }
+      body.print-batch-mode #print-mount-batch {
+        display: block !important;
+      }
+
+      .print-page-wrapper {
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-after: always;
+        break-after: page;
+        overflow: hidden;
+      }
+
+      .print-page-wrapper:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .a4-sheet {
+        box-shadow: none !important;
+        margin: 0 !important;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden print-single-mode">
+
+  <!-- ========================================================================
+       1. TOP HEADER BAR (NO-PRINT)
+       ======================================================================== -->
+  <header class="no-print bg-white border-b border-slate-200 px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2.5 z-30 shadow-2xs shrink-0">
+    <!-- Left: App Title, Badge & Subtitle -->
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-950 via-blue-900 to-amber-700 text-amber-300 flex items-center justify-center shadow-xs shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <h1 class="font-bold text-slate-900 text-sm sm:text-base tracking-tight">e-Sijil Sekolah Malaysia</h1>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-900 border border-amber-200">表扬状 / 感谢状 / 参与奖状生成器</span>
+        </div>
+        <p class="text-[11px] text-slate-500 hidden md:block">支持 SJKC / SMJK / SMK / SK • 支持普通白纸打印与文凭纸套打 • Excel CSV 批量打印多页 A4 PDF</p>
+      </div>
+    </div>
+
+    <!-- Right: Action Buttons -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Batch CSV Modal Trigger -->
+      <button type="button" onclick="openBatchModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-950 border border-indigo-200 shadow-2xs transition cursor-pointer">
+        <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>批量 CSV</span>
+        <span id="header-batch-badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold bg-indigo-600 text-white">1</span>
+      </button>
+
+      <!-- Export High-DPI PNG -->
+      <button type="button" id="btn-export-png" onclick="exportCurrentAsPng()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-2xs transition cursor-pointer">
+        <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        <span>导出高清 PNG</span>
+      </button>
+
+      <!-- Print Single A4 / Save PDF -->
+      <button type="button" onclick="triggerPrint('single')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-950 hover:bg-blue-900 text-white shadow-xs transition cursor-pointer">
+        <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        <span>打印当前页 / PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       2. MAIN SPLIT WORKSPACE (NO-PRINT)
+       ======================================================================== -->
+  <main class="no-print flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+    <!-- LEFT EDITOR PANEL (3 Tabs) -->
+    <aside class="w-full lg:w-[430px] bg-white border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col h-[52vh] lg:h-full shrink-0 z-20">
+      
+      <!-- 3 Navigation Tabs -->
+      <nav class="grid grid-cols-3 border-b border-slate-200 bg-slate-50/90 px-2 pt-2 gap-1 shrink-0" aria-label="Editor Tabs">
+        <button type="button" data-tab="school" onclick="switchTab('school')" class="tab-btn active px-2 py-2.5 text-[11px] sm:text-xs font-bold rounded-t-xl border-b-2 border-blue-900 bg-white text-blue-950 truncate transition cursor-pointer">
+          1. 学校与版式 (Sekolah &amp; Tema)
+        </button>
+        <button type="button" data-tab="role" onclick="switchTab('role')" class="tab-btn px-2 py-2.5 text-[11px] sm:text-xs font-medium rounded-t-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 truncate transition cursor-pointer">
+          2. 职务活动与内容 (Butiran)
+        </button>
+        <button type="button" data-tab="signatory" onclick="switchTab('signatory')" class="tab-btn px-2 py-2.5 text-[11px] sm:text-xs font-medium rounded-t-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 truncate transition cursor-pointer">
+          3. 签名与校章 (Tandatangan &amp; Cop)
+        </button>
+      </nav>
+
+      <!-- Scrollable Editor Body -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+
+        <!-- ==================================================================
+             TAB 1: 1. 学校与版式 (Sekolah & Tema)
+             ================================================================== -->
+        <section id="panel-school" class="tab-panel space-y-4">
+          
+          <!-- Certificate Type Toggle: Sijil Penghargaan vs Sijil Penyertaan -->
+          <div class="p-3.5 rounded-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/60 border border-blue-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-900">证书类型 (Jenis Sijil)</label>
+              <span id="cert-type-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-900 text-white">SIJIL PENGHARGAAN</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-cert-type="penghargaan" onclick="setCertType('penghargaan')" class="cert-type-btn p-2.5 rounded-xl border-2 border-blue-900 bg-white text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-blue-950">🏆 表扬状 / 感谢状</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Sijil Penghargaan</div>
+              </button>
+              <button type="button" data-cert-type="penyertaan" onclick="setCertType('penyertaan')" class="cert-type-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-800">📜 参与活动奖状</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">Sijil Penyertaan</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- A4 Orientation Toggle (Portrait vs Landscape) -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <label class="block text-xs font-bold text-slate-900">纸张方向 (Orientasi Kertas A4)</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-orient-btn="portrait" onclick="setOrientation('portrait')" class="orient-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-blue-900 bg-blue-50/70 text-blue-950 text-xs font-bold transition cursor-pointer">
+                <span class="w-3.5 h-5 border-2 border-current rounded-[2px] inline-block"></span>
+                <span>A4 竖版 (210×297mm)</span>
+              </button>
+              <button type="button" data-orient-btn="landscape" onclick="setOrientation('landscape')" class="orient-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition cursor-pointer">
+                <span class="w-5 h-3.5 border-2 border-current rounded-[2px] inline-block"></span>
+                <span>A4 横版 (297×210mm)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Frame Style, Pure Content Pre-Printed Sijil Mode & Safe Margin Control -->
+          <div class="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-3">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-bold text-slate-900">边框与套打模式 (Gaya Bingkai &amp; Kertas Sijil)</label>
+                <span id="frame-mode-pill" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-blue-950 border border-amber-300">标准边框版</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" data-corner-btn="songket" onclick="setFrameStyle('songket')" class="corner-style-btn py-2 px-2 rounded-xl border-2 border-blue-900 bg-white text-[11px] font-bold text-blue-950 leading-tight text-left transition cursor-pointer">
+                  经典宋吉花纹<br/><span class="text-[9.5px] font-normal text-slate-500">Songket Klasik</span>
+                </button>
+                <button type="button" data-corner-btn="double" onclick="setFrameStyle('double')" class="corner-style-btn py-2 px-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-medium text-slate-700 leading-tight text-left transition cursor-pointer">
+                  双线典雅框<br/><span class="text-[9.5px] font-normal text-slate-500">Dwi-Garis</span>
+                </button>
+                <button type="button" data-corner-btn="minimal" onclick="setFrameStyle('minimal')" class="corner-style-btn py-2 px-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-[11px] font-medium text-slate-700 leading-tight text-left transition cursor-pointer">
+                  简约现代框<br/><span class="text-[9.5px] font-normal text-slate-500">Moden Minimalis</span>
+                </button>
+                <button type="button" data-corner-btn="none" onclick="setFrameStyle('none')" class="corner-style-btn py-2 px-2 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50/70 text-[11px] font-medium text-slate-700 leading-tight text-left transition cursor-pointer">
+                  📄 无边框纯内容<br/><span class="text-[9.5px] font-normal text-emerald-700">套打文凭纸 (Tanpa Bingkai)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Background Watermark & Top Crest Visibility Toggles -->
+            <div class="pt-2 border-t border-amber-200/80 space-y-1.5">
+              <label class="flex items-center justify-between text-xs text-slate-800 cursor-pointer">
+                <span class="font-semibold">显示中央背景校徽水印 (Tera Air Lencana)</span>
+                <input type="checkbox" id="input-showWatermark" checked onchange="updateState('showWatermark', this.checked)" class="rounded text-blue-900 w-4 h-4 cursor-pointer" />
+              </label>
+              <label class="flex items-center justify-between text-xs text-slate-700 cursor-pointer">
+                <span>隐藏顶部校徽（若文凭纸已预印校徽）</span>
+                <input type="checkbox" id="input-hideTopCrest" onchange="updateState('hideTopCrest', this.checked)" class="rounded text-blue-900 w-4 h-4 cursor-pointer" />
+              </label>
+            </div>
+
+            <div class="pt-2 border-t border-amber-200/80">
+              <div class="flex justify-between items-center text-xs mb-1">
+                <span class="font-bold text-slate-900">内容安全边距 (Jarak Selamat Teks)</span>
+                <span id="safe-margin-badge" class="font-mono font-bold text-blue-950 bg-white px-2 py-0.5 rounded-lg border border-amber-300 text-[11px]">22mm / 26mm</span>
+              </div>
+              <input type="range" id="input-safeMarginV" min="15" max="32" step="1" value="22" oninput="updateSafeMargin(Number(this.value))" class="w-full accent-blue-900 cursor-pointer" />
+              <p class="text-[10.5px] text-slate-600 mt-1 leading-relaxed">
+                上下边距 <strong id="safe-v-text">22mm</strong> • 左右边距 <strong id="safe-h-text">26mm</strong>（打印在文凭纸上时可微调以避开纸张花边）。
+              </p>
+            </div>
+          </div>
+
+          <!-- Language Mode Toggle -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2">
+            <h3 class="text-xs font-bold text-slate-900">证书语言模式 (Mod Bahasa Sijil)</h3>
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-2.5 p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-blue-900 has-[:checked]:bg-blue-50/50">
+                <input type="radio" name="langMode" value="bm" onchange="updateState('langMode', this.value)" class="text-blue-900 focus:ring-blue-800" />
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Bahasa Melayu Sahaja (KPM Rasmi)</div>
+                  <div class="text-[10.5px] text-slate-500">马来西亚教育部标准纯国文格式 (SK / SMK)</div>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-2.5 p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-blue-900 has-[:checked]:bg-blue-50/50">
+                <input type="radio" name="langMode" value="bm_zh" checked onchange="updateState('langMode', this.value)" class="text-blue-900 focus:ring-blue-800" />
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Dwibahasa: BM + 中文 (SJKC / SMJK)</div>
+                  <div class="text-[10.5px] text-slate-500">华校双语模式（同时显示马来文与中文校名、姓名及奖状内文）</div>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-2.5 p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-blue-900 has-[:checked]:bg-blue-50/50">
+                <input type="radio" name="langMode" value="bm_en" onchange="updateState('langMode', this.value)" class="text-blue-900 focus:ring-blue-800" />
+                <div>
+                  <div class="text-xs font-bold text-slate-900">Dwibahasa: BM + English (DLP / Private)</div>
+                  <div class="text-[10.5px] text-slate-500">双语课程学校、私立及国际学校模式</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 5 Official Color Themes -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2">
+            <label class="block text-xs font-bold text-slate-900">5 款官方典雅配色主题 (Tema Warna)</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <button type="button" data-theme-btn="navy" onclick="updateState('theme', 'navy')" class="theme-btn flex items-center gap-2 p-2 rounded-xl border-2 border-blue-900 bg-blue-50/50 text-left transition cursor-pointer">
+                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #0f294a 55%, #c59b27 55%);"></span>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-slate-900 truncate">Royal Navy</div>
+                  <div class="text-[9.5px] text-slate-500">皇室蓝</div>
+                </div>
+              </button>
+
+              <button type="button" data-theme-btn="emerald" onclick="updateState('theme', 'emerald')" class="theme-btn flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
+                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #064e3b 55%, #c59b27 55%);"></span>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-slate-900 truncate">Emerald Green</div>
+                  <div class="text-[9.5px] text-slate-500">翡翠绿</div>
+                </div>
+              </button>
+
+              <button type="button" data-theme-btn="maroon" onclick="updateState('theme', 'maroon')" class="theme-btn flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
+                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #7f1d1d 55%, #c59b27 55%);"></span>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-slate-900 truncate">Maroon &amp; Gold</div>
+                  <div class="text-[9.5px] text-slate-500">枣红金</div>
+                </div>
+              </button>
+
+              <button type="button" data-theme-btn="charcoal" onclick="updateState('theme', 'charcoal')" class="theme-btn flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
+                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #1e293b 55%, #b45309 55%);"></span>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-slate-900 truncate">Classic Charcoal</div>
+                  <div class="text-[9.5px] text-slate-500">经典黑金</div>
+                </div>
+              </button>
+
+              <button type="button" data-theme-btn="purple" onclick="updateState('theme', 'purple')" class="theme-btn flex items-center gap-2 p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
+                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #4c1d95 55%, #d97706 55%);"></span>
+                <div class="min-w-0">
+                  <div class="text-[11px] font-bold text-slate-900 truncate">Royal Purple</div>
+                  <div class="text-[9.5px] text-slate-500">紫罗兰</div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- School Crest (Lencana Sekolah) — Fixed 56px x 56px Thumbnail Container -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+            <div class="flex items-center gap-3">
+              <div id="logo-preview-thumb" class="w-14 h-14 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-1.5 shrink-0 overflow-hidden" style="width: 56px; height: 56px; min-width: 56px; min-height: 56px; max-width: 56px; max-height: 56px;">
+                <!-- Populated dynamically -->
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold text-slate-900">学校校徽 (Lencana Sekolah)</div>
+                <p class="text-[10.5px] text-slate-500">上传透明 PNG / JPG 或使用内置矢量盾牌校徽</p>
+                <div class="mt-1.5 flex items-center gap-2">
+                  <label class="px-2.5 py-1 rounded-lg bg-blue-950 hover:bg-blue-900 text-white text-[11px] font-semibold cursor-pointer transition">
+                    上传校徽
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'schoolLogo')" class="hidden" />
+                  </label>
+                  <button type="button" onclick="resetSchoolLogo()" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-medium transition cursor-pointer">
+                    恢复默认校徽
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-1 border-t border-slate-200/80">
+              <div class="flex justify-between text-[11px] text-slate-600 mb-1">
+                <span>校徽尺寸 (Saiz Lencana)</span>
+                <span id="logo-size-val" class="font-mono font-bold text-slate-900">22 mm</span>
+              </div>
+              <input type="range" min="16" max="32" step="1" value="22" oninput="updateState('logoSizeMm', Number(this.value)); document.getElementById('logo-size-val').textContent = this.value + ' mm';" class="w-full accent-blue-900 cursor-pointer" />
+            </div>
+          </div>
+
+          <!-- School Details Inputs -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2.5">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">School Name (BM)</label>
+              <input type="text" id="input-schoolName" oninput="updateState('schoolName', this.value)" value="SEKOLAH JENIS KEBANGSAAN (CINA) CHUNG HUA RANTAU" class="w-full px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">School Subtitle (中文 / EN)</label>
+              <input type="text" id="input-schoolNameSub" oninput="updateState('schoolNameSub', this.value)" value="晏斗中华国民型华文小学" class="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Kod Sekolah</label>
+                <input type="text" id="input-schoolCode" oninput="updateState('schoolCode', this.value)" value="NBC4067" class="w-full px-3 py-1.5 text-xs font-mono font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">No. Siri Permulaan</label>
+                <input type="text" id="input-noSijil" oninput="updateCurrentStudentField('noSijil', this.value)" value="SP/2026/001" class="w-full px-3 py-1.5 text-xs font-mono font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================================================================
+             TAB 2: 2. 职务活动与内容 (Jawatan / Penyertaan & Butiran)
+             ================================================================== -->
+        <section id="panel-role" class="tab-panel hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">职务 / 活动预设与内容</h2>
+              <p class="text-[11px] text-slate-500 mt-0.5">选择「表扬状/感谢状」职务或「参与活动奖状」模板</p>
+            </div>
+            <span id="student-idx-badge" class="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-blue-100 text-blue-950">#1 / 1</span>
+          </div>
+
+          <!-- Role & Participation Presets -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+            <div class="text-xs font-bold text-slate-900">一键预设模板 (Preset Jawatan &amp; Penyertaan)</div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-role-preset="pengawas" onclick="applyRolePreset('pengawas')" class="role-preset-btn p-2 rounded-xl border-2 border-blue-900 bg-blue-50/70 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-blue-950">🛡️ 巡察员 (表扬状)</div>
+                <div class="text-[10px] text-slate-600">Pengawas Sekolah</div>
+              </button>
+
+              <button type="button" data-role-preset="pss" onclick="applyRolePreset('pss')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">📚 图书管理员</div>
+                <div class="text-[10px] text-slate-600">Pengawas Pusat Sumber</div>
+              </button>
+
+              <button type="button" data-role-preset="ketua_kelas" onclick="applyRolePreset('ketua_kelas')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">🎖️ 班长</div>
+                <div class="text-[10px] text-slate-600">Ketua Kelas</div>
+              </button>
+
+              <button type="button" data-role-preset="penolong_ketua" onclick="applyRolePreset('penolong_ketua')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">🏅 副班长</div>
+                <div class="text-[10px] text-slate-600">Penolong Ketua Kelas</div>
+              </button>
+
+              <button type="button" data-role-preset="ajk_koku" onclick="applyRolePreset('ajk_koku')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">🏆 课外活动理事</div>
+                <div class="text-[10px] text-slate-600">AJK Kokurikulum</div>
+              </button>
+
+              <button type="button" data-role-preset="aktiviti" onclick="applyRolePreset('aktiviti')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">✨ 活动工委/主讲感谢状</div>
+                <div class="text-[10px] text-slate-600">Sijil Penghargaan Acara</div>
+              </button>
+
+              <!-- NEW: Sijil Penyertaan (Participation Certificate) Full-Width Button -->
+              <button type="button" data-role-preset="penyertaan" onclick="applyRolePreset('penyertaan')" class="role-preset-btn col-span-2 p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100/70 text-left transition cursor-pointer flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-emerald-950">📜 参与活动奖状 (Sijil Penyertaan)</div>
+                  <div class="text-[10px] text-emerald-800">适用于学生参与比赛、生活营、讲座工作坊、运动会等</div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-700 text-white shrink-0">参与奖状</span>
+              </button>
+            </div>
+
+            <!-- 4 Sub-Presets Revealed When "活动工委/主讲感谢状" Selected -->
+            <div id="aktiviti-subpresets" class="hidden pt-2 border-t border-slate-200 space-y-1.5">
+              <div class="text-[10.5px] font-bold text-indigo-900">选择感谢状活动身份：</div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" data-sub-preset="ajk_program" onclick="applySubPreset('ajk_program')" class="sub-preset-btn px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-[11px] font-semibold text-indigo-950 transition cursor-pointer">
+                  📋 活动工委 (AJK Program)
+                </button>
+                <button type="button" data-sub-preset="penceramah" onclick="applySubPreset('penceramah')" class="sub-preset-btn px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-[11px] font-semibold text-indigo-950 transition cursor-pointer">
+                  🎤 讲座主讲人 (Penceramah)
+                </button>
+                <button type="button" data-sub-preset="ajk_sukan" onclick="applySubPreset('ajk_sukan')" class="sub-preset-btn px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-[11px] font-semibold text-indigo-950 transition cursor-pointer">
+                  🏃 运动会工委 (AJK Sukan)
+                </button>
+                <button type="button" data-sub-preset="peserta" onclick="applySubPreset('peserta')" class="sub-preset-btn px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-[11px] font-semibold text-indigo-950 transition cursor-pointer">
+                  🌟 校队代表表扬 (Wakil Sekolah)
+                </button>
+              </div>
+            </div>
+
+            <!-- 4 Sub-Presets Revealed When "参与活动奖状 (Sijil Penyertaan)" Selected -->
+            <div id="penyertaan-subpresets" class="hidden pt-2 border-t border-emerald-200 space-y-1.5">
+              <div class="text-[10.5px] font-bold text-emerald-900">选择参与活动奖状类型（自动切换为 Sijil Penyertaan）：</div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button type="button" data-part-preset="part_pertandingan" onclick="applyParticipationPreset('part_pertandingan')" class="part-preset-btn px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-[11px] font-semibold text-emerald-950 transition cursor-pointer">
+                  🏆 比赛 / 竞赛参与
+                </button>
+                <button type="button" data-part-preset="part_kem" onclick="applyParticipationPreset('part_kem')" class="part-preset-btn px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-[11px] font-semibold text-emerald-950 transition cursor-pointer">
+                  ⛺ 生活营 / 领袖培训
+                </button>
+                <button type="button" data-part-preset="part_bengkel" onclick="applyParticipationPreset('part_bengkel')" class="part-preset-btn px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-[11px] font-semibold text-emerald-950 transition cursor-pointer">
+                  📚 讲座 / 学习工作坊
+                </button>
+                <button type="button" data-part-preset="part_sukan" onclick="applyParticipationPreset('part_sukan')" class="part-preset-btn px-2.5 py-1.5 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-[11px] font-semibold text-emerald-950 transition cursor-pointer">
+                  🏃 运动会 / 体育赛事
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recipient Details Form -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2.5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Penerima (BM)</label>
+                <input type="text" id="input-namaBm" oninput="updateCurrentStudentField('namaBm', this.value)" value="TAN WEI MING" class="w-full px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Cina (中文姓名)</label>
+                <input type="text" id="input-namaCina" oninput="updateCurrentStudentField('namaCina', this.value)" value="陈伟明" class="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
+              </div>
+            </div>
+
+            <!-- Optional No. KP / Kelas / Unit with Show/Hide Toggle -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-xs font-semibold text-slate-700">No. KP / Kelas / Unit</label>
+                <label class="inline-flex items-center gap-1.5 text-[11px] text-slate-600 cursor-pointer">
+                  <input type="checkbox" id="input-showKpKelas" checked onchange="updateState('showKpKelas', this.checked)" class="rounded text-blue-900" />
+                  <span>在证书显示此栏</span>
+                </label>
+              </div>
+              <input type="text" id="input-noKpKelas" oninput="updateCurrentStudentField('noKpKelas', this.value)" value="140518-05-1234 • Kelas 6 Bestari" class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" placeholder="例如：140518-05-1234 • Kelas 6 Bestari" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label id="label-jawatan-aktiviti" class="block text-xs font-semibold text-slate-700 mb-1">Jawatan / Peranan (职务)</label>
+                <input type="text" id="input-jawatan" oninput="updateCurrentStudentField('jawatan', this.value)" value="PENGAWAS SEKOLAH / 巡察员" class="w-full px-3 py-1.5 text-xs font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
+              </div>
+              <div>
+                <label id="label-program-sesi" class="block text-xs font-semibold text-slate-700 mb-1">Nama Program / Sesi</label>
+                <input type="text" id="input-programSesi" oninput="updateCurrentStudentField('programSesi', this.value)" value="Sesi Persekolahan Tahun 2026" class="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Teks Sijil BM (马来文内文)</label>
+              <textarea id="input-teksBm" rows="2" oninput="updateCurrentStudentField('teksBm', this.value)" class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none leading-relaxed">atas jasa bakti, komitmen tinggi serta dedikasi cemerlang dalam menjalankan tugas dan tanggungjawab yang diamanahkan sepanjang sesi persekolahan ini.</textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Teks Sijil 中文 / EN (双语副文)</label>
+              <textarea id="input-teksSub" rows="2" oninput="updateCurrentStudentField('teksSub', this.value)" class="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none leading-relaxed">感谢您在任期间尽忠职守、热心服务，为维护校园纪律与校风做出积极贡献，特颁此状，以资表扬。</textarea>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================================================================
+             TAB 3: 3. 签名与校章 (Tandatangan & Cop)
+             ================================================================== -->
+        <section id="panel-signatory" class="tab-panel hidden space-y-4">
+          
+          <!-- Left Signatory Toggle Card -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-slate-900">左侧签署人处 (Penandatangan Kiri)</div>
+                <div class="text-[10.5px] text-slate-500">可选择显示或隐藏左侧副校长/顾问签署栏</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="left-sig-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">已隐藏</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="input-enableLeftSignatory" onchange="toggleLeftSignatory(this.checked)" class="sr-only peer" />
+                  <div class="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-700"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date of Issue (Placed Under Signatory Title) & Official School Stamp -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-slate-900">Tarikh Dikeluarkan (颁发日期)</label>
+                <span class="text-[10px] text-slate-500">显示在签署人职称下方</span>
+              </div>
+              <input type="text" id="input-tarikh" oninput="updateCurrentStudentField('tarikh', this.value)" value="14 November 2026" class="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
+
+              <!-- Date Column Selector (Visible when Left Signatory is enabled) -->
+              <div id="date-position-row" class="hidden pt-1">
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">日期放置位置 (Kedudukan Tarikh)</label>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button type="button" data-date-pos="right" onclick="updateState('datePosition', 'right')" class="date-pos-btn py-1.5 px-2 rounded-lg border-2 border-blue-900 bg-blue-50/70 text-[11px] font-bold text-blue-950 transition cursor-pointer">
+                    主签署人职称下方
+                  </button>
+                  <button type="button" data-date-pos="left" onclick="updateState('datePosition', 'left')" class="date-pos-btn py-1.5 px-2 rounded-lg border border-slate-200 bg-white text-[11px] font-medium text-slate-700 transition cursor-pointer">
+                    左侧签署人职称下方
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Official School Stamp Toggle & Controls -->
+            <div class="pt-2.5 border-t border-slate-100 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-bold text-slate-900">显示学校盖章 (Cop Rasmi Sekolah)</div>
+                  <div class="text-[10.5px] text-slate-500">关闭后证书上完全隐藏盖章及虚线圆框</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="stamp-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">已显示</span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="input-showStamp" checked onchange="updateState('showStamp', this.checked)" class="sr-only peer" />
+                    <div class="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-900"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div id="stamp-controls-box" class="space-y-2.5">
+                <div class="flex items-center gap-2">
+                  <label class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 text-[11px] font-semibold cursor-pointer transition">
+                    上传电子校章 (PNG)
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'stampImg')" class="hidden" />
+                  </label>
+                  <button type="button" onclick="clearCustomImage('stampImg')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 text-[11px] transition cursor-pointer">
+                    恢复虚线盖章框
+                  </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-[11px] text-slate-600">
+                  <div>
+                    <div class="flex justify-between mb-1">
+                      <span>校章大小</span>
+                      <span id="stamp-size-lbl" class="font-mono font-semibold text-slate-900">24 mm</span>
+                    </div>
+                    <input type="range" min="18" max="40" value="24" oninput="updateState('stampSize', Number(this.value)); document.getElementById('stamp-size-lbl').textContent = this.value + ' mm';" class="w-full accent-blue-900 cursor-pointer" />
+                  </div>
+                  <div>
+                    <div class="flex justify-between mb-1">
+                      <span>上下微调</span>
+                      <span id="stamp-offset-lbl" class="font-mono font-semibold text-slate-900">0 px</span>
+                    </div>
+                    <input type="range" min="-24" max="24" value="0" oninput="updateState('stampOffset', Number(this.value)); document.getElementById('stamp-offset-lbl').textContent = this.value + ' px';" class="w-full accent-blue-900 cursor-pointer" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Signatory (Right) -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-900">主签署人 (校长 / 主办方 — 右侧)</span>
+              <label class="inline-flex items-center gap-1.5 text-[11px] text-slate-600 cursor-pointer">
+                <input type="checkbox" id="input-sigMultiply" checked onchange="updateState('sigMultiply', this.checked)" class="rounded text-blue-900" />
+                <span>自动去白底</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">姓名 (Nama)</label>
+                <input type="text" id="input-principalName" oninput="updateState('principalName', this.value)" value="WONG SIEW LAN" class="w-full px-2.5 py-1.5 text-xs font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">职称 (BM &amp; 中文/EN)</label>
+                <input type="text" id="input-principalTitle" oninput="updateState('principalTitle', this.value)" value="Guru Besar / 校长" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-0.5">
+              <label class="px-3 py-1.5 rounded-lg bg-blue-950 hover:bg-blue-900 text-white text-[11px] font-semibold cursor-pointer transition">
+                上传电子签名 (PNG)
+                <input type="file" accept="image/*" onchange="handleImageUpload(event, 'sigImg')" class="hidden" />
+              </label>
+              <button type="button" onclick="clearCustomImage('sigImg')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] transition cursor-pointer">
+                清除
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-1.5 border-t border-slate-100 text-[11px] text-slate-600">
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>签名大小</span>
+                  <span id="sig-size-lbl" class="font-mono font-semibold text-slate-900">15 mm</span>
+                </div>
+                <input type="range" min="11" max="28" value="15" oninput="updateState('sigSize', Number(this.value)); document.getElementById('sig-size-lbl').textContent = this.value + ' mm';" class="w-full accent-blue-900 cursor-pointer" />
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>上下微调</span>
+                  <span id="sig-offset-lbl" class="font-mono font-semibold text-slate-900">0 px</span>
+                </div>
+                <input type="range" min="-24" max="24" value="0" oninput="updateState('sigOffset', Number(this.value)); document.getElementById('sig-offset-lbl').textContent = this.value + ' px';" class="w-full accent-blue-900 cursor-pointer" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Signatory (Left, when enabled) -->
+          <div id="left-signatory-card" class="hidden p-3.5 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-indigo-950">左侧签署人设置 (Penandatangan Kiri)</span>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-white text-indigo-800 border border-indigo-200">左侧栏位</span>
+            </div>
+
+            <!-- Quick Left Signatory Title Presets -->
+            <div class="flex flex-wrap gap-1">
+              <button type="button" onclick="applyLeftTitlePreset('GPK Hal Ehwal Murid / 副校长')" class="px-2 py-1 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-semibold text-indigo-950 transition cursor-pointer">学生事务副校长</button>
+              <button type="button" onclick="applyLeftTitlePreset('GPK Pentadbiran / 行政副校长')" class="px-2 py-1 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-semibold text-indigo-950 transition cursor-pointer">行政副校长</button>
+              <button type="button" onclick="applyLeftTitlePreset('GPK Kokurikulum / 课外活动副校长')" class="px-2 py-1 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-semibold text-indigo-950 transition cursor-pointer">课外活动副校长</button>
+              <button type="button" onclick="applyLeftTitlePreset('Guru Penasihat / 顾问老师')" class="px-2 py-1 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-[10px] font-semibold text-indigo-950 transition cursor-pointer">顾问老师</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">姓名 (Nama)</label>
+                <input type="text" id="input-sigLeftName" oninput="updateState('sigLeftName', this.value)" value="LIM KAH WAI" class="w-full px-2.5 py-1.5 text-xs font-bold rounded-xl border border-slate-300 bg-white outline-none uppercase" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">职称 (BM &amp; 中文/EN)</label>
+                <input type="text" id="input-sigLeftTitle" oninput="updateState('sigLeftTitle', this.value)" value="GPK Hal Ehwal Murid / 副校长" class="w-full px-2.5 py-1.5 text-xs rounded-xl border border-slate-300 bg-white outline-none" />
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label class="px-3 py-1.5 rounded-lg bg-indigo-800 hover:bg-indigo-700 text-white text-[11px] font-semibold cursor-pointer transition">
+                上传左侧签名 (PNG)
+                <input type="file" accept="image/*" onchange="handleImageUpload(event, 'sigLeftImg')" class="hidden" />
+              </label>
+              <button type="button" onclick="clearCustomImage('sigLeftImg')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] transition cursor-pointer">
+                清除
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-1.5 border-t border-indigo-200/70 text-[11px] text-slate-600">
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>左侧签名大小</span>
+                  <span id="sig-left-size-lbl" class="font-mono font-semibold text-slate-900">15 mm</span>
+                </div>
+                <input type="range" min="11" max="28" value="15" oninput="updateState('sigLeftSize', Number(this.value)); document.getElementById('sig-left-size-lbl').textContent = this.value + ' mm';" class="w-full accent-indigo-800 cursor-pointer" />
+              </div>
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>左侧上下微调</span>
+                  <span id="sig-left-offset-lbl" class="font-mono font-semibold text-slate-900">0 px</span>
+                </div>
+                <input type="range" min="-24" max="24" value="0" oninput="updateState('sigLeftOffset', Number(this.value)); document.getElementById('sig-left-offset-lbl').textContent = this.value + ' px';" class="w-full accent-indigo-800 cursor-pointer" />
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </aside>
+
+    <!-- ======================================================================
+         RIGHT LIVE A4 PREVIEW PANEL
+         ====================================================================== -->
+    <section class="flex-1 preview-workspace relative flex flex-col overflow-hidden">
+      
+      <!-- Top Preview Toolbar -->
+      <div class="bg-white/95 backdrop-blur-xs border-b border-slate-200 px-3 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 z-10 shrink-0">
+        <div class="flex items-center gap-2 text-xs text-slate-600">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span id="preview-dim-label" class="font-semibold text-slate-800">实时 A4 竖版预览 (210mm × 297mm)</span>
+        </div>
+
+        <!-- Batch Student Switcher Pill (Shown when > 1 student imported) -->
+        <div id="preview-batch-nav" class="hidden items-center gap-1 bg-indigo-50 border border-indigo-200 px-2 py-1 rounded-xl">
+          <button type="button" onclick="navigateStudent(-1)" class="px-2 py-0.5 rounded-lg hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition cursor-pointer">
+            &lt; 上一位
+          </button>
+          <span class="text-xs font-bold text-indigo-950 px-2">
+            第 <span id="nav-idx-display">1</span> / <span id="nav-total-display">1</span> 位
+          </span>
+          <button type="button" onclick="navigateStudent(1)" class="px-2 py-0.5 rounded-lg hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition cursor-pointer">
+            下一位 &gt;
+          </button>
+        </div>
+
+        <!-- Zoom Controls: 适应窗口, 75%, 100%, -, + -->
+        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <button type="button" id="btn-zoom-fit" onclick="setZoomMode('fit')" class="zoom-preset-btn px-2 py-1 text-[11px] font-semibold rounded-lg bg-white shadow-2xs text-slate-900 transition cursor-pointer">适应窗口</button>
+          <button type="button" id="btn-zoom-75" onclick="setZoomMode('75')" class="zoom-preset-btn px-2 py-1 text-[11px] font-medium rounded-lg hover:bg-white text-slate-700 transition cursor-pointer">75%</button>
+          <button type="button" id="btn-zoom-100" onclick="setZoomMode('100')" class="zoom-preset-btn px-2 py-1 text-[11px] font-medium rounded-lg hover:bg-white text-slate-700 transition cursor-pointer">100%</button>
+          <div class="w-[1px] h-3.5 bg-slate-300 mx-0.5"></div>
+          <button type="button" onclick="stepZoom(-0.1)" title="缩小" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 font-bold text-xs transition cursor-pointer">-</button>
+          <span id="zoom-pct-label" class="text-[10.5px] font-mono font-semibold text-slate-700 w-9 text-center">75%</span>
+          <button type="button" onclick="stepZoom(0.1)" title="放大" class="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 font-bold text-xs transition cursor-pointer">+</button>
+        </div>
+      </div>
+
+      <!-- Centered Scaled A4 Stage -->
+      <div id="preview-scroll-stage" class="flex-1 overflow-auto p-4 sm:p-6 flex justify-center items-start">
+        <div id="a4-outer-box" class="shadow-2xl transition-all duration-150">
+          <div id="live-certificate-mount"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       3. BATCH CSV MODAL (批量 CSV 模板下载与上传) (NO-PRINT)
+       ======================================================================== -->
+  <div id="batch-csv-modal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/55 backdrop-blur-xs p-3 sm:p-5" onclick="if(event.target === this) closeBatchModal()">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm sm:text-base font-bold text-slate-900">批量 CSV 模板下载与上传 (表扬状 / 参与奖状)</h2>
+            <p class="text-[11px] text-slate-500">支持 Excel UTF-8 BOM 防乱码模板、职务/活动智能匹配内文与一键批量导出多页 A4 PDF</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeBatchModal()" class="w-8 h-8 rounded-xl hover:bg-slate-200/80 flex items-center justify-center text-slate-600 font-bold text-lg transition cursor-pointer" aria-label="关闭弹窗">&times;</button>
+      </div>
+
+      <!-- Modal Scrollable Content -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-4">
+        
+        <!-- Step 1: Download Excel-Compatible CSV Template -->
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50/70 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-emerald-700 text-white text-[10px] font-bold">步骤 1</span>
+              <h3 class="text-xs sm:text-sm font-bold text-emerald-950">下载 Excel 兼容 CSV 模板</h3>
+            </div>
+            <p class="text-[11px] text-emerald-800 leading-relaxed">
+              下载 <code class="font-mono font-bold">templat_sijil_sekolah.csv</code>（含职务表扬与活动参与示例，内置 UTF-8 BOM 防中文乱码）。
+            </p>
+          </div>
+          <button type="button" onclick="downloadExcelCsvTemplate()" class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>下载 Excel 兼容 CSV 模板</span>
+          </button>
+        </div>
+
+        <!-- Step 2 & Step 3 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded bg-indigo-700 text-white text-[10px] font-bold">步骤 2</span>
+                <span class="text-xs font-bold text-slate-900">上传 .CSV 文件或粘贴表格</span>
+              </div>
+              <button type="button" onclick="loadSampleIntoModal()" class="text-[11px] font-semibold text-indigo-700 hover:underline cursor-pointer">
+                加载 6 人示例
+              </button>
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div id="csv-dropzone" class="relative border-2 border-dashed border-indigo-300 hover:border-indigo-500 bg-indigo-50/40 hover:bg-indigo-50/80 rounded-2xl p-4 text-center transition cursor-pointer">
+              <input type="file" id="csv-file-input" accept=".csv,text/csv" onchange="handleCsvFileSelect(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+              <div class="flex flex-col items-center justify-center pointer-events-none">
+                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center mb-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+                <div class="text-xs font-bold text-indigo-950">点击选择或拖拽 <span class="underline">.CSV 文件</span> 到此处</div>
+                <div class="text-[10px] text-slate-500 mt-0.5">支持 UTF-8 / GBK 编码 • 留空内文自动根据职务/活动关键词填充</div>
+              </div>
+            </div>
+
+            <textarea id="batch-csv-textarea" rows="4" class="w-full px-3 py-2 text-[10.5px] font-mono rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-600 outline-none leading-relaxed" placeholder="No_Sijil,Nama_BM,Nama_Cina,No_KP_Kelas,Jawatan_Peranan,Program_Sesi,Teks_BM,Teks_Sub,Tarikh"></textarea>
+
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="parseAndImportCsvText(document.getElementById('batch-csv-textarea').value)" class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                解析并导入名单
+              </button>
+              <button type="button" onclick="resetBatchToSingle()" class="py-2 px-3 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium transition cursor-pointer">
+                重置为 1 人
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Interactive Imported Recipients List -->
+          <div class="flex flex-col space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded bg-blue-950 text-white text-[10px] font-bold">步骤 3</span>
+                <span class="text-xs font-bold text-slate-900">已导入名单 (<span id="batch-count-label" class="text-indigo-700">1</span> 位)</span>
+              </div>
+              <span class="text-[10.5px] text-slate-500">点击可在 A4 画布预览</span>
+            </div>
+
+            <div id="batch-student-roster" class="flex-1 min-h-[210px] max-h-[260px] overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-2xl bg-slate-50/40">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
+        <button type="button" onclick="closeBatchModal()" class="px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer">
+          关闭窗口
+        </button>
+        <button type="button" onclick="closeBatchModal(); triggerPrint('batch');" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-950 hover:bg-blue-900 text-white text-xs font-bold shadow-sm transition cursor-pointer">
+          <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          <span>批量打印全部证书 (PDF) (<span id="batch-print-btn-num">1</span> 页)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       4. DEDICATED PRINT & PNG CAPTURE MOUNTS
+       ======================================================================== -->
+  <div id="print-mount-single" class="hidden"></div>
+  <div id="print-mount-batch" class="hidden"></div>
+  <div id="png-capture-stage" class="fixed -left-[9999px] top-0 pointer-events-none"></div>
+
+  <!-- ========================================================================
+       5. NON-INTRUSIVE TOAST NOTIFICATION
+       ======================================================================== -->
+  <div id="toast-box" class="no-print fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-medium flex items-center gap-2.5 border border-slate-700">
+      <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+      <span id="toast-text">已更新</span>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       6. APPLICATION LOGIC, PRESETS, CSV ENGINE & A4 RENDERER
+       ======================================================================== -->
+  <script>
+    // ------------------------------------------------------------------------
+    // A. BUILT-IN VECTOR SCHOOL CREST SVG & 5 OFFICIAL COLOR THEMES
+    // ------------------------------------------------------------------------
+    const DEFAULT_CREST_SVG = `
+      <svg viewBox="0 0 120 120" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="crestPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1e3a8a" />
+            <stop offset="100%" stop-color="#0f172a" />
+          </linearGradient>
+          <linearGradient id="crestGold" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f59e0b" />
+            <stop offset="50%" stop-color="#d97706" />
+            <stop offset="100%" stop-color="#b45309" />
+          </linearGradient>
+        </defs>
+        <circle cx="60" cy="60" r="54" fill="none" stroke="url(#crestGold)" stroke-width="2" stroke-dasharray="3 2" />
+        <circle cx="60" cy="60" r="49" fill="none" stroke="url(#crestGold)" stroke-width="1" />
+        <path d="M30 28 H90 V58 C90 80 60 95 60 95 C60 95 30 80 30 58 Z" fill="url(#crestPrimary)" stroke="url(#crestGold)" stroke-width="3" />
+        <path d="M57 42 H63 L61 63 H59 Z" fill="#fbbf24" />
+        <path d="M60 29 C64 34 65 39 60 42 C55 39 56 34 60 29 Z" fill="#ef4444" />
+        <path d="M60 32 C62 35 63 38 60 40 C57 38 58 35 60 32 Z" fill="#fde047" />
+        <path d="M40 65 Q50 61 60 66 Q70 61 80 65 V76 Q70 72 60 77 Q50 72 40 76 Z" fill="#ffffff" stroke="#d97706" stroke-width="1.2" />
+        <line x1="60" y1="66" x2="60" y2="77" stroke="#d97706" stroke-width="1.2" />
+        <polygon points="60,81 61.8,85 66,85.3 62.8,88 63.8,92 60,89.8 56.2,92 57.2,88 54,85.3 58.2,85" fill="#fbbf24" />
+      </svg>
+    `;
+
+    const THEMES = {
+      navy: {
+        primary: '#0f294a',
+        primaryDark: '#09192f',
+        accent: '#c59b27',
+        accentLight: '#f6ecd6',
+        tintBg: '#f8fafc',
+        watermarkOpacity: '0.045'
+      },
+      emerald: {
+        primary: '#064e3b',
+        primaryDark: '#022c22',
+        accent: '#c59b27',
+        accentLight: '#f4ebd5',
+        tintBg: '#f5fbf8',
+        watermarkOpacity: '0.045'
+      },
+      maroon: {
+        primary: '#7f1d1d',
+        primaryDark: '#450a0a',
+        accent: '#c59b27',
+        accentLight: '#f6ebd7',
+        tintBg: '#fdf8f8',
+        watermarkOpacity: '0.045'
+      },
+      charcoal: {
+        primary: '#1e293b',
+        primaryDark: '#0f172a',
+        accent: '#b45309',
+        accentLight: '#fef3c7',
+        tintBg: '#fafafa',
+        watermarkOpacity: '0.04'
+      },
+      purple: {
+        primary: '#4c1d95',
+        primaryDark: '#2e1065',
+        accent: '#d97706',
+        accentLight: '#fef3c7',
+        tintBg: '#faf8ff',
+        watermarkOpacity: '0.045'
+      }
+    };
+
+    // ------------------------------------------------------------------------
+    // B. ROLE & PARTICIPATION PRESETS (WITH BM, ZH & EN TEXTS)
+    // ------------------------------------------------------------------------
+    const ROLE_PRESETS = {
+      // --- SIJIL PENGHARGAAN (表扬状 / 感谢状) ---
+      pengawas: {
+        certType: 'penghargaan',
+        jawatan: 'PENGAWAS SEKOLAH / 巡察员',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas jasa bakti, komitmen tinggi serta dedikasi cemerlang dalam menjalankan tugas dan tanggungjawab yang diamanahkan sepanjang sesi persekolahan ini.',
+        teksZh: '感谢您在任期间尽忠职守、热心服务，为维护校园纪律与校风做出积极贡献，特颁此状，以资表扬。',
+        teksEn: 'in grateful appreciation of your exemplary leadership, discipline, and dedicated service to the school community throughout the academic session.'
+      },
+      pss: {
+        certType: 'penghargaan',
+        jawatan: 'PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas sumbangan bakti, kerajinan dan komitmen tinggi dalam membantu pengurusan Pusat Sumber Sekolah serta memupuk budaya membaca dalam kalangan murid.',
+        teksZh: '感谢您在任期间认真负责、热心协助图书馆管理工作与推广阅读风气，特颁此状，以资表扬。',
+        teksEn: 'in appreciation of your diligent service, commitment, and valuable contribution in managing the School Resource Centre and promoting reading culture.'
+      },
+      ketua_kelas: {
+        certType: 'penghargaan',
+        jawatan: 'KETUA KELAS / 班长',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas kepimpinan berwibawa, sikap bertanggungjawab serta kerjasama erat dalam membantu guru mengurus disiplin dan kebajikan murid kelas.',
+        teksZh: '感谢您在任期间以身作则、认真负责，积极协助师长管理班级事务与团结同学，特颁此状，以资表扬。',
+        teksEn: 'in recognition of your responsible leadership, dedication, and continuous support in assisting teachers and fostering class harmony.'
+      },
+      penolong_ketua: {
+        certType: 'penghargaan',
+        jawatan: 'PENOLONG KETUA KELAS / 副班长',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas sokongan padu, sikap prihatin dan kerjasama cemerlang dalam membantu Ketua Kelas serta guru melaksanakan tugas harian kelas dengan lancar.',
+        teksZh: '感谢您在任期间尽心尽力协助班长与师长处理班级日常事务，热心服务同学，特颁此状，以资表扬。',
+        teksEn: 'in appreciation of your dedication, teamwork, and reliable assistance to the Class Monitor and teachers throughout the school year.'
+      },
+      ajk_koku: {
+        certType: 'penghargaan',
+        jawatan: 'AHLI JAWATANKUASA KOKURIKULUM / 课外活动理事',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas penglibatan aktif, semangat berpasukan dan sumbangan cemerlang dalam menjayakan aktiviti unit beruniform, kelab dan persatuan sekolah.',
+        teksZh: '感谢您积极参与并协助筹办各项制服团体与学会活动，展现卓越的团队精神与领导能力，特颁此状，以资表扬。',
+        teksEn: 'in recognition of your active participation, teamwork, and commendable contribution to school co-curricular activities.'
+      },
+      ajk_program: {
+        certType: 'penghargaan',
+        jawatan: 'AHLI JAWATANKUASA PELAKSANA / 活动工委',
+        programSesi: 'Program Kecemerlangan Sekolah 2026',
+        teksBm: 'atas kerjasama erat, komitmen tinggi dan sumbangan tenaga dalam menjayakan majlis dan program sekolah ini dengan cemerlang.',
+        teksZh: '感谢您在本校活动中热心参与、统筹协助，使活动得以圆满成功举行，特颁此状，谨致谢忱。',
+        teksEn: 'in sincere appreciation of your dedication, teamwork, and invaluable support towards the successful organization of this school event.'
+      },
+      penceramah: {
+        certType: 'penghargaan',
+        jawatan: 'PENCERAMAH JEMPUTAN / 讲座主讲人',
+        programSesi: 'Ceramah Motivasi & Perkongsian Ilmu 2026',
+        teksBm: 'setinggi-tinggi penghargaan dan terima kasih atas kesudian meluangkan masa menyampaikan ceramah serta perkongsian ilmu yang amat bermanfaat kepada warga sekolah.',
+        teksZh: '衷心感谢您拨冗莅临本校担任主讲嘉宾，倾囊相授宝贵经验与知识，令全体师生获益良多，特颁此状，谨致谢忱。',
+        teksEn: 'with deepest gratitude for generously sharing your expertise, time, and inspiring insights with our students and school community.'
+      },
+      ajk_sukan: {
+        certType: 'penghargaan',
+        jawatan: 'AHLI JAWATANKUASA KEJOHANAN SUKAN / 运动会工委',
+        programSesi: 'Kejohanan Sukan Tahunan Sekolah 2026',
+        teksBm: 'atas dedikasi, semangat kesukanan serta kerjasama padu dalam mengurus dan menjayakan Kejohanan Sukan Tahunan Sekolah dengan lancar.',
+        teksZh: '感谢您在本校常年运动会期间辛勤付出、协调配合，确保各项赛事顺利圆满完成，特颁此状，谨致谢忱。',
+        teksEn: 'in appreciation of your hard work, sportsmanship, and dedicated service in ensuring the smooth running of the Annual School Sports Day.'
+      },
+      peserta: {
+        certType: 'penghargaan',
+        jawatan: 'PESERTA / WAKIL SEKOLAH / 校队代表',
+        programSesi: 'Pertandingan Koakademik & Sukan Peringkat Daerah 2026',
+        teksBm: 'atas penyertaan aktif, semangat juang yang tinggi serta komitmen mengharumkan nama sekolah dalam pertandingan yang disertai.',
+        teksZh: '感谢您积极代表本校参加比赛，展现拼搏精神与优良风范，为校争光，特颁此状，以资表扬。',
+        teksEn: 'in recognition of your active participation, determination, and commendable effort in representing the school.'
+      },
+
+      // --- SIJIL PENYERTAAN (参与活动奖状) ---
+      part_pertandingan: {
+        certType: 'penyertaan',
+        jawatan: 'PERTANDINGAN KOAKADEMIK & KESENIAN / 校际学术与才艺比赛',
+        programSesi: 'Peringkat Sekolah / Daerah Tahun 2026',
+        teksBm: 'dengan penuh komitmen, semangat daya saing yang sihat serta kesungguhan yang tinggi dalam menjayakan pertandingan ini.',
+        teksZh: '感谢您积极参与上述比赛，展现优良的学习精神与奋发向上的态度，特颁此状，以资鼓励。',
+        teksEn: 'for active participation, enthusiasm, and commendable sportsmanship demonstrated throughout the competition.'
+      },
+      part_kem: {
+        certType: 'penyertaan',
+        jawatan: 'KEM KEPIMPINAN & JATI DIRI MURID / 领袖培训生活营',
+        programSesi: 'Anjuran Unit Hal Ehwal Murid & Kokurikulum 2026',
+        teksBm: 'dengan penuh disiplin, semangat berpasukan serta komitmen tinggi sepanjang mengikuti semua aktiviti dan modul yang dijalankan.',
+        teksZh: '感谢您全程积极参与生活营各项训练与团队活动，展现自律与合作精神，特颁此状，以资鼓励。',
+        teksEn: 'for active participation, discipline, and strong teamwork throughout all sessions and activities of the leadership camp.'
+      },
+      part_bengkel: {
+        certType: 'penyertaan',
+        jawatan: 'BENGKEL & CERAMAH MOTIVASI / 激励讲座与学习工作坊',
+        programSesi: 'Program Kecemerlangan Murid Tahun 2026',
+        teksBm: 'dengan penuh perhatian, minat mendalam serta penglibatan aktif sepanjang bengkel dan sesi perkongsian ilmu ini berlangsung.',
+        teksZh: '感谢您踊跃出席并积极参与本次讲座与工作坊学习活动，虚心求进，特颁此状，以资鼓励。',
+        teksEn: 'for attentive attendance and active engagement throughout the workshop and knowledge-sharing session.'
+      },
+      part_sukan: {
+        certType: 'penyertaan',
+        jawatan: 'KEJOHANAN SUKAN & OLAHRAGA SEKOLAH / 常年运动会',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'dengan penuh semangat kesukanan, kegigihan serta kerjasama berpasukan dalam menjayakan acara sukan sekolah ini.',
+        teksZh: '感谢您积极参与本校常年运动会各项赛事，发扬团结拼搏的体育精神，特颁此状，以资鼓励。',
+        teksEn: 'for active participation, perseverance, and exemplary sportsmanship during the Annual School Sports Day.'
+      }
+    };
+
+    // ------------------------------------------------------------------------
+    // C. CSV HEADERS & 6 REALISTIC MALAYSIAN SAMPLE ROWS
+    // ------------------------------------------------------------------------
+    const CSV_HEADERS = [
+      'No_Sijil',
+      'Nama_BM',
+      'Nama_Cina',
+      'No_KP_Kelas',
+      'Jawatan_Peranan',
+      'Program_Sesi',
+      'Teks_BM',
+      'Teks_Sub',
+      'Tarikh'
+    ];
+
+    const SAMPLE_CSV_ROWS = [
+      [
+        'SP/2026/001',
+        'TAN WEI MING',
+        '陈伟明',
+        '140518-05-1234 • Kelas 6 Bestari',
+        'PENGAWAS SEKOLAH / 巡察员',
+        'Sesi Persekolahan Tahun 2026',
+        ROLE_PRESETS.pengawas.teksBm,
+        ROLE_PRESETS.pengawas.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SP/2026/002',
+        'NUR AISYAH BINTI AHMAD',
+        '',
+        '140822-05-5678 • Kelas 6 Bestari',
+        'PENGAWAS PUSAT SUMBER / 图书管理员',
+        'Sesi Persekolahan Tahun 2026',
+        ROLE_PRESETS.pss.teksBm,
+        ROLE_PRESETS.pss.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SP/2026/003',
+        'LIM XIN YI',
+        '林欣怡',
+        '141103-05-9012 • Kelas 6 Cemerlang',
+        'KETUA KELAS / 班长',
+        'Sesi Persekolahan Tahun 2026',
+        ROLE_PRESETS.ketua_kelas.teksBm,
+        ROLE_PRESETS.ketua_kelas.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SP/2026/004',
+        'KAVITHA A/P RAJAN',
+        '',
+        '140214-05-3456 • Kelas 6 Cemerlang',
+        'PENOLONG KETUA KELAS / 副班长',
+        'Sesi Persekolahan Tahun 2026',
+        ROLE_PRESETS.penolong_ketua.teksBm,
+        ROLE_PRESETS.penolong_ketua.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SP/2026/005',
+        'WONG JUN JIE',
+        '黄俊杰',
+        '150309-05-7890 • Kelas 5 Bijak',
+        'KEM KEPIMPINAN MURID / 领袖培训生活营',
+        'Anjuran Unit Hal Ehwal Murid 2026',
+        ROLE_PRESETS.part_kem.teksBm,
+        ROLE_PRESETS.part_kem.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SP/2026/006',
+        'MUHAMMAD DANISH BIN ZULKIFLI',
+        '',
+        '140912-05-2468 • Kelas 6 Pintar',
+        'PERTANDINGAN BERCERITA BM / 华小国语讲故事比赛',
+        'Peringkat Sekolah Tahun 2026',
+        ROLE_PRESETS.part_pertandingan.teksBm,
+        ROLE_PRESETS.part_pertandingan.teksZh,
+        '14 November 2026'
+      ]
+    ];
+
+    // ------------------------------------------------------------------------
+    // D. APPLICATION STATE
+    // ------------------------------------------------------------------------
+    const appState = {
+      certType: 'penghargaan',    // 'penghargaan' (表扬状/感谢状) | 'penyertaan' (参与活动奖状)
+      orientation: 'portrait',    // 'portrait' (210x297mm) | 'landscape' (297x210mm)
+      langMode: 'bm_zh',          // 'bm' | 'bm_zh' | 'bm_en'
+      theme: 'navy',
+      cornerStyle: 'songket',     // 'songket' | 'double' | 'minimal' | 'none' (Pure Content Pre-Printed Mode)
+      showWatermark: true,        // Center background crest watermark
+      hideTopCrest: false,        // Optional hide top crest if pre-printed sijil paper already has crest
+      safeMarginV: 22,            // 15mm to 32mm (default 22mm); horizontal = safeMarginV + 4mm (26mm)
+
+      // School Identity
+      schoolLogo: null,
+      logoSizeMm: 22,
+      kpmHeaderText: 'KEMENTERIAN PENDIDIKAN MALAYSIA',
+      schoolName: 'SEKOLAH JENIS KEBANGSAAN (CINA) CHUNG HUA RANTAU',
+      schoolNameSub: '晏斗中华国民型华文小学',
+      schoolCode: 'NBC4067',
+
+      // Role & Participation Preset Active Tracking
+      activePreset: 'pengawas',
+      activeSubPreset: 'ajk_program',
+      activePartPreset: 'part_pertandingan',
+      showKpKelas: true,
+
+      // Signatory & Stamp
+      enableLeftSignatory: false, // Toggleable Left Signatory section
+      datePosition: 'right',      // 'right' (under Principal title) | 'left' (under Left Signatory title)
+      principalName: 'WONG SIEW LAN',
+      principalTitle: 'Guru Besar / 校长',
+      sigImg: null,
+      sigSize: 15,
+      sigOffset: 0,
+      sigMultiply: true,
+
+      sigLeftName: 'LIM KAH WAI',
+      sigLeftTitle: 'GPK Hal Ehwal Murid / 副校长',
+      sigLeftImg: null,
+      sigLeftSize: 15,
+      sigLeftOffset: 0,
+
+      showStamp: true,
+      stampImg: null,
+      stampSize: 24,
+      stampOffset: 0,
+
+      // Recipients List
+      currentIndex: 0,
+      students: [
+        {
+          certType: 'penghargaan',
+          noSijil: 'SP/2026/001',
+          namaBm: 'TAN WEI MING',
+          namaCina: '陈伟明',
+          noKpKelas: '140518-05-1234 • Kelas 6 Bestari',
+          jawatan: 'PENGAWAS SEKOLAH / 巡察员',
+          programSesi: 'Sesi Persekolahan Tahun 2026',
+          teksBm: ROLE_PRESETS.pengawas.teksBm,
+          teksSub: ROLE_PRESETS.pengawas.teksZh,
+          tarikh: '14 November 2026'
+        }
+      ],
+
+      // Preview Zoom
+      zoomMode: 'fit',
+      zoomScale: 0.72
+    };
+
+    // ------------------------------------------------------------------------
+    // E. HELPER UTILITIES
+    // ------------------------------------------------------------------------
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function incrementSerial(baseSerial, offsetIndex) {
+      const base = (baseSerial || 'SP/2026/001').trim();
+      const match = base.match(/^(.*?)(\d+)$/);
+      if (!match) {
+        return offsetIndex === 0 ? base : `${base}-${String(offsetIndex + 1).padStart(3, '0')}`;
+      }
+      const prefix = match[1];
+      const numStr = match[2];
+      const nextNum = parseInt(numStr, 10) + offsetIndex;
+      return prefix + String(nextNum).padStart(numStr.length, '0');
+    }
+
+    function matchPresetByRoleKeyword(jawatanText) {
+      const q = (jawatanText || '').toLowerCase();
+      // Participation keywords (Sijil Penyertaan)
+      if (q.includes('kem') || q.includes('perkhemahan') || q.includes('生活营') || q.includes('领袖培训')) {
+        return ROLE_PRESETS.part_kem;
+      }
+      if (q.includes('bengkel') || q.includes('kursus') || q.includes('工作坊') || q.includes('讲座参与')) {
+        return ROLE_PRESETS.part_bengkel;
+      }
+      if (q.includes('pertandingan') || q.includes('kuiz') || q.includes('bercerita') || q.includes('比赛') || q.includes('竞赛')) {
+        return ROLE_PRESETS.part_pertandingan;
+      }
+      if (q.includes('penyertaan') || q.includes('参与')) {
+        return ROLE_PRESETS.part_sukan;
+      }
+
+      // Appreciation keywords (Sijil Penghargaan)
+      if (q.includes('pusat sumber') || q.includes('pss') || q.includes('perpustakaan') || q.includes('图书')) {
+        return ROLE_PRESETS.pss;
+      }
+      if (q.includes('penolong ketua') || q.includes('副班长')) {
+        return ROLE_PRESETS.penolong_ketua;
+      }
+      if (q.includes('ketua kelas') || q.includes('ketua darjah') || q.includes('班长')) {
+        return ROLE_PRESETS.ketua_kelas;
+      }
+      if (q.includes('kokurikulum') || q.includes('koku') || q.includes('课外活动')) {
+        return ROLE_PRESETS.ajk_koku;
+      }
+      if (q.includes('penceramah') || q.includes('ceramah') || q.includes('主讲')) {
+        return ROLE_PRESETS.penceramah;
+      }
+      if (q.includes('sukan') || q.includes('olahraga') || q.includes('运动')) {
+        return ROLE_PRESETS.ajk_sukan;
+      }
+      if (q.includes('peserta') || q.includes('wakil') || q.includes('校队')) {
+        return ROLE_PRESETS.peserta;
+      }
+      if (q.includes('ajk') || q.includes('jawatankuasa') || q.includes('program') || q.includes('工委')) {
+        return ROLE_PRESETS.ajk_program;
+      }
+      return ROLE_PRESETS.pengawas;
+    }
+
+    function getLanguageLabels(langMode, certType) {
+      const isParticipation = certType === 'penyertaan';
+
+      if (langMode === 'bm') {
+        return {
+          kodSekolah: 'Kod Sekolah',
+          noSijil: 'No. Siri',
+          certTitle: isParticipation ? 'SIJIL PENYERTAAN' : 'SIJIL PENGHARGAAN',
+          certSubTitle: '',
+          awardedToBm: isParticipation ? 'Adalah dengan ini diperakui bahawa' : 'Dengan sukacitanya dianugerahkan kepada',
+          awardedToSub: '',
+          asRoleLabel: isParticipation ? 'telah menyertai' : 'sebagai',
+          tarikh: 'Tarikh',
+          stampText: 'COP RASMI<br/>SEKOLAH'
+        };
+      }
+      if (langMode === 'bm_zh') {
+        return {
+          kodSekolah: 'Kod Sekolah / 学校代码',
+          noSijil: 'No. Siri / 证书编号',
+          certTitle: isParticipation ? 'SIJIL PENYERTAAN' : 'SIJIL PENGHARGAAN',
+          certSubTitle: isParticipation ? '参 与 奖 状' : '表 扬 状 / 感 谢 状',
+          awardedToBm: isParticipation ? 'Adalah dengan ini diperakui bahawa' : 'Dengan sukacitanya dianugerahkan kepada',
+          awardedToSub: isParticipation ? '兹证明' : '谨颁此状予',
+          asRoleLabel: isParticipation ? 'telah menyertai / 积极参与' : 'sebagai / 担任',
+          tarikh: 'Tarikh / 日期',
+          stampText: 'COP RASMI SEKOLAH<br/><span class="font-cert-zh-sans text-[7.5px]">学校盖章</span>'
+        };
+      }
+      // bm_en
+      return {
+        kodSekolah: 'School Code / Kod Sekolah',
+        noSijil: 'Serial No. / No. Siri',
+        certTitle: isParticipation ? 'CERTIFICATE OF PARTICIPATION' : 'CERTIFICATE OF APPRECIATION',
+        certSubTitle: isParticipation ? 'SIJIL PENYERTAAN' : 'SIJIL PENGHARGAAN',
+        awardedToBm: isParticipation ? 'This is to certify that' : 'This certificate is proudly presented to',
+        awardedToSub: isParticipation ? 'Adalah dengan ini diperakui bahawa' : 'Dengan sukacitanya dianugerahkan kepada',
+        asRoleLabel: isParticipation ? 'has participated in / telah menyertai' : 'in the capacity of / sebagai',
+        tarikh: 'Date / Tarikh',
+        stampText: 'OFFICIAL STAMP<br/><span class="text-[7px]">COP RASMI SEKOLAH</span>'
+      };
+    }
+
+    // ------------------------------------------------------------------------
+    // F. CORE A4 CERTIFICATE RENDERER (FRAMED & PURE CONTENT PRE-PRINTED MODES)
+    // ------------------------------------------------------------------------
+    function buildCertificateHTML(st, index) {
+      const theme = THEMES[appState.theme] || THEMES.navy;
+      const effectiveCertType = st.certType || appState.certType || 'penghargaan';
+      const labels = getLanguageLabels(appState.langMode, effectiveCertType);
+      const isLandscape = appState.orientation === 'landscape';
+      const isPreprinted = appState.cornerStyle === 'none';
+
+      // Page coordinate system for SVG frame & 17mm x 17mm corner ornaments
+      const vbW = isLandscape ? 297 : 210;
+      const vbH = isLandscape ? 210 : 297;
+
+      // Safe Corner Margin CSS variables (--safe-v: 15..32mm, --safe-h: calc(var(--safe-v) + 4mm))
+      const safeV = Number(appState.safeMarginV) || 22;
+      const safeInlineStyle = `--safe-v: ${safeV}mm; --safe-h: calc(var(--safe-v) + 4mm);`;
+
+      const logoMarkup = appState.schoolLogo
+        ? `<img src="${appState.schoolLogo}" alt="School Crest" class="w-full h-full object-contain" />`
+        : DEFAULT_CREST_SVG;
+
+      const effectiveLogoSize = isLandscape ? Math.min(appState.logoSizeMm, 21) : appState.logoSizeMm;
+      const showSchoolSub = (appState.langMode !== 'bm') && appState.schoolNameSub.trim() !== '';
+      const hasChineseStudentName = (st.namaCina || '').trim() !== '';
+      const showSubTitle = (appState.langMode !== 'bm') && labels.certSubTitle !== '';
+
+      // Compact 17mm x 17mm Corner SVG Ornaments
+      let cornerSvgMarkup = '';
+      if (appState.cornerStyle === 'songket') {
+        cornerSvgMarkup = `
+          <g stroke="${theme.accent}" fill="none" stroke-width="0.75">
+            <!-- Top-Left (within 17mm x 17mm) -->
+            <path d="M 6.5 17.0 L 11.8 17.0 L 11.8 11.8 L 17.0 11.8 L 17.0 6.5" />
+            <path d="M 10.4 14.6 C 12.4 14.6 14.6 12.4 14.6 10.4" stroke="${theme.primary}" stroke-width="0.55" />
+            <circle cx="11.0" cy="11.0" r="1.1" fill="${theme.primary}" stroke="none" />
+
+            <!-- Top-Right (within 17mm x 17mm) -->
+            <path d="M ${vbW - 6.5} 17.0 L ${vbW - 11.8} 17.0 L ${vbW - 11.8} 11.8 L ${vbW - 17.0} 11.8 L ${vbW - 17.0} 6.5" />
+            <path d="M ${vbW - 10.4} 14.6 C ${vbW - 12.4} 14.6 ${vbW - 14.6} 12.4 ${vbW - 14.6} 10.4" stroke="${theme.primary}" stroke-width="0.55" />
+            <circle cx="${vbW - 11.0}" cy="11.0" r="1.1" fill="${theme.primary}" stroke="none" />
+
+            <!-- Bottom-Left (within 17mm x 17mm) -->
+            <path d="M 6.5 ${vbH - 17.0} L 11.8 ${vbH - 17.0} L 11.8 ${vbH - 11.8} L 17.0 ${vbH - 11.8} L 17.0 ${vbH - 6.5}" />
+            <path d="M 10.4 ${vbH - 14.6} C 12.4 ${vbH - 14.6} 14.6 ${vbH - 12.4} 14.6 ${vbH - 10.4}" stroke="${theme.primary}" stroke-width="0.55" />
+            <circle cx="11.0" cy="${vbH - 11.0}" r="1.1" fill="${theme.primary}" stroke="none" />
+
+            <!-- Bottom-Right (within 17mm x 17mm) -->
+            <path d="M ${vbW - 6.5} ${vbH - 17.0} L ${vbW - 11.8} ${vbH - 17.0} L ${vbW - 11.8} ${vbH - 11.8} L ${vbW - 17.0} ${vbH - 11.8} L ${vbW - 17.0} ${vbH - 6.5}" />
+            <path d="M ${vbW - 10.4} ${vbH - 14.6} C ${vbW - 12.4} ${vbH - 14.6} ${vbW - 14.6} ${vbH - 12.4} ${vbW - 14.6} ${vbH - 10.4}" stroke="${theme.primary}" stroke-width="0.55" />
+            <circle cx="${vbW - 11.0}" cy="${vbH - 11.0}" r="1.1" fill="${theme.primary}" stroke="none" />
+          </g>
+        `;
+      } else if (appState.cornerStyle === 'double') {
+        cornerSvgMarkup = `
+          <g stroke="${theme.accent}" fill="none" stroke-width="0.7">
+            <rect x="10.6" y="10.6" width="5.4" height="5.4" />
+            <rect x="${vbW - 16.0}" y="10.6" width="5.4" height="5.4" />
+            <rect x="10.6" y="${vbH - 16.0}" width="5.4" height="5.4" />
+            <rect x="${vbW - 16.0}" y="${vbH - 16.0}" width="5.4" height="5.4" />
+          </g>
+        `;
+      }
+
+      // Frame SVG Markup (Omitted completely when cornerStyle === 'none' for pure pre-printed paper)
+      const borderSvgMarkup = isPreprinted ? '' : `
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="guillochePattern-${index}" width="8" height="8" patternUnits="userSpaceOnUse">
+              <circle cx="4" cy="4" r="3.2" fill="none" stroke="${theme.accent}" stroke-width="0.25" opacity="0.35" />
+              <path d="M0 4 Q4 0 8 4 Q4 8 0 4" fill="none" stroke="${theme.primary}" stroke-width="0.2" opacity="0.25" />
+            </pattern>
+          </defs>
+
+          <!-- Soft Tinted Sheet Background -->
+          <rect x="6.5" y="6.5" width="${vbW - 13}" height="${vbH - 13}" fill="${theme.tintBg}" />
+
+          <!-- Guilloche Ribbon (Songket & Double Styles) -->
+          ${appState.cornerStyle !== 'minimal' ? `
+            <rect x="7.5" y="7.5" width="${vbW - 15}" height="${vbH - 15}" fill="none" stroke="url(#guillochePattern-${index})" stroke-width="3" />
+          ` : ''}
+
+          <!-- Outer Primary Frame -->
+          <rect x="6.8" y="6.8" width="${vbW - 13.6}" height="${vbH - 13.6}" fill="none" stroke="${theme.primary}" stroke-width="1.35" />
+          <!-- Gold Accent Inner Frame -->
+          <rect x="9.2" y="9.2" width="${vbW - 18.4}" height="${vbH - 18.4}" fill="none" stroke="${theme.accent}" stroke-width="0.7" />
+          <!-- Fine Hairline Rule -->
+          <rect x="10.8" y="10.8" width="${vbW - 21.6}" height="${vbH - 21.6}" fill="none" stroke="${theme.primary}" stroke-width="0.35" />
+
+          <!-- Compact 17mm x 17mm Corner Ornaments -->
+          ${cornerSvgMarkup}
+        </svg>
+      `;
+
+      // Background Watermark Crest (Omitted if showWatermark is false or in pure pre-printed mode)
+      const watermarkMarkup = appState.showWatermark ? `
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" style="opacity: ${theme.watermarkOpacity};">
+          <div class="${isLandscape ? 'w-[88mm] h-[88mm]' : 'w-[105mm] h-[105mm]'}">
+            ${logoMarkup}
+          </div>
+        </div>
+      ` : '';
+
+      // Official School Stamp Markup (Controlled by appState.showStamp)
+      let stampMarkup = '';
+      if (appState.showStamp) {
+        if (appState.stampImg) {
+          stampMarkup = `
+            <div class="flex items-center justify-center">
+              <img src="${appState.stampImg}" alt="School Stamp" class="object-contain img-multiply" style="width: ${appState.stampSize}mm; height: ${appState.stampSize}mm; transform: translateY(${appState.stampOffset}px);" />
+            </div>
+          `;
+        } else {
+          stampMarkup = `
+            <div class="rounded-full border border-dashed flex items-center justify-center text-center p-2" style="width: ${appState.stampSize}mm; height: ${appState.stampSize}mm; border-color: ${theme.primary}65; color: ${theme.primary}85; transform: translateY(${appState.stampOffset}px);">
+              <span class="text-[6pt] font-bold tracking-wider leading-tight uppercase">${labels.stampText}</span>
+            </div>
+          `;
+        }
+      }
+
+      // Date Block placed directly underneath the Signatory's Title
+      const dateUnderTitleMarkup = (st.tarikh || '').trim() !== '' ? `
+        <div class="text-[7.5pt] text-slate-600 mt-1">
+          ${labels.tarikh}: <strong class="text-slate-900 font-semibold">${escapeHtml(st.tarikh)}</strong>
+        </div>
+      ` : '';
+
+      const putDateOnLeft = appState.enableLeftSignatory && appState.datePosition === 'left';
+
+      // Left Signatory Column Markup
+      const leftSignatoryColMarkup = appState.enableLeftSignatory ? `
+        <div class="flex flex-col items-center text-center w-[58mm] shrink-0">
+          <div class="${isLandscape ? 'h-[11mm]' : 'h-[14mm]'} w-full flex items-end justify-center mb-1 relative">
+            ${appState.sigLeftImg ? `
+              <img src="${appState.sigLeftImg}" alt="Left Signature" class="object-contain ${appState.sigMultiply ? 'img-multiply' : ''}" style="height: ${appState.sigLeftSize}mm; transform: translateY(${appState.sigLeftOffset}px);" />
+            ` : ''}
+          </div>
+          <div class="w-full border-t border-slate-800 pt-1">
+            <div class="text-[8.5pt] font-bold uppercase tracking-wide" style="color: ${theme.primaryDark};">
+              (${escapeHtml(appState.sigLeftName)})
+            </div>
+            <div class="text-[7.5pt] font-semibold text-slate-700 leading-tight">
+              ${escapeHtml(appState.sigLeftTitle)}
+            </div>
+            ${putDateOnLeft ? dateUnderTitleMarkup : ''}
+          </div>
+        </div>
+      ` : '';
+
+      // Primary Signatory Column Markup (Right)
+      const rightSignatoryColMarkup = `
+        <div class="flex flex-col items-center text-center ${appState.enableLeftSignatory ? 'w-[58mm]' : 'w-[62mm]'} shrink-0">
+          <div class="${isLandscape ? 'h-[11mm]' : 'h-[14mm]'} w-full flex items-end justify-center mb-1 relative">
+            ${appState.sigImg ? `
+              <img src="${appState.sigImg}" alt="Principal Signature" class="object-contain ${appState.sigMultiply ? 'img-multiply' : ''}" style="height: ${appState.sigSize}mm; transform: translateY(${appState.sigOffset}px);" />
+            ` : ''}
+          </div>
+          <div class="w-full border-t border-slate-800 pt-1">
+            <div class="text-[8.6pt] font-bold uppercase tracking-wide" style="color: ${theme.primaryDark};">
+              (${escapeHtml(appState.principalName)})
+            </div>
+            <div class="text-[7.6pt] font-semibold text-slate-700 leading-tight">
+              ${escapeHtml(appState.principalTitle)}
+            </div>
+            ${!putDateOnLeft ? dateUnderTitleMarkup : ''}
+          </div>
+        </div>
+      `;
+
+      // Footer Assembly (items-start guarantees horizontal alignment of left & right signature rules)
+      let footerMarkup = '';
+      if (appState.enableLeftSignatory) {
+        footerMarkup = `
+          <div class="flex items-start justify-between gap-3">
+            ${leftSignatoryColMarkup}
+            <div class="flex-1 flex items-center justify-center pt-1 min-h-[16mm]">
+              ${stampMarkup}
+            </div>
+            ${rightSignatoryColMarkup}
+          </div>
+        `;
+      } else {
+        footerMarkup = `
+          <div class="flex items-start ${appState.showStamp ? 'justify-between' : 'justify-end'} gap-4">
+            ${appState.showStamp ? `
+              <div class="flex-1 flex items-center justify-center pt-1">
+                ${stampMarkup}
+              </div>
+            ` : ''}
+            ${rightSignatoryColMarkup}
+          </div>
+        `;
+      }
+
+      // Appreciation / Participation Secondary Text (中文 / English)
+      const subAppreciationMarkup = (appState.langMode !== 'bm' && (st.teksSub || '').trim() !== '')
+        ? `<p class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif text-[10pt] tracking-wide' : 'font-cert-serif italic text-[9.5pt]'} text-slate-700 leading-relaxed max-w-[88%] mx-auto mt-1.5">${escapeHtml(st.teksSub)}</p>`
+        : '';
+
+      return `
+        <div class="a4-sheet ${isLandscape ? 'is-landscape' : ''} ${isPreprinted ? 'is-preprinted' : ''} select-none flex flex-col justify-between" style="${safeInlineStyle}">
+          
+          ${borderSvgMarkup}
+          ${watermarkMarkup}
+
+          <!-- ================================================================
+               1. TOP HEADER: KOD SEKOLAH, NO. SIRI, CREST, SCHOOL NAME & TITLE
+               ================================================================ -->
+          <div class="relative z-10">
+            <!-- Top Corner Metadata Row (Shifted down & inward via --safe-v & --safe-h) -->
+            <div class="flex justify-between items-center text-[7.8pt] font-medium text-slate-600 ${isLandscape ? 'mb-1' : 'mb-2'}">
+              <div>
+                ${appState.schoolCode ? `<span>${labels.kodSekolah}: <strong class="font-mono text-slate-900">${escapeHtml(appState.schoolCode)}</strong></span>` : ''}
+              </div>
+              <div>
+                ${st.noSijil ? `<span>${labels.noSijil}: <strong class="font-mono text-slate-900">${escapeHtml(st.noSijil)}</strong></span>` : ''}
+              </div>
+            </div>
+
+            <!-- Centered School Crest & Identity -->
+            <div class="flex flex-col items-center text-center">
+              ${!appState.hideTopCrest ? `
+                <div class="flex items-center justify-center ${isLandscape ? 'mb-1' : 'mb-1.5'}" style="width: ${effectiveLogoSize}mm; height: ${effectiveLogoSize}mm;">
+                  ${logoMarkup}
+                </div>
+              ` : ''}
+
+              ${(appState.kpmHeaderText || '').trim() !== '' ? `
+                <div class="text-[7pt] font-bold tracking-[0.18em] uppercase text-slate-500 mb-0.5">
+                  ${escapeHtml(appState.kpmHeaderText)}
+                </div>
+              ` : ''}
+
+              <h1 class="font-cert-display font-bold ${isLandscape ? 'text-[12pt]' : 'text-[13pt]'} leading-snug tracking-wide uppercase" style="color: ${theme.primary};">
+                ${escapeHtml(appState.schoolName)}
+              </h1>
+
+              ${showSchoolSub ? `
+                <div class="font-cert-zh-serif font-bold ${isLandscape ? 'text-[10.5pt]' : 'text-[11.5pt]'} tracking-widest mt-0.5" style="color: ${theme.primaryDark};">
+                  ${escapeHtml(appState.schoolNameSub)}
+                </div>
+              ` : ''}
+
+              <!-- Ornate Gold Divider -->
+              <div class="w-[82%] flex items-center justify-center gap-2 ${isLandscape ? 'my-1.5' : 'my-2.5'}">
+                <div class="h-[1px] flex-1" style="background: linear-gradient(90deg, transparent, ${theme.accent});"></div>
+                <div class="w-1.5 h-1.5 rotate-45" style="background-color: ${theme.primary};"></div>
+                <div class="w-2.5 h-2.5 rotate-45 border" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : theme.accentLight};"></div>
+                <div class="w-1.5 h-1.5 rotate-45" style="background-color: ${theme.primary};"></div>
+                <div class="h-[1px] flex-1" style="background: linear-gradient(270deg, transparent, ${theme.accent});"></div>
+              </div>
+
+              <!-- Main Certificate Title -->
+              <div class="${isLandscape ? 'px-8 py-1.5' : 'px-10 py-2'} rounded-sm border-y" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : theme.accentLight + '65'};">
+                <h2 class="font-cert-display font-extrabold ${isLandscape ? 'text-[17pt]' : 'text-[19.5pt]'} tracking-[0.11em] uppercase leading-none" style="color: ${theme.primary};">
+                  ${labels.certTitle}
+                </h2>
+                ${showSubTitle ? `
+                  <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif font-bold text-[13pt] tracking-[0.3em]' : 'font-cert-display font-semibold text-[10.5pt] tracking-[0.18em]'} mt-1.5 leading-none" style="color: ${theme.primaryDark};">
+                    ${labels.certSubTitle}
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- ================================================================
+               2. CENTER BODY: RECIPIENT, ROLE / ACTIVITY & CITATION
+               ================================================================ -->
+          <div class="relative z-10 my-auto text-center ${isLandscape ? 'space-y-1.5 py-1' : 'space-y-3 py-2'}">
+            
+            <!-- "Dengan sukacitanya dianugerahkan kepada" / "Adalah dengan ini diperakui bahawa" -->
+            <div class="font-cert-serif text-[9.5pt] text-slate-700 leading-snug">
+              <div class="italic">${labels.awardedToBm}</div>
+              ${labels.awardedToSub ? `
+                <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif text-[10pt] tracking-widest' : 'italic text-[9pt]'} mt-0.5 text-slate-600">
+                  ${labels.awardedToSub}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Featured Recipient Name Box -->
+            <div class="${isLandscape ? 'py-1.5 px-6' : 'py-2.5 px-8'} max-w-[92%] mx-auto rounded-sm border-y" style="border-color: ${theme.primary}30; background-color: ${isPreprinted ? 'transparent' : theme.tintBg};">
+              <div class="font-cert-display font-extrabold ${isLandscape ? 'text-[16.5pt]' : 'text-[19pt]'} tracking-wide uppercase leading-tight" style="color: ${theme.primaryDark};">
+                ${escapeHtml(st.namaBm)}
+              </div>
+              ${hasChineseStudentName ? `
+                <div class="font-cert-zh-serif font-bold ${isLandscape ? 'text-[13.5pt]' : 'text-[15.5pt]'} tracking-[0.26em] mt-1" style="color: ${theme.primary};">
+                  ${escapeHtml(st.namaCina)}
+                </div>
+              ` : ''}
+              ${appState.showKpKelas && (st.noKpKelas || '').trim() !== '' ? `
+                <div class="text-[8.5pt] font-mono font-semibold text-slate-600 mt-1">
+                  (${escapeHtml(st.noKpKelas)})
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Role / Activity Badge & Program / Sesi -->
+            <div class="space-y-1">
+              <div class="text-[8.5pt] font-cert-serif italic text-slate-600">
+                ${labels.asRoleLabel}
+              </div>
+              <div class="inline-block px-5 py-1 rounded-full border text-[10pt] font-bold tracking-wide uppercase" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : theme.accentLight + '75'}; color: ${theme.primaryDark};">
+                ${escapeHtml(st.jawatan)}
+              </div>
+              ${(st.programSesi || '').trim() !== '' ? `
+                <div class="text-[9.2pt] font-semibold text-slate-800 pt-0.5">
+                  ${escapeHtml(st.programSesi)}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Formal Certificate Text (BM + Sub) -->
+            <div class="pt-0.5">
+              <p class="font-cert-serif ${isLandscape ? 'text-[9.5pt]' : 'text-[10.5pt]'} text-slate-800 leading-relaxed max-w-[90%] mx-auto">
+                ${escapeHtml(st.teksBm)}
+              </p>
+              ${subAppreciationMarkup}
+            </div>
+          </div>
+
+          <!-- ================================================================
+               3. FOOTER: OFFICIAL STAMP, SIGNATORIES & DATE BELOW TITLE
+               ================================================================ -->
+          <div class="relative z-10 pt-1">
+            ${footerMarkup}
+          </div>
+
+        </div>
+      `;
+    }
+
+    // ------------------------------------------------------------------------
+    // G. RENDER & UI SYNCHRONIZATION
+    // ------------------------------------------------------------------------
+    function renderAll() {
+      const currentSt = appState.students[appState.currentIndex] || appState.students[0];
+      const activeCertType = currentSt.certType || appState.certType || 'penghargaan';
+
+      // 1. Live A4 Preview
+      document.getElementById('live-certificate-mount').innerHTML = buildCertificateHTML(currentSt, appState.currentIndex);
+
+      // 2. Single Print Mount
+      document.getElementById('print-mount-single').innerHTML = `<div class="print-page-wrapper">${buildCertificateHTML(currentSt, appState.currentIndex)}</div>`;
+
+      // 3. Logo Preview Thumbnail in Editor (Constrained strictly to 44px max inside 56px box)
+      document.getElementById('logo-preview-thumb').innerHTML = appState.schoolLogo
+        ? `<img src="${appState.schoolLogo}" alt="Logo" class="max-w-full max-h-full w-auto h-auto object-contain block" style="max-width: 44px; max-height: 44px;" />`
+        : DEFAULT_CREST_SVG;
+
+      // 4. Certificate Type Buttons & Labels Sync
+      document.querySelectorAll('.cert-type-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-cert-type') === activeCertType;
+        if (isMatch) {
+          btn.classList.add('border-2', 'border-blue-900', 'bg-white');
+          btn.classList.remove('border', 'border-slate-200');
+        } else {
+          btn.classList.remove('border-2', 'border-blue-900');
+          btn.classList.add('border', 'border-slate-200');
+        }
+      });
+
+      const certTypeBadge = document.getElementById('cert-type-badge');
+      const jawatanLabel = document.getElementById('label-jawatan-aktiviti');
+      const programLabel = document.getElementById('label-program-sesi');
+      if (activeCertType === 'penyertaan') {
+        certTypeBadge.textContent = 'SIJIL PENYERTAAN';
+        certTypeBadge.classList.add('bg-emerald-700');
+        certTypeBadge.classList.remove('bg-blue-900');
+        if (jawatanLabel) jawatanLabel.textContent = 'Nama Aktiviti / Pertandingan (参与活动/比赛)';
+        if (programLabel) programLabel.textContent = 'Peringkat / Anjuran / Sesi';
+      } else {
+        certTypeBadge.textContent = 'SIJIL PENGHARGAAN';
+        certTypeBadge.classList.remove('bg-emerald-700');
+        certTypeBadge.classList.add('bg-blue-900');
+        if (jawatanLabel) jawatanLabel.textContent = 'Jawatan / Peranan (职务)';
+        if (programLabel) programLabel.textContent = 'Nama Program / Sesi';
+      }
+
+      // 5. Orientation Buttons Active State
+      document.querySelectorAll('.orient-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-orient-btn') === appState.orientation;
+        if (isMatch) {
+          btn.classList.add('border-2', 'border-blue-900', 'bg-blue-50/70', 'text-blue-950', 'font-bold');
+          btn.classList.remove('border', 'border-slate-200', 'bg-white', 'text-slate-700', 'font-medium');
+        } else {
+          btn.classList.remove('border-2', 'border-blue-900', 'bg-blue-50/70', 'text-blue-950', 'font-bold');
+          btn.classList.add('border', 'border-slate-200', 'bg-white', 'text-slate-700', 'font-medium');
+        }
+      });
+
+      // 6. Theme Swatch Buttons Active State
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-theme-btn') === appState.theme;
+        if (isMatch) {
+          btn.classList.add('border-2', 'border-blue-900', 'bg-blue-50/50');
+          btn.classList.remove('border', 'border-slate-200');
+        } else {
+          btn.classList.remove('border-2', 'border-blue-900', 'bg-blue-50/50');
+          btn.classList.add('border', 'border-slate-200');
+        }
+      });
+
+      // 7. Corner / Pre-Printed Style Buttons & Watermark Checkbox Sync
+      document.querySelectorAll('.corner-style-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-corner-btn') === appState.cornerStyle;
+        if (isMatch) {
+          btn.classList.add('border-2', 'border-blue-900', 'font-bold', 'text-blue-950');
+          btn.classList.remove('border', 'border-slate-200', 'font-medium', 'text-slate-700');
+        } else {
+          btn.classList.remove('border-2', 'border-blue-900', 'font-bold', 'text-blue-950');
+          btn.classList.add('border', 'border-slate-200', 'font-medium', 'text-slate-700');
+        }
+      });
+
+      const frameModePill = document.getElementById('frame-mode-pill');
+      if (frameModePill) {
+        if (appState.cornerStyle === 'none') {
+          frameModePill.textContent = '套打文凭纸模式';
+          frameModePill.classList.add('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
+          frameModePill.classList.remove('bg-white', 'text-blue-950', 'border-amber-300');
+        } else {
+          frameModePill.textContent = '标准边框版';
+          frameModePill.classList.remove('bg-emerald-100', 'text-emerald-900', 'border-emerald-300');
+          frameModePill.classList.add('bg-white', 'text-blue-950', 'border-amber-300');
+        }
+      }
+
+      const watermarkCheckbox = document.getElementById('input-showWatermark');
+      if (watermarkCheckbox) {
+        watermarkCheckbox.checked = Boolean(appState.showWatermark);
+      }
+
+      // 8. Role Preset & Participation Sub-Preset Buttons Active State
+      document.querySelectorAll('.role-preset-btn').forEach(btn => {
+        const presetAttr = btn.getAttribute('data-role-preset');
+        const isMatch = presetAttr === appState.activePreset;
+        if (presetAttr === 'penyertaan') {
+          if (isMatch) {
+            btn.classList.add('border-2', 'border-emerald-700', 'bg-emerald-100/80');
+            btn.classList.remove('border', 'border-emerald-300', 'bg-emerald-50/70');
+          } else {
+            btn.classList.remove('border-2', 'border-emerald-700', 'bg-emerald-100/80');
+            btn.classList.add('border', 'border-emerald-300', 'bg-emerald-50/70');
+          }
+        } else {
+          if (isMatch) {
+            btn.classList.add('border-2', 'border-blue-900', 'bg-blue-50/70');
+            btn.classList.remove('border', 'border-slate-200', 'bg-white');
+          } else {
+            btn.classList.remove('border-2', 'border-blue-900', 'bg-blue-50/70');
+            btn.classList.add('border', 'border-slate-200', 'bg-white');
+          }
+        }
+      });
+
+      const subBox = document.getElementById('aktiviti-subpresets');
+      if (appState.activePreset === 'aktiviti') {
+        subBox.classList.remove('hidden');
+        document.querySelectorAll('.sub-preset-btn').forEach(btn => {
+          const isSub = btn.getAttribute('data-sub-preset') === appState.activeSubPreset;
+          if (isSub) {
+            btn.classList.add('border-2', 'border-indigo-700', 'bg-indigo-100/80');
+            btn.classList.remove('border', 'border-indigo-200', 'bg-white');
+          } else {
+            btn.classList.remove('border-2', 'border-indigo-700', 'bg-indigo-100/80');
+            btn.classList.add('border', 'border-indigo-200', 'bg-white');
+          }
+        });
+      } else {
+        subBox.classList.add('hidden');
+      }
+
+      const partBox = document.getElementById('penyertaan-subpresets');
+      if (appState.activePreset === 'penyertaan') {
+        partBox.classList.remove('hidden');
+        document.querySelectorAll('.part-preset-btn').forEach(btn => {
+          const isPart = btn.getAttribute('data-part-preset') === appState.activePartPreset;
+          if (isPart) {
+            btn.classList.add('border-2', 'border-emerald-700', 'bg-emerald-100/80');
+            btn.classList.remove('border', 'border-emerald-200', 'bg-white');
+          } else {
+            btn.classList.remove('border-2', 'border-emerald-700', 'bg-emerald-100/80');
+            btn.classList.add('border', 'border-emerald-200', 'bg-white');
+          }
+        });
+      } else {
+        partBox.classList.add('hidden');
+      }
+
+      // 9. Left Signatory Toggle & Date Position UI Sync
+      const leftSigCard = document.getElementById('left-signatory-card');
+      const leftSigBadge = document.getElementById('left-sig-status-badge');
+      const datePosRow = document.getElementById('date-position-row');
+      if (appState.enableLeftSignatory) {
+        leftSigCard.classList.remove('hidden');
+        datePosRow.classList.remove('hidden');
+        leftSigBadge.textContent = '已启用';
+        leftSigBadge.classList.add('bg-indigo-100', 'text-indigo-900');
+        leftSigBadge.classList.remove('bg-slate-200', 'text-slate-700');
+      } else {
+        leftSigCard.classList.add('hidden');
+        datePosRow.classList.add('hidden');
+        leftSigBadge.textContent = '已隐藏';
+        leftSigBadge.classList.remove('bg-indigo-100', 'text-indigo-900');
+        leftSigBadge.classList.add('bg-slate-200', 'text-slate-700');
+      }
+
+      document.querySelectorAll('.date-pos-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-date-pos') === appState.datePosition;
+        if (isMatch) {
+          btn.classList.add('border-2', 'border-blue-900', 'bg-blue-50/70', 'font-bold', 'text-blue-950');
+          btn.classList.remove('border', 'border-slate-200', 'bg-white', 'font-medium', 'text-slate-700');
+        } else {
+          btn.classList.remove('border-2', 'border-blue-900', 'bg-blue-50/70', 'font-bold', 'text-blue-950');
+          btn.classList.add('border', 'border-slate-200', 'bg-white', 'font-medium', 'text-slate-700');
+        }
+      });
+
+      // 10. Stamp Toggle UI Sync
+      const stampBadge = document.getElementById('stamp-status-badge');
+      const stampControls = document.getElementById('stamp-controls-box');
+      if (appState.showStamp) {
+        stampBadge.textContent = '已显示';
+        stampBadge.classList.add('bg-emerald-100', 'text-emerald-800');
+        stampBadge.classList.remove('bg-slate-200', 'text-slate-600');
+        stampControls.classList.remove('opacity-50', 'pointer-events-none');
+      } else {
+        stampBadge.textContent = '已隐藏';
+        stampBadge.classList.remove('bg-emerald-100', 'text-emerald-800');
+        stampBadge.classList.add('bg-slate-200', 'text-slate-600');
+        stampControls.classList.add('opacity-50', 'pointer-events-none');
+      }
+
+      // 11. Batch UI Badges & Student Roster
+      updateBatchUI();
+    }
+
+    function updateBatchUI() {
+      const total = appState.students.length;
+      const idx = appState.currentIndex;
+
+      document.getElementById('header-batch-badge').textContent = total;
+      document.getElementById('batch-count-label').textContent = total;
+      document.getElementById('batch-print-btn-num').textContent = total;
+      document.getElementById('student-idx-badge').textContent = `#${idx + 1} / ${total}`;
+      document.getElementById('nav-idx-display').textContent = idx + 1;
+      document.getElementById('nav-total-display').textContent = total;
+
+      const previewNav = document.getElementById('preview-batch-nav');
+      if (total > 1) {
+        previewNav.classList.remove('hidden');
+        previewNav.classList.add('flex');
+      } else {
+        previewNav.classList.add('hidden');
+        previewNav.classList.remove('flex');
+      }
+
+      const rosterEl = document.getElementById('batch-student-roster');
+      rosterEl.innerHTML = appState.students.map((st, i) => {
+        const isCurrent = i === idx;
+        const typeTag = (st.certType || appState.certType) === 'penyertaan'
+          ? '<span class="px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-semibold mr-1">参与奖</span>'
+          : '<span class="px-1 py-0.2 rounded bg-amber-100 text-amber-900 text-[9px] font-semibold mr-1">表扬状</span>';
+        return `
+          <button type="button" onclick="selectStudent(${i})" class="w-full text-left px-3 py-2 flex items-center justify-between gap-2 text-xs hover:bg-indigo-50/50 transition cursor-pointer ${isCurrent ? 'bg-indigo-100/80 font-bold text-indigo-950' : 'text-slate-700'}">
+            <div class="truncate">
+              <span class="font-mono text-[10px] text-slate-400 mr-1">#${i + 1}</span>
+              ${typeTag}
+              <span>${escapeHtml(st.namaBm)}</span>
+              ${st.namaCina ? `<span class="font-cert-zh-sans text-indigo-800 ml-1">(${escapeHtml(st.namaCina)})</span>` : ''}
+              <span class="block text-[10px] text-slate-500 font-normal pl-5 truncate">${escapeHtml(st.jawatan)}</span>
+            </div>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-600 shrink-0">${escapeHtml(st.noSijil)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function syncStudentFormInputs() {
+      const st = appState.students[appState.currentIndex];
+      if (!st) return;
+      document.getElementById('input-noSijil').value = st.noSijil || '';
+      document.getElementById('input-namaBm').value = st.namaBm || '';
+      document.getElementById('input-namaCina').value = st.namaCina || '';
+      document.getElementById('input-noKpKelas').value = st.noKpKelas || '';
+      document.getElementById('input-jawatan').value = st.jawatan || '';
+      document.getElementById('input-programSesi').value = st.programSesi || '';
+      document.getElementById('input-teksBm').value = st.teksBm || '';
+      document.getElementById('input-teksSub').value = st.teksSub || '';
+      document.getElementById('input-tarikh').value = st.tarikh || '';
+    }
+
+    // ------------------------------------------------------------------------
+    // H. STATE MUTATORS, CERT TYPE, FRAME/PRE-PRINTED MODE & PRESETS
+    // ------------------------------------------------------------------------
+    function getActivePresetKey() {
+      if (appState.activePreset === 'aktiviti') return appState.activeSubPreset;
+      if (appState.activePreset === 'penyertaan') return appState.activePartPreset;
+      return appState.activePreset;
+    }
+
+    function updateState(key, value) {
+      appState[key] = value;
+
+      if (key === 'langMode') {
+        const currentSt = appState.students[appState.currentIndex];
+        const presetObj = ROLE_PRESETS[getActivePresetKey()];
+        if (currentSt && presetObj) {
+          currentSt.teksSub = value === 'bm_en' ? presetObj.teksEn : presetObj.teksZh;
+          document.getElementById('input-teksSub').value = currentSt.teksSub;
+        }
+      }
+
+      renderAll();
+    }
+
+    function setCertType(type) {
+      appState.certType = type;
+      const currentSt = appState.students[appState.currentIndex];
+      if (currentSt) {
+        currentSt.certType = type;
+      }
+
+      if (type === 'penyertaan' && appState.activePreset !== 'penyertaan') {
+        appState.activePreset = 'penyertaan';
+        applyPresetObject(appState.activePartPreset, true);
+        showToast('已切换为「参与活动奖状 (Sijil Penyertaan)」');
+        return;
+      }
+
+      if (type === 'penghargaan' && appState.activePreset === 'penyertaan') {
+        appState.activePreset = 'pengawas';
+        applyPresetObject('pengawas', true);
+        showToast('已切换为「表扬状 / 感谢状 (Sijil Penghargaan)」');
+        return;
+      }
+
+      renderAll();
+      showToast(type === 'penyertaan' ? '已切换为「参与活动奖状」' : '已切换为「表扬状 / 感谢状」');
+    }
+
+    function setFrameStyle(styleKey) {
+      appState.cornerStyle = styleKey;
+      if (styleKey === 'none') {
+        appState.showWatermark = false;
+        showToast('已切换为「无边框纯内容」模式，适合打印在预印文凭纸上');
+      } else {
+        appState.showWatermark = true;
+      }
+      renderAll();
+    }
+
+    function toggleLeftSignatory(enabled) {
+      appState.enableLeftSignatory = enabled;
+      if (!enabled) {
+        appState.datePosition = 'right';
+      }
+      renderAll();
+      showToast(enabled ? '已启用左侧签署人栏位' : '已隐藏左侧签署人栏位');
+    }
+
+    function applyLeftTitlePreset(titleText) {
+      appState.sigLeftTitle = titleText;
+      document.getElementById('input-sigLeftTitle').value = titleText;
+      renderAll();
+      showToast(`左侧职称已设为：${titleText}`);
+    }
+
+    function updateSafeMargin(valMm) {
+      appState.safeMarginV = valMm;
+      const safeH = valMm + 4;
+      document.getElementById('safe-margin-badge').textContent = `${valMm}mm / ${safeH}mm`;
+      document.getElementById('safe-v-text').textContent = `${valMm}mm`;
+      document.getElementById('safe-h-text').textContent = `${safeH}mm`;
+      renderAll();
+    }
+
+    function setOrientation(orient) {
+      appState.orientation = orient;
+      const pageStyleEl = document.getElementById('dynamic-page-style');
+      if (pageStyleEl) {
+        pageStyleEl.textContent = `@page { size: A4 ${orient}; margin: 0; }`;
+      }
+      document.getElementById('preview-dim-label').textContent =
+        orient === 'landscape'
+          ? '实时 A4 横版预览 (297mm × 210mm)'
+          : '实时 A4 竖版预览 (210mm × 297mm)';
+
+      renderAll();
+      updatePreviewScale();
+      showToast(orient === 'landscape' ? '已切换为 A4 横版 (297×210mm)' : '已切换为 A4 竖版 (210×297mm)');
+    }
+
+    function updateCurrentStudentField(field, value) {
+      const st = appState.students[appState.currentIndex];
+      if (st) {
+        st[field] = value;
+        renderAll();
+      }
+    }
+
+    function applyRolePreset(presetKey) {
+      appState.activePreset = presetKey;
+      let effectiveKey = presetKey;
+      if (presetKey === 'aktiviti') effectiveKey = appState.activeSubPreset;
+      if (presetKey === 'penyertaan') effectiveKey = appState.activePartPreset;
+      applyPresetObject(effectiveKey, false);
+    }
+
+    function applySubPreset(subKey) {
+      appState.activePreset = 'aktiviti';
+      appState.activeSubPreset = subKey;
+      applyPresetObject(subKey, false);
+    }
+
+    function applyParticipationPreset(partKey) {
+      appState.activePreset = 'penyertaan';
+      appState.activePartPreset = partKey;
+      applyPresetObject(partKey, false);
+    }
+
+    function applyPresetObject(key, suppressToast) {
+      const preset = ROLE_PRESETS[key];
+      const currentSt = appState.students[appState.currentIndex];
+      if (!preset || !currentSt) return;
+
+      const targetType = preset.certType || 'penghargaan';
+      appState.certType = targetType;
+      currentSt.certType = targetType;
+      currentSt.jawatan = preset.jawatan;
+      currentSt.programSesi = preset.programSesi;
+      currentSt.teksBm = preset.teksBm;
+      currentSt.teksSub = appState.langMode === 'bm_en' ? preset.teksEn : preset.teksZh;
+
+      syncStudentFormInputs();
+      renderAll();
+      if (!suppressToast) {
+        showToast(targetType === 'penyertaan' ? `已套用参与奖状预设：${preset.jawatan}` : `已套用表扬状预设：${preset.jawatan}`);
+      }
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`panel-${tabName}`).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const active = btn.getAttribute('data-tab') === tabName;
+        if (active) {
+          btn.classList.add('active', 'border-blue-900', 'bg-white', 'text-blue-950', 'font-bold');
+          btn.classList.remove('border-transparent', 'text-slate-600', 'font-medium');
+        } else {
+          btn.classList.remove('active', 'border-blue-900', 'bg-white', 'text-blue-950', 'font-bold');
+          btn.classList.add('border-transparent', 'text-slate-600', 'font-medium');
+        }
+      });
+    }
+
+    // Image Uploads (Logo, Signature, Stamp) — Reset input value to allow repeated re-uploads
+    function handleImageUpload(event, targetKey) {
+      const inputEl = event.target;
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        appState[targetKey] = e.target.result;
+        inputEl.value = '';
+        renderAll();
+        showToast('图片上传成功');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetSchoolLogo() {
+      appState.schoolLogo = null;
+      renderAll();
+      showToast('已恢复默认学校校徽');
+    }
+
+    function clearCustomImage(targetKey) {
+      appState[targetKey] = null;
+      renderAll();
+      showToast('已清除图片');
+    }
+
+    // ------------------------------------------------------------------------
+    // I. BATCH CSV MODAL, EXCEL UTF-8 BOM EXPORT & SMART PARSER
+    // ------------------------------------------------------------------------
+    function openBatchModal() {
+      const modal = document.getElementById('batch-csv-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeBatchModal() {
+      const modal = document.getElementById('batch-csv-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function escapeCsvCell(val) {
+      const str = val === null || val === undefined ? '' : String(val);
+      if (/[",\r\n]/.test(str)) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    }
+
+    function generateSampleCsvString() {
+      const lines = [
+        CSV_HEADERS.join(','),
+        ...SAMPLE_CSV_ROWS.map(row => row.map(escapeCsvCell).join(','))
+      ];
+      return lines.join('\r\n');
+    }
+
+    function downloadExcelCsvTemplate() {
+      const csvText = generateSampleCsvString();
+      const blob = new Blob(['\uFEFF' + csvText], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'templat_sijil_sekolah.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast('已下载 Excel 兼容模板：templat_sijil_sekolah.csv');
+    }
+
+    function loadSampleIntoModal() {
+      const sampleText = generateSampleCsvString();
+      document.getElementById('batch-csv-textarea').value = sampleText;
+      parseAndImportCsvText(sampleText);
+    }
+
+    function handleCsvFileSelect(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      readCsvFileWithSmartEncoding(file);
+      event.target.value = '';
+    }
+
+    function readCsvFileWithSmartEncoding(file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const buffer = e.target.result;
+        let text = new TextDecoder('utf-8').decode(buffer);
+
+        // Fallback to GBK / Windows-1252 if non-UTF-8 bytes detected
+        if (text.includes('\uFFFD')) {
+          try {
+            text = new TextDecoder('gbk').decode(buffer);
+          } catch (err) {
+            text = new TextDecoder('windows-1252').decode(buffer);
+          }
+        }
+
+        text = text.replace(/^\uFEFF/, '');
+        document.getElementById('batch-csv-textarea').value = text;
+        parseAndImportCsvText(text);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function parseDelimitedRow(line, delimiter) {
+      const cells = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (ch === delimiter && !inQuotes) {
+          cells.push(current.trim());
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      cells.push(current.trim());
+      return cells;
+    }
+
+    function parseAndImportCsvText(rawText) {
+      const trimmed = (rawText || '').trim();
+      if (!trimmed) {
+        showToast('请先上传 CSV 文件或粘贴名单');
+        return;
+      }
+
+      const defaultSt = appState.students[0];
+      const baseSerial = document.getElementById('input-noSijil').value.trim() || defaultSt.noSijil || 'SP/2026/001';
+      const defaultProgram = document.getElementById('input-programSesi').value.trim() || defaultSt.programSesi;
+      const defaultTarikh = document.getElementById('input-tarikh').value.trim() || defaultSt.tarikh;
+
+      const rawLines = trimmed.split(/\r?\n/).filter(l => l.trim() !== '');
+      const importedList = [];
+      let counter = 0;
+      let headerMap = null;
+
+      rawLines.forEach((line, lineIdx) => {
+        const delimiter = line.includes('\t') ? '\t' : ',';
+        const cols = parseDelimitedRow(line, delimiter);
+
+        const col0 = (cols[0] || '').trim();
+        const col1 = (cols[1] || '').trim();
+
+        // Detect header row
+        if (
+          lineIdx === 0 &&
+          (/^no[_\s]?sijil$/i.test(col0) || /^nama[_\s]?bm$/i.test(col1))
+        ) {
+          headerMap = {};
+          cols.forEach((h, idx) => {
+            const norm = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+            headerMap[norm] = idx;
+          });
+          return;
+        }
+
+        const getCol = (normNames, fallbackIdx) => {
+          if (headerMap) {
+            for (const name of normNames) {
+              if (Object.prototype.hasOwnProperty.call(headerMap, name)) {
+                return (cols[headerMap[name]] || '').trim();
+              }
+            }
+          }
+          return fallbackIdx >= 0 ? (cols[fallbackIdx] || '').trim() : '';
+        };
+
+        const namaBm = getCol(['namabm', 'nama', 'namapenerima'], 1);
+        if (!namaBm) return;
+
+        const rawNoSijil = getCol(['nosijil', 'nosiri'], 0);
+        const noSijil = rawNoSijil !== '' ? rawNoSijil : incrementSerial(baseSerial, counter);
+        const namaCina = getCol(['namacina', 'namachina'], 2);
+        const noKpKelas = getCol(['nokpkelas', 'nokp', 'kelas'], 3);
+        const jawatan = getCol(['jawatanperanan', 'jawatan', 'peranan', 'aktiviti'], 4) || 'PENGAWAS SEKOLAH / 巡察员';
+        const programSesi = getCol(['programsesi', 'program', 'sesi'], 5) || defaultProgram;
+
+        // Smart-match preset & certificate type (Sijil Penghargaan vs Sijil Penyertaan)
+        const matchedPreset = matchPresetByRoleKeyword(jawatan);
+        const rawJenis = getCol(['jenissijil', 'jenis'], -1).toLowerCase();
+        let rowCertType = matchedPreset.certType || appState.certType;
+        if (rawJenis.includes('penyertaan') || rawJenis.includes('participation') || rawJenis.includes('参与')) {
+          rowCertType = 'penyertaan';
+        } else if (rawJenis.includes('penghargaan') || rawJenis.includes('appreciation') || rawJenis.includes('表扬') || rawJenis.includes('感谢')) {
+          rowCertType = 'penghargaan';
+        }
+
+        const rawTeksBm = getCol(['teksbm', 'teks'], 6);
+        const rawTeksSub = getCol(['tekssub', 'tekszh', 'teksen'], 7);
+
+        const teksBm = rawTeksBm !== '' ? rawTeksBm : matchedPreset.teksBm;
+        const teksSub = rawTeksSub !== ''
+          ? rawTeksSub
+          : (appState.langMode === 'bm_en' ? matchedPreset.teksEn : matchedPreset.teksZh);
+
+        const tarikh = getCol(['tarikh', 'tarikhdikeluarkan'], 8) || defaultTarikh;
+
+        importedList.push({
+          certType: rowCertType,
+          noSijil,
+          namaBm: namaBm.toUpperCase(),
+          namaCina,
+          noKpKelas,
+          jawatan,
+          programSesi,
+          teksBm,
+          teksSub,
+          tarikh
+        });
+
+        counter++;
+      });
+
+      if (importedList.length === 0) {
+        showToast('未检测到有效名单记录，请检查 CSV 格式');
+        return;
+      }
+
+      appState.students = importedList;
+      appState.currentIndex = 0;
+      appState.certType = importedList[0].certType || appState.certType;
+      syncStudentFormInputs();
+      renderAll();
+      showToast(`成功导入 ${importedList.length} 位证书名单！`);
+    }
+
+    function resetBatchToSingle() {
+      appState.students = [appState.students[0]];
+      appState.currentIndex = 0;
+      syncStudentFormInputs();
+      renderAll();
+      showToast('已重置为 1 人模式');
+    }
+
+    function selectStudent(index) {
+      if (index < 0 || index >= appState.students.length) return;
+      appState.currentIndex = index;
+      const st = appState.students[index];
+      if (st && st.certType) {
+        appState.certType = st.certType;
+      }
+      syncStudentFormInputs();
+      renderAll();
+    }
+
+    function navigateStudent(delta) {
+      const total = appState.students.length;
+      if (total <= 1) return;
+      appState.currentIndex = (appState.currentIndex + delta + total) % total;
+      const st = appState.students[appState.currentIndex];
+      if (st && st.certType) {
+        appState.certType = st.certType;
+      }
+      syncStudentFormInputs();
+      renderAll();
+    }
+
+    // ------------------------------------------------------------------------
+    // J. PRINT (SINGLE / BATCH PDF) & HIGH-DPI 2X PNG EXPORT
+    // ------------------------------------------------------------------------
+    function triggerPrint(mode) {
+      if (mode === 'batch') {
+        document.body.classList.remove('print-single-mode');
+        document.body.classList.add('print-batch-mode');
+
+        const batchMount = document.getElementById('print-mount-batch');
+        batchMount.innerHTML = appState.students
+          .map((st, idx) => `<div class="print-page-wrapper">${buildCertificateHTML(st, idx)}</div>`)
+          .join('');
+      } else {
+        document.body.classList.remove('print-batch-mode');
+        document.body.classList.add('print-single-mode');
+      }
+
+      setTimeout(() => {
+        window.print();
+      }, 90);
+    }
+
+    async function exportCurrentAsPng() {
+      if (typeof html2canvas === 'undefined') {
+        showToast('PNG 导出组件加载中，请稍后再试');
+        return;
+      }
+
+      const btn = document.getElementById('btn-export-png');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<span>正在生成高清 PNG...</span>`;
+
+      try {
+        const currentSt = appState.students[appState.currentIndex] || appState.students[0];
+        const stage = document.getElementById('png-capture-stage');
+        stage.innerHTML = buildCertificateHTML(currentSt, appState.currentIndex);
+
+        const targetSheet = stage.querySelector('.a4-sheet');
+        const canvas = await html2canvas(targetSheet, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: appState.cornerStyle === 'none' ? '#ffffff' : '#fffefc',
+          logging: false
+        });
+
+        const safeName = (currentSt.namaBm || 'sijil')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+
+        const prefix = (currentSt.certType || appState.certType) === 'penyertaan'
+          ? 'sijil-penyertaan'
+          : 'sijil-penghargaan';
+
+        const link = document.createElement('a');
+        link.download = `${prefix}-${safeName || 'penerima'}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        stage.innerHTML = '';
+        showToast('高清 2x PNG 证书已导出！');
+      } catch (err) {
+        console.error(err);
+        showToast('导出 PNG 失败，请使用“打印当前页 / PDF”');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // K. RESPONSIVE A4 PREVIEW SCALING & ZOOM CONTROLS
+    // ------------------------------------------------------------------------
+    function updatePreviewScale() {
+      const stage = document.getElementById('preview-scroll-stage');
+      const outerBox = document.getElementById('a4-outer-box');
+      const liveMount = document.getElementById('live-certificate-mount');
+      if (!stage || !outerBox || !liveMount) return;
+
+      const isLandscape = appState.orientation === 'landscape';
+      const sheetW = isLandscape ? 1122.5 : 793.7;
+      const sheetH = isLandscape ? 793.7 : 1122.5;
+
+      if (appState.zoomMode === 'fit') {
+        const availW = Math.max(260, stage.clientWidth - 48);
+        const availH = Math.max(300, stage.clientHeight - 40);
+        const fitScale = Math.min(availW / sheetW, availH / sheetH, 1.0);
+        appState.zoomScale = Math.max(0.28, Number(fitScale.toFixed(3)));
+      } else if (appState.zoomMode === '75') {
+        appState.zoomScale = 0.75;
+      } else if (appState.zoomMode === '100') {
+        appState.zoomScale = 1.0;
+      }
+
+      outerBox.style.width = `${sheetW * appState.zoomScale}px`;
+      outerBox.style.height = `${sheetH * appState.zoomScale}px`;
+
+      liveMount.style.transform = `scale(${appState.zoomScale})`;
+      liveMount.style.transformOrigin = 'top left';
+
+      document.getElementById('zoom-pct-label').textContent = `${Math.round(appState.zoomScale * 100)}%`;
+
+      document.querySelectorAll('.zoom-preset-btn').forEach(btn => {
+        const isMatch = btn.id === `btn-zoom-${appState.zoomMode}`;
+        if (isMatch) {
+          btn.classList.add('bg-white', 'shadow-2xs', 'font-semibold', 'text-slate-900');
+          btn.classList.remove('font-medium', 'text-slate-700');
+        } else {
+          btn.classList.remove('bg-white', 'shadow-2xs', 'font-semibold', 'text-slate-900');
+          btn.classList.add('font-medium', 'text-slate-700');
+        }
+      });
+    }
+
+    function setZoomMode(mode) {
+      appState.zoomMode = mode;
+      updatePreviewScale();
+    }
+
+    function stepZoom(delta) {
+      appState.zoomMode = 'custom';
+      appState.zoomScale = Math.min(1.4, Math.max(0.3, Number((appState.zoomScale + delta).toFixed(2))));
+      updatePreviewScale();
+    }
+
+    // ------------------------------------------------------------------------
+    // L. DRAG-AND-DROP, ESC KEY & TOAST HELPER
+    // ------------------------------------------------------------------------
+    function setupCsvDropzone() {
+      const dropzone = document.getElementById('csv-dropzone');
+      if (!dropzone) return;
+
+      ['dragenter', 'dragover'].forEach(evtName => {
+        dropzone.addEventListener(evtName, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('border-indigo-600', 'bg-indigo-100/80');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(evtName => {
+        dropzone.addEventListener(evtName, e => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('border-indigo-600', 'bg-indigo-100/80');
+        });
+      });
+
+      dropzone.addEventListener('drop', e => {
+        const files = e.dataTransfer && e.dataTransfer.files;
+        if (files && files.length > 0) {
+          readCsvFileWithSmartEncoding(files[0]);
+        }
+      });
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const box = document.getElementById('toast-box');
+      document.getElementById('toast-text').textContent = message;
+      box.classList.remove('translate-y-20', 'opacity-0');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        box.classList.add('translate-y-20', 'opacity-0');
+      }, 2600);
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeBatchModal();
+      }
+    });
+
+    window.addEventListener('resize', updatePreviewScale);
+
+    window.onload = function () {
+      setupCsvDropzone();
+      renderAll();
+      updatePreviewScale();
+    };
+  </script>
+</body>
+</html>
