@@ -444,7 +444,7 @@
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-sm font-bold text-slate-900">职务 / 活动预设与内容</h2>
-              <p class="text-[11px] text-slate-500 mt-0.5">选择「表扬状/感谢状」职务或「参与活动奖状」模板</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">选择学生领袖职务表扬状或参与活动奖状模板</p>
             </div>
             <span id="student-idx-badge" class="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-blue-100 text-blue-950">#1 / 1</span>
           </div>
@@ -453,37 +453,60 @@
           <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
             <div class="text-xs font-bold text-slate-900">一键预设模板 (Preset Jawatan &amp; Penyertaan)</div>
             <div class="grid grid-cols-2 gap-2">
+              <!-- Pengawas Group -->
+              <button type="button" data-role-preset="ketua_pengawas" onclick="applyRolePreset('ketua_pengawas')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">👑 巡察员团长</div>
+                <div class="text-[10px] text-slate-600 truncate">Ketua Pengawas Sekolah</div>
+              </button>
+
+              <button type="button" data-role-preset="penolong_ketua_pengawas" onclick="applyRolePreset('penolong_ketua_pengawas')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">🛡️ 巡察员副团长</div>
+                <div class="text-[10px] text-slate-600 truncate">Pen. Ketua Pengawas</div>
+              </button>
+
               <button type="button" data-role-preset="pengawas" onclick="applyRolePreset('pengawas')" class="role-preset-btn p-2 rounded-xl border-2 border-blue-900 bg-blue-50/70 text-left transition cursor-pointer">
-                <div class="text-xs font-bold text-blue-950">🛡️ 巡察员 (表扬状)</div>
-                <div class="text-[10px] text-slate-600">Pengawas Sekolah</div>
+                <div class="text-xs font-bold text-blue-950">🛡️ 巡察员</div>
+                <div class="text-[10px] text-slate-600 truncate">Pengawas Sekolah</div>
+              </button>
+
+              <!-- PSS / Librarians Group -->
+              <button type="button" data-role-preset="ketua_pss" onclick="applyRolePreset('ketua_pss')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">📖 图书管理员团长</div>
+                <div class="text-[10px] text-slate-600 truncate">Ketua Pengawas PSS</div>
+              </button>
+
+              <button type="button" data-role-preset="penolong_ketua_pss" onclick="applyRolePreset('penolong_ketua_pss')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-slate-900">📚 图书管理员副团长</div>
+                <div class="text-[10px] text-slate-600 truncate">Pen. Ketua Pengawas PSS</div>
               </button>
 
               <button type="button" data-role-preset="pss" onclick="applyRolePreset('pss')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
                 <div class="text-xs font-bold text-slate-900">📚 图书管理员</div>
-                <div class="text-[10px] text-slate-600">Pengawas Pusat Sumber</div>
+                <div class="text-[10px] text-slate-600 truncate">Pengawas Pusat Sumber</div>
               </button>
 
+              <!-- Class Monitors & Koku -->
               <button type="button" data-role-preset="ketua_kelas" onclick="applyRolePreset('ketua_kelas')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
                 <div class="text-xs font-bold text-slate-900">🎖️ 班长</div>
-                <div class="text-[10px] text-slate-600">Ketua Kelas</div>
+                <div class="text-[10px] text-slate-600 truncate">Ketua Kelas</div>
               </button>
 
               <button type="button" data-role-preset="penolong_ketua" onclick="applyRolePreset('penolong_ketua')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
                 <div class="text-xs font-bold text-slate-900">🏅 副班长</div>
-                <div class="text-[10px] text-slate-600">Penolong Ketua Kelas</div>
+                <div class="text-[10px] text-slate-600 truncate">Penolong Ketua Kelas</div>
               </button>
 
               <button type="button" data-role-preset="ajk_koku" onclick="applyRolePreset('ajk_koku')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
                 <div class="text-xs font-bold text-slate-900">🏆 课外活动理事</div>
-                <div class="text-[10px] text-slate-600">AJK Kokurikulum</div>
+                <div class="text-[10px] text-slate-600 truncate">AJK Kokurikulum</div>
               </button>
 
               <button type="button" data-role-preset="aktiviti" onclick="applyRolePreset('aktiviti')" class="role-preset-btn p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
                 <div class="text-xs font-bold text-slate-900">✨ 活动工委/主讲感谢状</div>
-                <div class="text-[10px] text-slate-600">Sijil Penghargaan Acara</div>
+                <div class="text-[10px] text-slate-600 truncate">Sijil Penghargaan Acara</div>
               </button>
 
-              <!-- NEW: Sijil Penyertaan (Participation Certificate) Full-Width Button -->
+              <!-- Sijil Penyertaan (Participation Certificate) Full-Width Button -->
               <button type="button" data-role-preset="penyertaan" onclick="applyRolePreset('penyertaan')" class="role-preset-btn col-span-2 p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100/70 text-left transition cursor-pointer flex items-center justify-between">
                 <div>
                   <div class="text-xs font-bold text-emerald-950">📜 参与活动奖状 (Sijil Penyertaan)</div>
@@ -686,7 +709,7 @@
             <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="block text-[11px] font-semibold text-slate-700 mb-1">姓名 (Nama)</label>
-                <input type="text" id="input-principalName" oninput="updateState('principalName', this.value)" value="WONG SIEW LAN" class="w-full px-2.5 py-1.5 text-xs font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
+                <input type="text" id="input-principalName" oninput="updateState('principalName', this.value)" value="CHONG LAI QUEEN" class="w-full px-2.5 py-1.5 text-xs font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
               </div>
               <div>
                 <label class="block text-[11px] font-semibold text-slate-700 mb-1">职称 (BM &amp; 中文/EN)</label>
@@ -861,7 +884,7 @@
               <h3 class="text-xs sm:text-sm font-bold text-emerald-950">下载 Excel 兼容 CSV 模板</h3>
             </div>
             <p class="text-[11px] text-emerald-800 leading-relaxed">
-              下载 <code class="font-mono font-bold">templat_sijil_sekolah.csv</code>（含职务表扬与活动参与示例，内置 UTF-8 BOM 防中文乱码）。
+              下载 <code class="font-mono font-bold">templat_sijil_sekolah.csv</code>（含团长/副团长职务与活动参与示例，内置 UTF-8 BOM 防中文乱码）。
             </p>
           </div>
           <button type="button" onclick="downloadExcelCsvTemplate()" class="shrink-0 inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition cursor-pointer">
@@ -1041,6 +1064,22 @@
     // ------------------------------------------------------------------------
     const ROLE_PRESETS = {
       // --- SIJIL PENGHARGAAN (表扬状 / 感谢状) ---
+      ketua_pengawas: {
+        certType: 'penghargaan',
+        jawatan: 'KETUA PENGAWAS SEKOLAH / 巡察员团长',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas kepimpinan unggul, kewibawaan serta dedikasi cemerlang dalam menerajui Lembaga Pengawas Sekolah dan menjaga disiplin murid sepanjang sesi persekolahan ini.',
+        teksZh: '感谢您在任期间以身作则、卓越领导巡察员团队，尽忠职守维护校园纪律与优良校风，特颁此状，以资表扬。',
+        teksEn: 'in recognition of your outstanding leadership, integrity, and exemplary dedication in leading the Prefectorial Board and upholding school discipline.'
+      },
+      penolong_ketua_pengawas: {
+        certType: 'penghargaan',
+        jawatan: 'PENOLONG KETUA PENGAWAS SEKOLAH / 巡察员副团长',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas kepimpinan berdedikasi, komitmen tinggi serta kerjasama erat dalam membantu Ketua Pengawas menerajui Lembaga Pengawas Sekolah sepanjang sesi persekolahan ini.',
+        teksZh: '感谢您在任期间尽心尽力协助巡察员团长带领巡察员团队，认真负责维护校园秩序与校风，特颁此状，以资表扬。',
+        teksEn: 'in appreciation of your dedicated leadership, strong commitment, and valuable support in assisting the Head Prefect to lead the Prefectorial Board.'
+      },
       pengawas: {
         certType: 'penghargaan',
         jawatan: 'PENGAWAS SEKOLAH / 巡察员',
@@ -1048,6 +1087,22 @@
         teksBm: 'atas jasa bakti, komitmen tinggi serta dedikasi cemerlang dalam menjalankan tugas dan tanggungjawab yang diamanahkan sepanjang sesi persekolahan ini.',
         teksZh: '感谢您在任期间尽忠职守、热心服务，为维护校园纪律与校风做出积极贡献，特颁此状，以资表扬。',
         teksEn: 'in grateful appreciation of your exemplary leadership, discipline, and dedicated service to the school community throughout the academic session.'
+      },
+      ketua_pss: {
+        certType: 'penghargaan',
+        jawatan: 'KETUA PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员团长',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas kepimpinan cemerlang, kerajinan serta komitmen tinggi dalam menerajui Lembaga Pengawas Pusat Sumber Sekolah dan menyemarakkan budaya membaca.',
+        teksZh: '感谢您在任期间卓越领导图书管理员团队，悉心统筹图书馆管理工作并积极推广校园阅读风气，特颁此状，以资表扬。',
+        teksEn: 'in recognition of your exemplary leadership, diligence, and commitment in leading the School Resource Centre Prefects and fostering a reading culture.'
+      },
+      penolong_ketua_pss: {
+        certType: 'penghargaan',
+        jawatan: 'PENOLONG KETUA PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员副团长',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas sokongan padu, kerajinan serta dedikasi cemerlang dalam membantu Ketua Pengawas Pusat Sumber mengurus operasi perpustakaan sekolah dengan lancar.',
+        teksZh: '感谢您在任期间尽忠职守、热心协助图书管理员团长处理图书馆日常管理与阅读推广工作，特颁此状，以资表扬。',
+        teksEn: 'in appreciation of your dedication, diligence, and reliable support in assisting the Head Librarian to manage the School Resource Centre smoothly.'
       },
       pss: {
         certType: 'penghargaan',
@@ -1170,10 +1225,10 @@
         'TAN WEI MING',
         '陈伟明',
         '140518-05-1234 • Kelas 6 Bestari',
-        'PENGAWAS SEKOLAH / 巡察员',
+        'KETUA PENGAWAS SEKOLAH / 巡察员团长',
         'Sesi Persekolahan Tahun 2026',
-        ROLE_PRESETS.pengawas.teksBm,
-        ROLE_PRESETS.pengawas.teksZh,
+        ROLE_PRESETS.ketua_pengawas.teksBm,
+        ROLE_PRESETS.ketua_pengawas.teksZh,
         '14 November 2026'
       ],
       [
@@ -1181,10 +1236,10 @@
         'NUR AISYAH BINTI AHMAD',
         '',
         '140822-05-5678 • Kelas 6 Bestari',
-        'PENGAWAS PUSAT SUMBER / 图书管理员',
+        'PENOLONG KETUA PENGAWAS SEKOLAH / 巡察员副团长',
         'Sesi Persekolahan Tahun 2026',
-        ROLE_PRESETS.pss.teksBm,
-        ROLE_PRESETS.pss.teksZh,
+        ROLE_PRESETS.penolong_ketua_pengawas.teksBm,
+        ROLE_PRESETS.penolong_ketua_pengawas.teksZh,
         '14 November 2026'
       ],
       [
@@ -1192,10 +1247,10 @@
         'LIM XIN YI',
         '林欣怡',
         '141103-05-9012 • Kelas 6 Cemerlang',
-        'KETUA KELAS / 班长',
+        'KETUA PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员团长',
         'Sesi Persekolahan Tahun 2026',
-        ROLE_PRESETS.ketua_kelas.teksBm,
-        ROLE_PRESETS.ketua_kelas.teksZh,
+        ROLE_PRESETS.ketua_pss.teksBm,
+        ROLE_PRESETS.ketua_pss.teksZh,
         '14 November 2026'
       ],
       [
@@ -1203,10 +1258,10 @@
         'KAVITHA A/P RAJAN',
         '',
         '140214-05-3456 • Kelas 6 Cemerlang',
-        'PENOLONG KETUA KELAS / 副班长',
+        'PENOLONG KETUA PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员副团长',
         'Sesi Persekolahan Tahun 2026',
-        ROLE_PRESETS.penolong_ketua.teksBm,
-        ROLE_PRESETS.penolong_ketua.teksZh,
+        ROLE_PRESETS.penolong_ketua_pss.teksBm,
+        ROLE_PRESETS.penolong_ketua_pss.teksZh,
         '14 November 2026'
       ],
       [
@@ -1263,7 +1318,7 @@
       // Signatory & Stamp
       enableLeftSignatory: false, // Toggleable Left Signatory section
       datePosition: 'right',      // 'right' (under Principal title) | 'left' (under Left Signatory title)
-      principalName: 'WONG SIEW LAN',
+      principalName: 'CHONG LAI QUEEN',
       principalTitle: 'Guru Besar / 校长',
       sigImg: null,
       sigSize: 15,
@@ -1330,6 +1385,7 @@
 
     function matchPresetByRoleKeyword(jawatanText) {
       const q = (jawatanText || '').toLowerCase();
+
       // Participation keywords (Sijil Penyertaan)
       if (q.includes('kem') || q.includes('perkhemahan') || q.includes('生活营') || q.includes('领袖培训')) {
         return ROLE_PRESETS.part_kem;
@@ -1344,10 +1400,37 @@
         return ROLE_PRESETS.part_sukan;
       }
 
-      // Appreciation keywords (Sijil Penghargaan)
+      // Specific School Librarian Leaders (PSS Leaders)
+      if (
+        q.includes('penolong ketua pengawas pusat sumber') ||
+        q.includes('penolong ketua pss') ||
+        q.includes('图书管理员副团长')
+      ) {
+        return ROLE_PRESETS.penolong_ketua_pss;
+      }
+      if (
+        q.includes('ketua pengawas pusat sumber') ||
+        q.includes('ketua pss') ||
+        q.includes('图书管理员团长')
+      ) {
+        return ROLE_PRESETS.ketua_pss;
+      }
       if (q.includes('pusat sumber') || q.includes('pss') || q.includes('perpustakaan') || q.includes('图书')) {
         return ROLE_PRESETS.pss;
       }
+
+      // Specific School Prefect Leaders (Pengawas Leaders)
+      if (q.includes('penolong ketua pengawas') || q.includes('巡察员副团长')) {
+        return ROLE_PRESETS.penolong_ketua_pengawas;
+      }
+      if (q.includes('ketua pengawas') || q.includes('巡察员团长')) {
+        return ROLE_PRESETS.ketua_pengawas;
+      }
+      if (q.includes('pengawas') || q.includes('巡察员')) {
+        return ROLE_PRESETS.pengawas;
+      }
+
+      // Class Monitors & Other Roles
       if (q.includes('penolong ketua') || q.includes('副班长')) {
         return ROLE_PRESETS.penolong_ketua;
       }
