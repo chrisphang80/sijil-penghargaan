@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>马来西亚学校官方表扬状 / 感谢状 / 参与奖状生成器 (Sijil Sekolah)</title>
+  <title>马来西亚学校官方表扬状 / 感谢状 / 优异奖 / 参与奖状生成器 (Sijil Sekolah)</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -26,6 +26,9 @@
       height: 100%;
       margin: 0;
       padding: 0;
+    }
+
+    body {
       font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
     }
 
@@ -47,6 +50,21 @@
 
     .img-multiply {
       mix-blend-mode: multiply;
+    }
+
+    /* Custom clean scrollbar for left panel */
+    #sidebar-scroll-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    #sidebar-scroll-container::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    #sidebar-scroll-container::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    #sidebar-scroll-container::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
 
     /* Exact A4 Physical Dimensions */
@@ -74,6 +92,7 @@
     @media print {
       html, body {
         height: auto !important;
+        min-height: 0 !important;
         overflow: visible !important;
         display: block !important;
         margin: 0 !important;
@@ -117,7 +136,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-200 text-slate-900 h-screen overflow-hidden flex flex-col print-single-mode" style="height: 100dvh;">
+<body class="bg-slate-200 text-slate-900 h-screen flex flex-col overflow-hidden print-single-mode" style="height: 100dvh;">
 
   <!-- ========================================================================
        1. TOP NAVIGATION & ACTION BAR (NO-PRINT)
@@ -131,10 +150,10 @@
         <div class="flex items-center gap-2">
           <h1 class="text-sm sm:text-base font-bold tracking-wide text-white">马来西亚学校证书生成器</h1>
           <span class="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-blue-900 border border-blue-700 text-amber-300 font-medium">
-            Sijil Penghargaan & Penyertaan
+            Penghargaan • Pencapaian • Penyertaan
           </span>
         </div>
-        <p class="text-xs text-blue-200/80 hidden sm:block">支持学生职务表扬状、热心教育捐助物资感谢状、活动参与奖状及 CSV 批量套打</p>
+        <p class="text-xs text-blue-200/80 hidden sm:block">内置 4 套视觉版式模板、24 种职务/捐助/奖项内文预设及 CSV 批量套打</p>
       </div>
     </div>
 
@@ -169,54 +188,61 @@
   <!-- ========================================================================
        2. MAIN WORKSPACE: LEFT CONTROL PANEL + RIGHT LIVE A4 PREVIEW (NO-PRINT)
        ======================================================================== -->
-  <main class="no-print flex-1 min-h-0 min-w-0 flex flex-col lg:flex-row overflow-hidden">
+  <main class="no-print flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden">
 
     <!-- LEFT EDITOR SIDEBAR -->
-    <aside class="w-full lg:w-[440px] xl:w-[475px] h-[52vh] lg:h-full min-h-0 bg-white border-b lg:border-b-0 lg:border-r border-slate-300 flex flex-col shrink-0">
+    <aside class="w-full md:w-[415px] lg:w-[460px] xl:w-[490px] bg-white border-b md:border-b-0 md:border-r border-slate-300 flex flex-col shrink-0 h-[52%] md:h-full min-h-0">
 
       <!-- Editor Tabs -->
       <div class="grid grid-cols-3 bg-slate-100 border-b border-slate-200 shrink-0 text-xs sm:text-sm">
         <button type="button" data-tab="recipient" onclick="switchTab('recipient')" class="tab-btn active py-2.5 px-2 border-b-2 border-blue-900 bg-white text-blue-950 font-bold transition cursor-pointer">
-          1. 证书与受惠人
+          1. 内容模板与受惠人
         </button>
         <button type="button" data-tab="school" onclick="switchTab('school')" class="tab-btn py-2.5 px-2 border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 transition cursor-pointer">
           2. 学校与签章
         </button>
         <button type="button" data-tab="design" onclick="switchTab('design')" class="tab-btn py-2.5 px-2 border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 transition cursor-pointer">
-          3. 版面与边框
+          3. 版式与边框
         </button>
       </div>
 
       <!-- Scrollable Tab Panels -->
-      <div class="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+      <div id="sidebar-scroll-container" class="flex-1 min-h-0 overflow-y-auto p-4 pb-12 space-y-4">
 
         <!-- ==================================================================
-             TAB 1: CERTIFICATE TYPE, ROLE/DONATION PRESETS & RECIPIENT DETAILS
+             TAB 1: CERTIFICATE TYPE, CONTENT TEMPLATES & RECIPIENT DETAILS
              ================================================================== -->
         <div id="panel-recipient" class="tab-panel space-y-4">
 
-          <!-- Certificate Type Selector -->
+          <!-- Certificate Type Selector (3 Primary Categories) -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-500">证书大类 (Jenis Sijil)</span>
               <span id="cert-type-badge" class="px-2 py-0.5 rounded bg-blue-900 text-white text-xs font-bold">SIJIL PENGHARGAAN</span>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" data-cert-type="penghargaan" onclick="setCertType('penghargaan')" class="cert-type-btn p-2.5 rounded-xl border-2 border-blue-900 bg-white text-left transition cursor-pointer">
-                <div class="text-xs sm:text-sm font-bold text-blue-950">表扬状 / 感谢状</div>
-                <div class="text-[11px] text-slate-500 mt-0.5">Sijil Penghargaan</div>
+            <div class="grid grid-cols-3 gap-1.5">
+              <button type="button" data-cert-type="penghargaan" onclick="setCertType('penghargaan')" class="cert-type-btn p-2 rounded-xl border-2 border-blue-900 bg-white text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-blue-950">表扬 / 感谢状</div>
+                <div class="text-[10px] text-slate-500 mt-0.5 truncate">Penghargaan</div>
               </button>
-              <button type="button" data-cert-type="penyertaan" onclick="setCertType('penyertaan')" class="cert-type-btn p-2.5 rounded-xl border border-slate-200 bg-white text-left transition cursor-pointer">
-                <div class="text-xs sm:text-sm font-bold text-emerald-900">参与活动奖状</div>
-                <div class="text-[11px] text-slate-500 mt-0.5">Sijil Penyertaan</div>
+              <button type="button" data-cert-type="pencapaian" onclick="setCertType('pencapaian')" class="cert-type-btn p-2 rounded-xl border border-slate-200 bg-white text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-amber-900">荣誉 / 优异奖</div>
+                <div class="text-[10px] text-slate-500 mt-0.5 truncate">Pencapaian</div>
+              </button>
+              <button type="button" data-cert-type="penyertaan" onclick="setCertType('penyertaan')" class="cert-type-btn p-2 rounded-xl border border-slate-200 bg-white text-left transition cursor-pointer">
+                <div class="text-xs font-bold text-emerald-900">参与活动奖</div>
+                <div class="text-[10px] text-slate-500 mt-0.5 truncate">Penyertaan</div>
               </button>
             </div>
           </div>
 
-          <!-- Quick Presets: Student Duties, Donations, Events, Participation -->
+          <!-- Quick Content Presets -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">一键套用职务 / 热心捐助 / 活动模板</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">一键套用职务 / 奖项 / 捐助模板</span>
+              <button type="button" onclick="switchTab('design')" class="text-[11px] font-semibold text-indigo-700 hover:underline cursor-pointer">
+                切换视觉版式 &rarr;
+              </button>
             </div>
 
             <div class="grid grid-cols-3 gap-1.5 text-xs">
@@ -272,30 +298,42 @@
                 <div class="text-[10px] text-slate-500 truncate">Pengacara Majlis</div>
               </button>
 
-              <!-- Special Category 1: Enthusiastic for Education & Donations (热心教育/捐助物资感谢状) -->
+              <!-- Expandable Category 1: Enthusiastic for Education & Donations -->
               <button type="button" data-role-preset="sumbangan" onclick="applyRolePreset('sumbangan')" class="role-preset-btn p-2 rounded-lg border border-amber-300 bg-amber-50/80 hover:bg-amber-100/80 text-left transition cursor-pointer">
                 <div class="font-bold text-amber-950 truncate">热心教育/捐助 ▾</div>
                 <div class="text-[10px] text-amber-800 truncate">Sumbangan / Derma</div>
               </button>
 
-              <!-- Special Category 2: Event Committee / Speaker -->
+              <!-- Expandable Category 2: Teachers & PIBG -->
+              <button type="button" data-role-preset="guru_pibg" onclick="applyRolePreset('guru_pibg')" class="role-preset-btn p-2 rounded-lg border border-purple-200 bg-purple-50/70 hover:bg-purple-100/80 text-left transition cursor-pointer">
+                <div class="font-bold text-purple-950 truncate">教师/家协/家长 ▾</div>
+                <div class="text-[10px] text-purple-800 truncate">Guru & PIBG</div>
+              </button>
+
+              <!-- Expandable Category 3: Event Committee / Speaker -->
               <button type="button" data-role-preset="aktiviti" onclick="applyRolePreset('aktiviti')" class="role-preset-btn p-2 rounded-lg border border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100/70 text-left transition cursor-pointer">
                 <div class="font-bold text-indigo-950 truncate">活动工委/嘉宾 ▾</div>
                 <div class="text-[10px] text-indigo-700 truncate">AJK / Penceramah</div>
               </button>
 
-              <!-- Special Category 3: Participation Certificate -->
+              <!-- Expandable Category 4: Achievement / Awards (Sijil Pencapaian) -->
+              <button type="button" data-role-preset="pencapaian" onclick="applyRolePreset('pencapaian')" class="role-preset-btn p-2 rounded-lg border border-orange-300 bg-orange-50/80 hover:bg-orange-100/80 text-left transition cursor-pointer col-span-2">
+                <div class="font-bold text-orange-950 truncate">荣誉奖状 (冠军 / 模范生 / 全勤 / 阅读奖) ▾</div>
+                <div class="text-[10px] text-orange-800 truncate">Sijil Pencapaian & Anugerah Khas</div>
+              </button>
+
+              <!-- Expandable Category 5: Participation Certificate -->
               <button type="button" data-role-preset="penyertaan" onclick="applyRolePreset('penyertaan')" class="role-preset-btn p-2 rounded-lg border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100/70 text-left transition cursor-pointer">
-                <div class="font-bold text-emerald-950 truncate">参与活动奖状 ▾</div>
-                <div class="text-[10px] text-emerald-700 truncate">Sijil Penyertaan</div>
+                <div class="font-bold text-emerald-950 truncate">参与活动奖 ▾</div>
+                <div class="text-[10px] text-emerald-700 truncate">Penyertaan</div>
               </button>
             </div>
 
-            <!-- Sub-drawer 1: Enthusiastic for Education & Donations (热心教育 / 捐助物资感谢状) -->
+            <!-- Sub-drawer 1: Enthusiastic for Education & Donations -->
             <div id="sumbangan-subpresets" class="hidden p-2.5 rounded-xl bg-amber-50/90 border border-amber-300 space-y-2">
               <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-amber-950">选择热心教育 / 捐助感谢状类型：</span>
-                <span class="text-[10px] text-amber-800">自动隐藏学生班级栏</span>
+                <span class="text-[10px] text-amber-800">自动隐藏班级栏</span>
               </div>
               <div class="grid grid-cols-2 gap-1.5 text-xs">
                 <button type="button" data-sumbangan-preset="sumbangan_barangan" onclick="applySumbanganPreset('sumbangan_barangan')" class="sumbangan-preset-btn p-2 rounded-lg border-2 border-amber-700 bg-amber-100/90 text-left transition cursor-pointer">
@@ -317,7 +355,33 @@
               </div>
             </div>
 
-            <!-- Sub-drawer 2: Event Committee / Speaker -->
+            <!-- Sub-drawer 2: Teachers & PIBG -->
+            <div id="guru-pibg-subpresets" class="hidden p-2.5 rounded-xl bg-purple-50/90 border border-purple-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-purple-950">选择教师 / 家协 / 家长感谢状：</span>
+                <span class="text-[10px] text-purple-800">自动隐藏班级栏</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button type="button" data-guru-preset="guru_dedikasi" onclick="applyGuruPibgPreset('guru_dedikasi')" class="guru-preset-btn p-2 rounded-lg border-2 border-purple-700 bg-purple-100/90 text-left transition cursor-pointer">
+                  <div class="font-bold text-purple-950">教师敬业服务表扬状</div>
+                  <div class="text-[10px] text-purple-800">Perkhidmatan Guru</div>
+                </button>
+                <button type="button" data-guru-preset="ajk_pibg" onclick="applyGuruPibgPreset('ajk_pibg')" class="guru-preset-btn p-2 rounded-lg border border-purple-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-purple-950">家教协会理事感谢状</div>
+                  <div class="text-[10px] text-purple-800">AJK PIBG</div>
+                </button>
+                <button type="button" data-guru-preset="sukarelawan_ibu_bapa" onclick="applyGuruPibgPreset('sukarelawan_ibu_bapa')" class="guru-preset-btn p-2 rounded-lg border border-purple-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-purple-950">爱心家长义工感谢状</div>
+                  <div class="text-[10px] text-purple-800">Sukarelawan PIBK</div>
+                </button>
+                <button type="button" data-guru-preset="pesara_guru" onclick="applyGuruPibgPreset('pesara_guru')" class="guru-preset-btn p-2 rounded-lg border border-purple-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-purple-950">教师荣休纪念感谢状</div>
+                  <div class="text-[10px] text-purple-800">Persaraan & Jasa Bakti</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sub-drawer 3: Event Committee / Speaker -->
             <div id="aktiviti-subpresets" class="hidden p-2.5 rounded-xl bg-indigo-50/70 border border-indigo-200 space-y-2">
               <div class="text-xs font-bold text-indigo-950">选择活动工委 / 嘉宾表扬类型：</div>
               <div class="grid grid-cols-2 gap-1.5 text-xs">
@@ -340,7 +404,30 @@
               </div>
             </div>
 
-            <!-- Sub-drawer 3: Participation Certificate -->
+            <!-- Sub-drawer 4: Achievement / Special Awards (Sijil Pencapaian) -->
+            <div id="pencapaian-subpresets" class="hidden p-2.5 rounded-xl bg-orange-50/80 border border-orange-300 space-y-2">
+              <div class="text-xs font-bold text-orange-950">选择荣誉 / 优异奖状类型 (Sijil Pencapaian)：</div>
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button type="button" data-ach-preset="johan_pertandingan" onclick="applyAchievementPreset('johan_pertandingan')" class="ach-preset-btn p-2 rounded-lg border-2 border-orange-700 bg-orange-100/90 text-left transition cursor-pointer">
+                  <div class="font-bold text-orange-950">比赛冠军 / 优胜奖</div>
+                  <div class="text-[10px] text-orange-800">Johan Pertandingan</div>
+                </button>
+                <button type="button" data-ach-preset="tokoh_murid" onclick="applyAchievementPreset('tokoh_murid')" class="ach-preset-btn p-2 rounded-lg border border-orange-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-orange-950">全年模范生奖</div>
+                  <div class="text-[10px] text-orange-800">Anugerah Tokoh Murid</div>
+                </button>
+                <button type="button" data-ach-preset="kehadiran_penuh" onclick="applyAchievementPreset('kehadiran_penuh')" class="ach-preset-btn p-2 rounded-lg border border-orange-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-orange-950">100% 全年全勤奖</div>
+                  <div class="text-[10px] text-orange-800">Kehadiran Penuh</div>
+                </button>
+                <button type="button" data-ach-preset="nilam_emas" onclick="applyAchievementPreset('nilam_emas')" class="ach-preset-btn p-2 rounded-lg border border-orange-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-orange-950">NILAM 卓越阅读奖</div>
+                  <div class="text-[10px] text-orange-800">Anugerah NILAM</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sub-drawer 5: Participation Certificate -->
             <div id="penyertaan-subpresets" class="hidden p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
               <div class="text-xs font-bold text-emerald-950">选择参与活动奖状类型：</div>
               <div class="grid grid-cols-2 gap-1.5 text-xs">
@@ -367,7 +454,7 @@
           <!-- Recipient Form Fields -->
           <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-800">受惠人 / 捐助人资料</span>
+              <span class="text-xs font-bold text-slate-800">受惠人 / 得奖者 / 捐助人资料</span>
               <span id="student-idx-badge" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-950">#1 / 1</span>
             </div>
 
@@ -401,7 +488,7 @@
                   <span>显示此行</span>
                 </label>
               </div>
-              <input type="text" id="input-noKpKelas" value="140518-05-1234 • Kelas 6 Bestari" oninput="updateCurrentStudentField('noKpKelas', this.value)" placeholder="捐助人/嘉宾可留空或取消勾选" class="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
+              <input type="text" id="input-noKpKelas" value="140518-05-1234 • Kelas 6 Bestari" oninput="updateCurrentStudentField('noKpKelas', this.value)" placeholder="捐助人/嘉宾/教师可留空或取消勾选" class="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
             </div>
 
             <div>
@@ -415,7 +502,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-slate-700 mb-1">马来文表扬/感谢内文 (Teks Penghargaan BM)</label>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">马来文表扬/获奖/感谢内文 (Teks BM)</label>
               <textarea id="input-teksBm" rows="3" oninput="updateCurrentStudentField('teksBm', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none leading-relaxed">atas jasa bakti, komitmen tinggi serta dedikasi cemerlang dalam menjalankan tugas dan tanggungjawab yang diamanahkan sepanjang sesi persekolahan ini.</textarea>
             </div>
 
@@ -522,7 +609,7 @@
             </div>
           </div>
 
-          <!-- Optional Left Signatory (e.g. Chairman of Board / PIBG / GPK) -->
+          <!-- Optional Left Signatory -->
           <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold uppercase tracking-wider text-slate-500">左侧第二签署人 (董事长/家协/副校长)</span>
@@ -629,9 +716,78 @@
         </div>
 
         <!-- ==================================================================
-             TAB 3: LANGUAGE, ORIENTATION, COLOR THEME & PRE-PRINTED FRAME MODE
+             TAB 3: VISUAL LAYOUT TEMPLATES, LANGUAGE, ORIENTATION & BORDER
              ================================================================== -->
         <div id="panel-design" class="tab-panel hidden space-y-4">
+
+          <!-- 4 Visual Layout Templates -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">视觉版式模板 (Reka Bentuk Sijil)</span>
+              <span id="layout-template-badge" class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-900 text-xs font-bold">经典校徽中轴版</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <!-- Layout 1: Classic Centered -->
+              <button type="button" data-layout-btn="classic" onclick="setLayoutTemplate('classic')" class="layout-tpl-btn p-2.5 rounded-xl border-2 border-blue-900 bg-blue-50/70 text-left flex items-center gap-2.5 transition cursor-pointer">
+                <div class="w-8 h-10 rounded border border-blue-900/40 bg-white p-1 flex flex-col items-center justify-between shrink-0">
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-900"></span>
+                  <span class="w-5 h-0.5 bg-amber-500"></span>
+                  <span class="w-4 h-1 bg-slate-300"></span>
+                  <span class="w-5 h-0.5 bg-slate-400"></span>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-blue-950 truncate">经典校徽中轴</div>
+                  <div class="text-[10px] text-slate-500 truncate">Klasik Rasmi</div>
+                </div>
+              </button>
+
+              <!-- Layout 2: Royal Ribbon & Medal -->
+              <button type="button" data-layout-btn="ribbon" onclick="setLayoutTemplate('ribbon')" class="layout-tpl-btn p-2.5 rounded-xl border border-slate-200 bg-white text-left flex items-center gap-2.5 transition cursor-pointer">
+                <div class="w-8 h-10 rounded border border-slate-300 bg-white p-1 relative flex flex-col items-center justify-between shrink-0 overflow-hidden">
+                  <span class="absolute left-1 top-0 w-1.5 h-4 bg-amber-500"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-blue-900 mt-0.5"></span>
+                  <span class="w-5 h-1 bg-amber-200 border border-amber-500"></span>
+                  <span class="w-5 h-0.5 bg-slate-400"></span>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-slate-900 truncate">皇家金绶带勋章</div>
+                  <div class="text-[10px] text-slate-500 truncate">Pingat Diraja</div>
+                </div>
+              </button>
+
+              <!-- Layout 3: Modern Academic Sidebar -->
+              <button type="button" data-layout-btn="sidebar" onclick="setLayoutTemplate('sidebar')" class="layout-tpl-btn p-2.5 rounded-xl border border-slate-200 bg-white text-left flex items-center gap-2.5 transition cursor-pointer">
+                <div class="w-8 h-10 rounded border border-slate-300 bg-white flex overflow-hidden shrink-0">
+                  <div class="w-2.5 h-full bg-blue-900 flex flex-col items-center pt-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  </div>
+                  <div class="flex-1 p-1 flex flex-col justify-between">
+                    <span class="w-full h-1 bg-blue-900/40"></span>
+                    <span class="w-3/4 h-1 bg-amber-500"></span>
+                    <span class="w-full h-0.5 bg-slate-300"></span>
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-slate-900 truncate">现代学院侧边栏</div>
+                  <div class="text-[10px] text-slate-500 truncate">Moden Akademik</div>
+                </div>
+              </button>
+
+              <!-- Layout 4: Heritage Double Scroll -->
+              <button type="button" data-layout-btn="heritage" onclick="setLayoutTemplate('heritage')" class="layout-tpl-btn p-2.5 rounded-xl border border-slate-200 bg-white text-left flex items-center gap-2.5 transition cursor-pointer">
+                <div class="w-8 h-10 rounded border-2 border-double border-amber-600 bg-amber-50/40 p-1 flex flex-col items-center justify-between shrink-0">
+                  <span class="w-4 h-0.5 bg-amber-600"></span>
+                  <span class="w-5 h-2 border border-amber-500 bg-white"></span>
+                  <span class="w-4 h-0.5 bg-amber-600"></span>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-bold text-slate-900 truncate">书香雅韵双框</div>
+                  <div class="text-[10px] text-slate-500 truncate">Warisan Klasik</div>
+                </div>
+              </button>
+            </div>
+          </div>
 
           <!-- Language Mode -->
           <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
@@ -744,7 +900,7 @@
         <div class="flex items-center gap-3">
           <span id="preview-dim-label" class="text-xs font-bold text-slate-700">实时 A4 竖版预览 (210mm × 297mm)</span>
 
-          <!-- Batch Navigation Controls (Shown when more than 1 recipient imported) -->
+          <!-- Batch Navigation Controls (Shown when > 1 recipient imported) -->
           <div id="preview-batch-nav" class="hidden items-center gap-1.5 bg-indigo-50 border border-indigo-200 px-2 py-1 rounded-lg">
             <button type="button" onclick="navigateStudent(-1)" class="w-6 h-6 rounded bg-white hover:bg-indigo-100 border border-indigo-200 text-indigo-900 font-bold text-xs flex items-center justify-center cursor-pointer" title="上一张">&lsaquo;</button>
             <span class="text-xs font-bold text-indigo-950 px-1.5">
@@ -768,7 +924,7 @@
 
       <!-- Centered Scaled A4 Stage -->
       <div id="preview-scroll-stage" class="flex-1 min-h-0 overflow-auto p-4 sm:p-6 flex justify-center items-start">
-        <div id="a4-outer-box" class="shadow-2xl transition-all duration-150 shrink-0">
+        <div id="a4-outer-box" class="shadow-2xl transition-all duration-150">
           <div id="live-certificate-mount"></div>
         </div>
       </div>
@@ -791,8 +947,8 @@
             </svg>
           </div>
           <div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">批量 CSV 模板下载与上传 (表扬状 / 感谢状 / 参与奖状)</h2>
-            <p class="text-xs text-slate-600">支持 Excel UTF-8 BOM 防乱码模板、职务/热心捐助/活动智能匹配内文与批量导出多页 A4 PDF</p>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">批量 CSV 模板下载与上传 (表扬 / 感谢 / 荣誉 / 参与奖状)</h2>
+            <p class="text-xs text-slate-600">支持 Excel UTF-8 BOM 防乱码模板、智能识别职务/奖项/捐助并自动匹配证书大类与内文</p>
           </div>
         </div>
         <button type="button" onclick="closeBatchModal()" class="w-9 h-9 rounded-xl hover:bg-slate-200/80 flex items-center justify-center text-slate-600 font-bold text-xl transition cursor-pointer" aria-label="关闭弹窗">&times;</button>
@@ -809,7 +965,7 @@
               <h3 class="text-sm sm:text-base font-bold text-emerald-950">下载 Excel 兼容 CSV 模板</h3>
             </div>
             <p class="text-xs text-emerald-800 leading-relaxed">
-              下载 <code class="font-mono font-bold">templat_sijil_sekolah.csv</code>（含学生职务、热心教育捐助物资感谢状及活动参与示例，内置 UTF-8 BOM 防乱码）。
+              下载 <code class="font-mono font-bold">templat_sijil_sekolah.csv</code>（含学生职务、模范生/全勤荣誉奖、热心捐助感谢状及活动参与示例，内置 UTF-8 BOM 防乱码）。
             </p>
           </div>
           <button type="button" onclick="downloadExcelCsvTemplate()" class="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-sm transition cursor-pointer">
@@ -829,7 +985,7 @@
                 <span class="text-sm font-bold text-slate-900">上传 .CSV 文件或粘贴表格</span>
               </div>
               <button type="button" onclick="loadSampleIntoModal()" class="text-xs font-semibold text-indigo-700 hover:underline cursor-pointer">
-                加载 10 人示例
+                加载 12 人示例
               </button>
             </div>
 
@@ -843,7 +999,7 @@
                   </svg>
                 </div>
                 <div class="text-sm font-bold text-indigo-950">点击选择或拖拽 <span class="underline">.CSV 文件</span> 到此处</div>
-                <div class="text-xs text-slate-600 mt-1">支持 UTF-8 / GBK 编码 • 留空内文自动根据职务/捐助/活动关键词填充</div>
+                <div class="text-xs text-slate-600 mt-1">支持 UTF-8 / GBK 编码 • 留空内文自动根据职务/奖项/捐助关键词填充</div>
               </div>
             </div>
 
@@ -860,7 +1016,7 @@
           </div>
 
           <!-- Step 3: Interactive Imported Recipients List -->
-          <div class="flex flex-col space-y-2.5">
+          <div class="flex flex-col space-y-2.5 min-h-0">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="px-2.5 py-0.5 rounded bg-blue-950 text-white text-xs font-bold">步骤 3</span>
@@ -910,7 +1066,7 @@
   </div>
 
   <!-- ========================================================================
-       6. APPLICATION LOGIC, PRESETS, CSV ENGINE & A4 RENDERER
+       6. APPLICATION LOGIC, 4 LAYOUT TEMPLATES, 24 CONTENT PRESETS & CSV ENGINE
        ======================================================================== -->
   <script>
     // ------------------------------------------------------------------------
@@ -984,11 +1140,18 @@
       }
     };
 
+    const LAYOUT_TEMPLATE_NAMES = {
+      classic: '经典校徽中轴版',
+      ribbon: '皇家金绶带勋章版',
+      sidebar: '现代学院侧边栏版',
+      heritage: '书香雅韵双框版'
+    };
+
     // ------------------------------------------------------------------------
-    // B. ROLE, DONATION & PARTICIPATION PRESETS (WITH BM, ZH & EN TEXTS)
+    // B. 24 CONTENT PRESETS (PENGHARGAAN, PENCAPAIAN, PENYERTAAN, GURU & DONORS)
     // ------------------------------------------------------------------------
     const ROLE_PRESETS = {
-      // --- SIJIL PENGHARGAAN: STUDENT DUTIES (表扬状) ---
+      // --- 1. SIJIL PENGHARGAAN: STUDENT DUTIES (表扬状) ---
       ketua_pengawas: {
         certType: 'penghargaan',
         isDonor: false,
@@ -1098,7 +1261,45 @@
         teksEn: 'in recognition of your eloquence, poise, and exemplary commitment as Master of Ceremonies for weekly school assemblies throughout the academic session.'
       },
 
-      // --- SIJIL PENGHARGAAN: EVENTS & GUESTS (活动工委 / 主讲嘉宾感谢状) ---
+      // --- 2. SIJIL PENGHARGAAN: TEACHERS & PIBG (教师与家协感谢状) ---
+      guru_dedikasi: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'GURU BERDEDIKASI & CEMERLANG / 教师服务表扬状',
+        programSesi: 'Sempena Hari Guru & Majlis Apresiasi Sekolah 2026',
+        teksBm: 'setinggi-tinggi penghargaan atas jasa bakti, pengorbanan serta komitmen yang tidak berbelah bahagi dalam mendidik anak bangsa dan memacu kecemerlangan sekolah.',
+        teksZh: '衷心感谢您春风化雨、诲人不倦，以高度热忱与专业精神培育莘莘学子，为提升本校教育素质做出卓越贡献，特颁此状，谨致谢忱。',
+        teksEn: 'in grateful recognition of your unwavering dedication, noble service, and inspiring commitment to educating students and advancing school excellence.'
+      },
+      ajk_pibg: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'AHLI JAWATANKUASA PIBG / 家教协会理事',
+        programSesi: 'Persatuan Ibu Bapa dan Guru (PIBG) Sesi 2026',
+        teksBm: 'setinggi-tinggi penghargaan dan terima kasih atas sumbangan masa, tenaga serta buah fikiran dalam memperkukuh kerjasama erat antara ibu bapa dan pihak sekolah.',
+        teksZh: '衷心感谢您在任期间积极参与家教协会会务，群策群力促进家校合作与推动校务发展，特颁此状，谨致谢忱。',
+        teksEn: 'in sincere appreciation of your dedicated service, time, and leadership in strengthening the partnership between parents and the school.'
+      },
+      sukarelawan_ibu_bapa: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'SUKARELAWAN PIBK / 爱心家长义工',
+        programSesi: 'Program Pelibatan Ibu Bapa dan Komuniti (PIBK) 2026',
+        teksBm: 'setinggi-tinggi terima kasih atas kesudian meluangkan masa dan tenaga sebagai sukarelawan dalam menjayakan aktiviti serta menjaga keselamatan murid-murid sekolah.',
+        teksZh: '衷心感谢您热心担任本校爱心家长义工，无私奉献宝贵时间协助校园活动与守护学生安全，特颁此状，谨致谢忱。',
+        teksEn: 'with heartfelt gratitude for generously volunteering your time and energy to support school activities and student welfare.'
+      },
+      pesara_guru: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'PENGHARGAAN PERSARAAN & JASA BAKTI / 荣休纪念感谢状',
+        programSesi: 'Majlis Sanjungan Budi Lambaian Kasih 2026',
+        teksBm: 'setinggi-tinggi penghargaan dan jutaan terima kasih atas segala curahan bakti, keringat serta jasa mulia sepanjang berkhidmat sebagai pendidik di sekolah ini.',
+        teksZh: '谨向您致以最崇高的敬意，感谢您数十年来杏坛耕耘、作育英才，把宝贵青春奉献予教育事业，祝愿荣休生活安康愉快，特颁此状，永志铭感。',
+        teksEn: 'with deepest respect and gratitude for your lifetime of devoted service, wisdom, and lasting legacy in shaping generations of students.'
+      },
+
+      // --- 3. SIJIL PENGHARGAAN: EVENTS & GUESTS (活动工委 / 主讲嘉宾) ---
       ajk_program: {
         certType: 'penghargaan',
         isDonor: false,
@@ -1136,7 +1337,7 @@
         teksEn: 'in recognition of your active participation, determination, and commendable effort in representing the school.'
       },
 
-      // --- SIJIL PENGHARGAAN: ENTHUSIASTIC FOR EDUCATION & DONATIONS (热心教育 / 捐助物资感谢状) ---
+      // --- 4. SIJIL PENGHARGAAN: ENTHUSIASTIC FOR EDUCATION & DONATIONS (热心教育/捐助) ---
       sumbangan_dana: {
         certType: 'penghargaan',
         isDonor: true,
@@ -1174,7 +1375,45 @@
         teksEn: 'in grateful recognition of your organization’s generous sponsorship, strong support, and commitment towards the educational excellence of our school.'
       },
 
-      // --- SIJIL PENYERTAAN (参与活动奖状) ---
+      // --- 5. SIJIL PENCAPAIAN: SPECIAL AWARDS & ACHIEVEMENTS (荣誉/优异奖状) ---
+      johan_pertandingan: {
+        certType: 'pencapaian',
+        isDonor: false,
+        jawatan: 'JOHAN PERTANDINGAN / 比赛冠军',
+        programSesi: 'Pertandingan Koakademik & Kesenian Sekolah 2026',
+        teksBm: 'atas pencapaian cemerlang, bakat unggul serta daya usaha gigih sehingga berjaya merangkul kejayaan dalam pertandingan yang disertai.',
+        teksZh: '恭喜您在上述比赛中表现卓越、脱颖而出，荣获佳绩，为班争光，特颁此状，以资鼓励。',
+        teksEn: 'in recognition of your outstanding achievement, exceptional talent, and perseverance in winning top honours in the competition.'
+      },
+      tokoh_murid: {
+        certType: 'pencapaian',
+        isDonor: false,
+        jawatan: 'ANUGERAH TOKOH MURID / 全年模范生奖',
+        programSesi: 'Majlis Anugerah Kecemerlangan Murid Tahun 2026',
+        teksBm: 'atas kecemerlangan menyeluruh dalam bidang akademik, kokurikulum, sahsiah terpuji serta kepimpinan yang menjadi teladan kepada seluruh warga sekolah.',
+        teksZh: '表彰您在学业成绩、课外活动、品德修养及领导才能方面均表现卓越，堪为全体同学之楷模，特颁此状，以资嘉奖。',
+        teksEn: 'in recognition of your all-round excellence in academics, co-curricular leadership, and exemplary character as a role model to all students.'
+      },
+      kehadiran_penuh: {
+        certType: 'pencapaian',
+        isDonor: false,
+        jawatan: 'ANUGERAH KEHADIRAN PENUH (100%) / 全年全勤奖',
+        programSesi: 'Sesi Persekolahan Tahun 2026',
+        teksBm: 'atas disiplin diri yang tinggi, kesungguhan serta rekod kehadiran penuh 100% ke sekolah sepanjang sesi persekolahan ini tanpa sebarang ketidakhadiran.',
+        teksZh: '表彰您在整个学年里风雨无阻、勤奋向学，创下全年 100% 出席率之优良纪录，展现高度自律精神，特颁此状，以资鼓励。',
+        teksEn: 'in commendation of your exemplary self-discipline, commitment to learning, and 100% attendance record throughout the entire school year.'
+      },
+      nilam_emas: {
+        certType: 'pencapaian',
+        isDonor: false,
+        jawatan: 'ANUGERAH NILAM (JAUHARI) / 卓越阅读奖',
+        programSesi: 'Program Nadi Ilmu Amalan Membaca (NILAM) 2026',
+        teksBm: 'atas minat membaca yang mendalam, kegigihan menimba ilmu serta pencapaian cemerlang dalam Program NILAM peringkat sekolah.',
+        teksZh: '表彰您热爱阅读、勤于汲取知识，在本校 NILAM 阅读计划中表现优异，养成终身阅读的良好习惯，特颁此状，以资鼓励。',
+        teksEn: 'in recognition of your passion for reading, intellectual curiosity, and outstanding achievement in the school NILAM reading programme.'
+      },
+
+      // --- 6. SIJIL PENYERTAAN (参与活动奖状) ---
       part_pertandingan: {
         certType: 'penyertaan',
         isDonor: false,
@@ -1214,7 +1453,7 @@
     };
 
     // ------------------------------------------------------------------------
-    // C. CSV HEADERS & 10 REALISTIC MALAYSIAN SAMPLE ROWS
+    // C. CSV HEADERS & 12 REALISTIC MALAYSIAN SAMPLE ROWS
     // ------------------------------------------------------------------------
     const CSV_HEADERS = [
       'No_Sijil',
@@ -1318,7 +1557,29 @@
         '14 November 2026'
       ],
       [
-        'SP/2026/009',
+        'SC/2026/009',
+        'ONG YU TONG',
+        '王语彤',
+        '140115-05-3322 • Kelas 6 Bestari',
+        'ANUGERAH TOKOH MURID / 全年模范生奖',
+        'Majlis Anugerah Kecemerlangan Murid Tahun 2026',
+        ROLE_PRESETS.tokoh_murid.teksBm,
+        ROLE_PRESETS.tokoh_murid.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SC/2026/010',
+        'CHUA MING HAO',
+        '蔡明豪',
+        '160809-05-1188 • Kelas 4 Cerdas',
+        'ANUGERAH KEHADIRAN PENUH (100%) / 全年全勤奖',
+        'Sesi Persekolahan Tahun 2026',
+        ROLE_PRESETS.kehadiran_penuh.teksBm,
+        ROLE_PRESETS.kehadiran_penuh.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SY/2026/011',
         'WONG JUN JIE',
         '黄俊杰',
         '150309-05-7890 • Kelas 5 Bijak',
@@ -1329,7 +1590,7 @@
         '14 November 2026'
       ],
       [
-        'SP/2026/010',
+        'SY/2026/012',
         'MUHAMMAD DANISH BIN ZULKIFLI',
         '',
         '140912-05-2468 • Kelas 6 Pintar',
@@ -1345,15 +1606,16 @@
     // D. APPLICATION STATE
     // ------------------------------------------------------------------------
     const appState = {
-      certType: 'penghargaan',         // 'penghargaan' (表扬状/感谢状) | 'penyertaan' (参与活动奖状)
+      certType: 'penghargaan',         // 'penghargaan' | 'pencapaian' | 'penyertaan'
+      layoutTemplate: 'classic',       // 'classic' | 'ribbon' | 'sidebar' | 'heritage'
       orientation: 'portrait',         // 'portrait' (210x297mm) | 'landscape' (297x210mm)
       langMode: 'bm_zh',               // 'bm' | 'bm_zh' | 'bm_en'
       theme: 'navy',
-      cornerStyle: 'songket',          // 'songket' | 'double' | 'minimal' | 'none' (Pure Content Pre-Printed Mode)
-      showWatermark: true,             // Center background crest watermark
-      hideTopCrest: false,             // Optional hide top crest if pre-printed sijil paper already has crest
-      safeMarginV: 21,                 // 15mm to 32mm (default 21mm); horizontal = safeMarginV + 4mm (25mm)
-      certFontScale: 1.00,             // 0.90 to 1.15 multiplier
+      cornerStyle: 'songket',          // 'songket' | 'double' | 'minimal' | 'none'
+      showWatermark: true,
+      hideTopCrest: false,
+      safeMarginV: 21,
+      certFontScale: 1.00,
 
       // School Identity
       schoolLogo: null,
@@ -1363,16 +1625,18 @@
       schoolNameSub: '晏斗中华国民型华文小学',
       schoolCode: 'NBC4067',
 
-      // Role, Donation & Participation Preset Active Tracking
+      // Content Preset Active Tracking
       activePreset: 'pengawas',
       activeSubPreset: 'ajk_program',
       activeSumbanganPreset: 'sumbangan_barangan',
+      activeGuruPreset: 'guru_dedikasi',
+      activeAchPreset: 'johan_pertandingan',
       activePartPreset: 'part_pertandingan',
       showKpKelas: true,
 
       // Signatory & Stamp
-      enableLeftSignatory: false,      // Toggleable Left Signatory section (false = closed)
-      datePosition: 'right',           // 'right' (under Principal title) | 'left' (under Left Signatory title)
+      enableLeftSignatory: false,
+      datePosition: 'right',
       principalName: 'CHONG LAI QUEEN',
       principalTitle: 'Guru Besar / 校长',
       sigImg: null,
@@ -1386,7 +1650,7 @@
       sigLeftSize: 16,
       sigLeftOffset: 0,
 
-      showStamp: true,                 // Toggleable School Stamp visibility (true = shown, false = hidden)
+      showStamp: true,
       stampImg: null,
       stampSize: 25,
       stampOffset: 0,
@@ -1446,7 +1710,35 @@
     function matchPresetByRoleKeyword(jawatanText) {
       const q = (jawatanText || '').toLowerCase();
 
-      // Enthusiastic for Education & Donations (热心教育 / 捐助物资)
+      // Achievement / Special Awards (Sijil Pencapaian)
+      if (q.includes('tokoh murid') || q.includes('模范生')) {
+        return ROLE_PRESETS.tokoh_murid;
+      }
+      if (q.includes('kehadiran penuh') || q.includes('全勤')) {
+        return ROLE_PRESETS.kehadiran_penuh;
+      }
+      if (q.includes('nilam') || q.includes('阅读奖')) {
+        return ROLE_PRESETS.nilam_emas;
+      }
+      if (q.includes('johan') || q.includes('naib johan') || q.includes('ketiga') || q.includes('pencapaian') || q.includes('冠军') || q.includes('亚军') || q.includes('季军') || q.includes('优胜')) {
+        return ROLE_PRESETS.johan_pertandingan;
+      }
+
+      // Teachers & PIBG
+      if (q.includes('persaraan') || q.includes('pesara') || q.includes('荣休')) {
+        return ROLE_PRESETS.pesara_guru;
+      }
+      if (q.includes('sukarelawan') || q.includes('pibk') || q.includes('爱心家长') || q.includes('义工')) {
+        return ROLE_PRESETS.sukarelawan_ibu_bapa;
+      }
+      if (q.includes('pibg') || q.includes('家协') || q.includes('家教协会')) {
+        return ROLE_PRESETS.ajk_pibg;
+      }
+      if (q.includes('guru') || q.includes('教师') || q.includes('老师')) {
+        return ROLE_PRESETS.guru_dedikasi;
+      }
+
+      // Enthusiastic for Education & Donations
       if (q.includes('buku') || q.includes('kemudahan') || q.includes('prasarana') || q.includes('图书') || q.includes('设施')) {
         return ROLE_PRESETS.sumbangan_buku;
       }
@@ -1474,7 +1766,7 @@
         return ROLE_PRESETS.part_sukan;
       }
 
-      // Flag Raiser (升国旗队员), School Broadcaster (校园广播员), Assembly MC (周会司仪)
+      // Flag Raiser, School Broadcaster, Assembly MC
       if (q.includes('bendera') || q.includes('升旗') || q.includes('升国旗')) {
         return ROLE_PRESETS.bendera;
       }
@@ -1485,7 +1777,7 @@
         return ROLE_PRESETS.pengacara;
       }
 
-      // Specific School Librarian Leaders (PSS Leaders)
+      // PSS Leaders
       if (
         q.includes('penolong ketua pengawas pusat sumber') ||
         q.includes('penolong ketua pss') ||
@@ -1504,7 +1796,7 @@
         return ROLE_PRESETS.pss;
       }
 
-      // Specific School Prefect Leaders (Pengawas Leaders)
+      // Pengawas Leaders
       if (q.includes('penolong ketua pengawas') || q.includes('巡察员副团长')) {
         return ROLE_PRESETS.penolong_ketua_pengawas;
       }
@@ -1542,16 +1834,17 @@
 
     function getLanguageLabels(langMode, certType) {
       const isParticipation = certType === 'penyertaan';
+      const isAchievement = certType === 'pencapaian';
 
       if (langMode === 'bm') {
         return {
           kodSekolah: 'Kod Sekolah',
           noSijil: 'No. Siri',
-          certTitle: isParticipation ? 'SIJIL PENYERTAAN' : 'SIJIL PENGHARGAAN',
+          certTitle: isParticipation ? 'SIJIL PENYERTAAN' : (isAchievement ? 'SIJIL PENCAPAIAN' : 'SIJIL PENGHARGAAN'),
           certSubTitle: '',
           awardedToBm: isParticipation ? 'Adalah dengan ini diperakui bahawa' : 'Dengan sukacitanya dianugerahkan kepada',
           awardedToSub: '',
-          asRoleLabel: isParticipation ? 'telah menyertai' : 'sebagai',
+          asRoleLabel: isParticipation ? 'telah menyertai' : (isAchievement ? 'atas pencapaian / anugerah' : 'sebagai'),
           tarikh: 'Tarikh',
           stampText: 'COP RASMI<br/>SEKOLAH'
         };
@@ -1560,11 +1853,11 @@
         return {
           kodSekolah: 'Kod Sekolah / 学校代码',
           noSijil: 'No. Siri / 证书编号',
-          certTitle: isParticipation ? 'SIJIL PENYERTAAN' : 'SIJIL PENGHARGAAN',
-          certSubTitle: isParticipation ? '参 与 奖 状' : '表 扬 状 / 感 谢 状',
+          certTitle: isParticipation ? 'SIJIL PENYERTAAN' : (isAchievement ? 'SIJIL PENCAPAIAN' : 'SIJIL PENGHARGAAN'),
+          certSubTitle: isParticipation ? '参 与 奖 状' : (isAchievement ? '荣 誉 优 异 奖 状' : '表 扬 状 / 感 谢 状'),
           awardedToBm: isParticipation ? 'Adalah dengan ini diperakui bahawa' : 'Dengan sukacitanya dianugerahkan kepada',
-          awardedToSub: isParticipation ? '兹证明' : '谨颁此状予',
-          asRoleLabel: isParticipation ? 'telah menyertai / 积极参与' : 'sebagai / 担任',
+          awardedToSub: isParticipation ? '兹证明' : (isAchievement ? '谨颁此状嘉奖' : '谨颁此状予'),
+          asRoleLabel: isParticipation ? 'telah menyertai / 积极参与' : (isAchievement ? 'atas pencapaian / 荣获' : 'sebagai / 担任'),
           tarikh: 'Tarikh / 日期',
           stampText: 'COP RASMI SEKOLAH<br/><span class="font-cert-zh-sans">学校盖章</span>'
         };
@@ -1573,18 +1866,18 @@
       return {
         kodSekolah: 'School Code / Kod Sekolah',
         noSijil: 'Serial No. / No. Siri',
-        certTitle: isParticipation ? 'CERTIFICATE OF PARTICIPATION' : 'CERTIFICATE OF APPRECIATION',
-        certSubTitle: isParticipation ? 'SIJIL PENYERTAAN' : 'SIJIL PENGHARGAAN',
+        certTitle: isParticipation ? 'CERTIFICATE OF PARTICIPATION' : (isAchievement ? 'CERTIFICATE OF ACHIEVEMENT' : 'CERTIFICATE OF APPRECIATION'),
+        certSubTitle: isParticipation ? 'SIJIL PENYERTAAN' : (isAchievement ? 'SIJIL PENCAPAIAN' : 'SIJIL PENGHARGAAN'),
         awardedToBm: isParticipation ? 'This is to certify that' : 'This certificate is proudly presented to',
         awardedToSub: isParticipation ? 'Adalah dengan ini diperakui bahawa' : 'Dengan sukacitanya dianugerahkan kepada',
-        asRoleLabel: isParticipation ? 'has participated in / telah menyertai' : 'in the capacity of / sebagai',
+        asRoleLabel: isParticipation ? 'has participated in / telah menyertai' : (isAchievement ? 'in recognition of / atas pencapaian' : 'in the capacity of / sebagai'),
         tarikh: 'Date / Tarikh',
         stampText: 'OFFICIAL STAMP<br/><span>COP RASMI SEKOLAH</span>'
       };
     }
 
     // ------------------------------------------------------------------------
-    // F. CORE A4 CERTIFICATE RENDERER
+    // F. CORE A4 CERTIFICATE RENDERER (SUPPORTS 4 DISTINCT VISUAL LAYOUTS)
     // ------------------------------------------------------------------------
     function buildCertificateHTML(st, index) {
       const theme = THEMES[appState.theme] || THEMES.navy;
@@ -1592,6 +1885,7 @@
       const labels = getLanguageLabels(appState.langMode, effectiveCertType);
       const isLandscape = appState.orientation === 'landscape';
       const isPreprinted = appState.cornerStyle === 'none';
+      const layoutTpl = appState.layoutTemplate || 'classic';
 
       const vbW = isLandscape ? 297 : 210;
       const vbH = isLandscape ? 210 : 297;
@@ -1608,9 +1902,272 @@
       const hasChineseStudentName = (st.namaCina || '').trim() !== '';
       const showSubTitle = (appState.langMode !== 'bm') && labels.certSubTitle !== '';
 
-      // Compact 17mm x 17mm Corner SVG Ornaments
+      // ----------------------------------------------------------------------
+      // 1. SHARED FOOTER (SIGNATORIES & STAMP)
+      // ----------------------------------------------------------------------
+      let stampMarkup = '';
+      if (appState.showStamp) {
+        if (appState.stampImg) {
+          stampMarkup = `
+            <div class="flex items-center justify-center">
+              <img src="${appState.stampImg}" alt="School Stamp" class="object-contain img-multiply" style="width: ${appState.stampSize}mm; height: ${appState.stampSize}mm; transform: translateY(${appState.stampOffset}px);" />
+            </div>
+          `;
+        } else {
+          stampMarkup = `
+            <div class="rounded-full border border-dashed flex items-center justify-center text-center p-2" style="width: ${appState.stampSize}mm; height: ${appState.stampSize}mm; border-color: ${theme.primary}65; color: ${theme.primary}85; transform: translateY(${appState.stampOffset}px);">
+              <span class="font-bold tracking-wider leading-tight uppercase" style="font-size: ${ptSize(7)};">${labels.stampText}</span>
+            </div>
+          `;
+        }
+      }
+
+      const dateUnderTitleMarkup = (st.tarikh || '').trim() !== '' ? `
+        <div class="text-slate-600 mt-1" style="font-size: ${ptSize(9)};">
+          ${labels.tarikh}: <strong class="text-slate-900 font-semibold">${escapeHtml(st.tarikh)}</strong>
+        </div>
+      ` : '';
+
+      const putDateOnLeft = appState.enableLeftSignatory && appState.datePosition === 'left';
+      const sigColW = layoutTpl === 'sidebar' ? 'w-[52mm]' : (appState.enableLeftSignatory ? 'w-[62mm]' : 'w-[66mm]');
+
+      const leftSignatoryColMarkup = appState.enableLeftSignatory ? `
+        <div class="flex flex-col items-center text-center ${sigColW} shrink-0">
+          <div class="${isLandscape ? 'h-[11mm]' : 'h-[14mm]'} w-full flex items-end justify-center mb-1 relative">
+            ${appState.sigLeftImg ? `
+              <img src="${appState.sigLeftImg}" alt="Left Signature" class="object-contain ${appState.sigMultiply ? 'img-multiply' : ''}" style="height: ${appState.sigLeftSize}mm; transform: translateY(${appState.sigLeftOffset}px);" />
+            ` : ''}
+          </div>
+          <div class="w-full border-t border-slate-800 pt-1.5">
+            <div class="font-bold uppercase tracking-wide" style="color: ${theme.primaryDark}; font-size: ${ptSize(9.5)};">
+              (${escapeHtml(appState.sigLeftName)})
+            </div>
+            <div class="font-semibold text-slate-700 leading-tight mt-0.5" style="font-size: ${ptSize(8.5)};">
+              ${escapeHtml(appState.sigLeftTitle)}
+            </div>
+            ${putDateOnLeft ? dateUnderTitleMarkup : ''}
+          </div>
+        </div>
+      ` : '';
+
+      const rightSignatoryColMarkup = `
+        <div class="flex flex-col items-center text-center ${sigColW} shrink-0">
+          <div class="${isLandscape ? 'h-[11mm]' : 'h-[14mm]'} w-full flex items-end justify-center mb-1 relative">
+            ${appState.sigImg ? `
+              <img src="${appState.sigImg}" alt="Principal Signature" class="object-contain ${appState.sigMultiply ? 'img-multiply' : ''}" style="height: ${appState.sigSize}mm; transform: translateY(${appState.sigOffset}px);" />
+            ` : ''}
+          </div>
+          <div class="w-full border-t border-slate-800 pt-1.5">
+            <div class="font-bold uppercase tracking-wide" style="color: ${theme.primaryDark}; font-size: ${ptSize(9.5)};">
+              (${escapeHtml(appState.principalName)})
+            </div>
+            <div class="font-semibold text-slate-700 leading-tight mt-0.5" style="font-size: ${ptSize(8.5)};">
+              ${escapeHtml(appState.principalTitle)}
+            </div>
+            ${!putDateOnLeft ? dateUnderTitleMarkup : ''}
+          </div>
+        </div>
+      `;
+
+      let footerMarkup = '';
+      if (appState.enableLeftSignatory) {
+        footerMarkup = `
+          <div class="flex items-start justify-between gap-2">
+            ${leftSignatoryColMarkup}
+            <div class="flex-1 flex items-center justify-center pt-1 min-h-[16mm]">
+              ${stampMarkup}
+            </div>
+            ${rightSignatoryColMarkup}
+          </div>
+        `;
+      } else {
+        footerMarkup = `
+          <div class="flex items-start ${appState.showStamp ? 'justify-between' : 'justify-end'} gap-4">
+            ${appState.showStamp ? `
+              <div class="flex-1 flex items-center justify-center pt-1">
+                ${stampMarkup}
+              </div>
+            ` : ''}
+            ${rightSignatoryColMarkup}
+          </div>
+        `;
+      }
+
+      const subTextBasePt = appState.langMode === 'bm_zh'
+        ? (isLandscape ? 10.5 : 11.2)
+        : (isLandscape ? 10 : 10.8);
+
+      const subAppreciationMarkup = (appState.langMode !== 'bm' && (st.teksSub || '').trim() !== '')
+        ? `<p class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif tracking-wide' : 'font-cert-serif italic'} text-slate-700 leading-relaxed max-w-[94%] mx-auto mt-1.5" style="font-size: ${ptSize(subTextBasePt)};">${escapeHtml(st.teksSub)}</p>`
+        : '';
+
+      const watermarkMarkup = appState.showWatermark ? `
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" style="opacity: ${theme.watermarkOpacity};">
+          <div class="${isLandscape ? 'w-[88mm] h-[88mm]' : 'w-[105mm] h-[105mm]'}">
+            ${logoMarkup}
+          </div>
+        </div>
+      ` : '';
+
+      // ----------------------------------------------------------------------
+      // LAYOUT TEMPLATE 3: MODERN ACADEMIC SIDEBAR (现代学院侧边栏版)
+      // ----------------------------------------------------------------------
+      if (layoutTpl === 'sidebar') {
+        const sidebarW = isLandscape ? 'w-[58mm]' : 'w-[48mm]';
+        const sidebarBgStyle = isPreprinted
+          ? `border-right: 1.5pt solid ${theme.primary}; background-color: transparent;`
+          : `background: linear-gradient(180deg, ${theme.primary} 0%, ${theme.primaryDark} 100%); color: #ffffff;`;
+
+        return `
+          <div class="a4-sheet ${isLandscape ? 'is-landscape' : ''} ${isPreprinted ? 'is-preprinted' : ''} select-none flex overflow-hidden" style="padding: 0;">
+            ${!isPreprinted ? `
+              <div class="absolute inset-[6.5mm] border pointer-events-none z-20" style="border-color: ${theme.accent};"></div>
+              <div class="absolute inset-[8.2mm] border pointer-events-none z-20" style="border-color: ${theme.primary}45;"></div>
+            ` : ''}
+
+            <!-- Left Vertical Crest & Metadata Band -->
+            <div class="${sidebarW} h-full shrink-0 flex flex-col items-center justify-between text-center px-4 py-[18mm] relative z-10" style="${sidebarBgStyle}">
+              <div class="flex flex-col items-center space-y-3">
+                ${!appState.hideTopCrest ? `
+                  <div class="rounded-2xl p-2 flex items-center justify-center ${isPreprinted ? '' : 'bg-white shadow-md'}" style="width: ${effectiveLogoSize + 5}mm; height: ${effectiveLogoSize + 5}mm;">
+                    ${logoMarkup}
+                  </div>
+                ` : ''}
+
+                <div class="w-10 h-[1.5px]" style="background-color: ${theme.accent};"></div>
+
+                ${appState.schoolCode ? `
+                  <div class="space-y-0.5">
+                    <div class="text-[7.5pt] uppercase tracking-widest ${isPreprinted ? 'text-slate-500' : 'text-amber-300/90'} font-semibold">${labels.kodSekolah}</div>
+                    <div class="font-mono font-bold text-[10pt] ${isPreprinted ? 'text-slate-900' : 'text-white'}">${escapeHtml(appState.schoolCode)}</div>
+                  </div>
+                ` : ''}
+
+                ${st.noSijil ? `
+                  <div class="space-y-0.5 pt-1">
+                    <div class="text-[7.5pt] uppercase tracking-widest ${isPreprinted ? 'text-slate-500' : 'text-amber-300/90'} font-semibold">${labels.noSijil}</div>
+                    <div class="font-mono font-bold text-[9.5pt] ${isPreprinted ? 'text-slate-900' : 'text-white'}">${escapeHtml(st.noSijil)}</div>
+                  </div>
+                ` : ''}
+              </div>
+
+              <!-- Vertical Gold Accent Emblem -->
+              <div class="my-auto flex flex-col items-center gap-2 opacity-80">
+                <div class="w-[1px] h-12" style="background-color: ${theme.accent};"></div>
+                <div class="w-3 h-3 rotate-45 border" style="border-color: ${theme.accent};"></div>
+                <div class="w-[1px] h-12" style="background-color: ${theme.accent};"></div>
+              </div>
+
+              <div class="text-[7.5pt] tracking-widest uppercase font-semibold ${isPreprinted ? 'text-slate-500' : 'text-white/75'}">
+                MALAYSIA<br/>OFFICIAL SIJIL
+              </div>
+            </div>
+
+            <!-- Right Main Content Area -->
+            <div class="flex-1 h-full flex flex-col justify-between px-[14mm] py-[18mm] relative z-10" style="background-color: ${isPreprinted ? '#ffffff' : theme.tintBg};">
+              ${watermarkMarkup}
+
+              <!-- Header -->
+              <div class="relative z-10 border-b pb-3" style="border-color: ${theme.accent};">
+                ${(appState.kpmHeaderText || '').trim() !== '' ? `
+                  <div class="font-bold tracking-[0.16em] uppercase text-slate-500 mb-1" style="font-size: ${ptSize(8.2)};">
+                    ${escapeHtml(appState.kpmHeaderText)}
+                  </div>
+                ` : ''}
+                <h1 class="font-cert-display font-bold leading-snug tracking-wide uppercase" style="color: ${theme.primary}; font-size: ${ptSize(isLandscape ? 12.5 : 13.5)};">
+                  ${escapeHtml(appState.schoolName)}
+                </h1>
+                ${showSchoolSub ? `
+                  <div class="font-cert-zh-serif font-bold tracking-widest mt-0.5" style="color: ${theme.primaryDark}; font-size: ${ptSize(isLandscape ? 11.5 : 12.5)};">
+                    ${escapeHtml(appState.schoolNameSub)}
+                  </div>
+                ` : ''}
+
+                <div class="mt-3 pt-2.5 border-t" style="border-color: ${theme.primary}25;">
+                  <h2 class="font-cert-display font-extrabold tracking-[0.08em] uppercase leading-none" style="color: ${theme.primary}; font-size: ${ptSize(isLandscape ? 19 : 21)};">
+                    ${labels.certTitle}
+                  </h2>
+                  ${showSubTitle ? `
+                    <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif font-bold tracking-[0.25em]' : 'font-cert-display font-semibold tracking-[0.15em]'} mt-1.5 leading-none" style="color: ${theme.accent}; font-size: ${ptSize(appState.langMode === 'bm_zh' ? 13.5 : 11.5)};">
+                      ${labels.certSubTitle}
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+
+              <!-- Center Body -->
+              <div class="relative z-10 my-auto text-center ${isLandscape ? 'space-y-1.5 py-1' : 'space-y-2.5 py-2'}">
+                <div class="font-cert-serif text-slate-700 leading-snug" style="font-size: ${ptSize(10.5)};">
+                  <div class="italic">${labels.awardedToBm}</div>
+                  ${labels.awardedToSub ? `
+                    <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif tracking-widest' : 'italic'} mt-0.5 text-slate-600" style="font-size: ${ptSize(11)};">
+                      ${labels.awardedToSub}
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="${isLandscape ? 'py-1.5 px-4' : 'py-2.5 px-6'} rounded-md border-l-4" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : '#ffffff'}; box-shadow: ${isPreprinted ? 'none' : '0 1px 4px rgba(15,23,42,0.05)'};">
+                  <div class="font-cert-display font-extrabold tracking-wide uppercase leading-tight" style="color: ${theme.primaryDark}; font-size: ${ptSize(isLandscape ? 18 : 20.5)};">
+                    ${escapeHtml(st.namaBm)}
+                  </div>
+                  ${hasChineseStudentName ? `
+                    <div class="font-cert-zh-serif font-bold tracking-[0.22em] mt-1" style="color: ${theme.primary}; font-size: ${ptSize(isLandscape ? 15 : 17)};">
+                      ${escapeHtml(st.namaCina)}
+                    </div>
+                  ` : ''}
+                  ${appState.showKpKelas && (st.noKpKelas || '').trim() !== '' ? `
+                    <div class="font-mono font-semibold text-slate-600 mt-1" style="font-size: ${ptSize(9.5)};">
+                      (${escapeHtml(st.noKpKelas)})
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="space-y-1">
+                  <div class="font-cert-serif italic text-slate-600" style="font-size: ${ptSize(9.8)};">
+                    ${labels.asRoleLabel}
+                  </div>
+                  <div class="inline-block px-4 py-1 rounded-md border font-bold tracking-wide uppercase" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : theme.accentLight + '75'}; color: ${theme.primaryDark}; font-size: ${ptSize(isLandscape ? 10 : 11)};">
+                    ${escapeHtml(st.jawatan)}
+                  </div>
+                  ${(st.programSesi || '').trim() !== '' ? `
+                    <div class="font-semibold text-slate-800 pt-0.5" style="font-size: ${ptSize(10)};">
+                      ${escapeHtml(st.programSesi)}
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div class="pt-0.5">
+                  <p class="font-cert-serif text-slate-800 leading-relaxed max-w-[96%] mx-auto" style="font-size: ${ptSize(isLandscape ? 10 : 11)};">
+                    ${escapeHtml(st.teksBm)}
+                  </p>
+                  ${subAppreciationMarkup}
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="relative z-10 pt-1">
+                ${footerMarkup}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // ----------------------------------------------------------------------
+      // LAYOUT TEMPLATES 1, 2 & 4: CLASSIC / ROYAL RIBBON / HERITAGE DOUBLE
+      // ----------------------------------------------------------------------
       let cornerSvgMarkup = '';
-      if (appState.cornerStyle === 'songket') {
+      if (layoutTpl === 'heritage') {
+        // Traditional Chinese/Malaysian Fretwork Corner Brackets
+        cornerSvgMarkup = `
+          <g stroke="${theme.primary}" fill="none" stroke-width="0.9">
+            <path d="M 8 22 L 8 8 L 22 8 M 11 22 L 11 11 L 22 11 M 14 18 L 14 14 L 18 14" />
+            <path d="M ${vbW - 8} 22 L ${vbW - 8} 8 L ${vbW - 22} 8 M ${vbW - 11} 22 L ${vbW - 11} 11 L ${vbW - 22} 11 M ${vbW - 14} 18 L ${vbW - 14} 14 L ${vbW - 18} 14" />
+            <path d="M 8 ${vbH - 22} L 8 ${vbH - 8} L 22 ${vbH - 8} M 11 ${vbH - 22} L 11 ${vbH - 11} L 22 ${vbH - 11} M 14 ${vbH - 18} L 14 ${vbH - 14} L 18 ${vbH - 14}" />
+            <path d="M ${vbW - 8} ${vbH - 22} L ${vbW - 8} ${vbH - 8} L ${vbW - 22} ${vbH - 8} M ${vbW - 11} ${vbH - 22} L ${vbW - 11} ${vbH - 11} L ${vbW - 22} ${vbH - 11} M ${vbW - 14} ${vbH - 18} L ${vbW - 14} ${vbH - 14} L ${vbW - 18} ${vbH - 14}" />
+          </g>
+        `;
+      } else if (appState.cornerStyle === 'songket') {
         cornerSvgMarkup = `
           <g stroke="${theme.accent}" fill="none" stroke-width="0.75">
             <path d="M 6.5 17.0 L 11.8 17.0 L 11.8 11.8 L 17.0 11.8 L 17.0 6.5" />
@@ -1641,6 +2198,18 @@
         `;
       }
 
+      // Royal Ribbon Streamer & Rosette Medal for 'ribbon' layout
+      const royalRibbonSvg = (!isPreprinted && layoutTpl === 'ribbon') ? `
+        <g>
+          <polygon points="18,6.8 31,6.8 31,42 24.5,36.5 18,42" fill="${theme.primary}" />
+          <rect x="20.5" y="6.8" width="1.6" height="33" fill="${theme.accent}" />
+          <rect x="26.9" y="6.8" width="1.6" height="33" fill="${theme.accent}" />
+          <circle cx="24.5" cy="24" r="6.8" fill="${theme.accent}" stroke="#ffffff" stroke-width="0.8" />
+          <circle cx="24.5" cy="24" r="5.0" fill="${theme.primaryDark}" />
+          <polygon points="24.5,20.4 25.5,22.8 28.1,23.0 26.1,24.7 26.7,27.2 24.5,25.9 22.3,27.2 22.9,24.7 20.9,23.0 23.5,22.8" fill="#fbbf24" />
+        </g>
+      ` : '';
+
       const borderSvgMarkup = isPreprinted ? '' : `
         <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 ${vbW} ${vbH}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -1656,120 +2225,67 @@
             <rect x="7.5" y="7.5" width="${vbW - 15}" height="${vbH - 15}" fill="none" stroke="url(#guillochePattern-${index})" stroke-width="3" />
           ` : ''}
 
-          <rect x="6.8" y="6.8" width="${vbW - 13.6}" height="${vbH - 13.6}" fill="none" stroke="${theme.primary}" stroke-width="1.35" />
-          <rect x="9.2" y="9.2" width="${vbW - 18.4}" height="${vbH - 18.4}" fill="none" stroke="${theme.accent}" stroke-width="0.7" />
+          <rect x="6.8" y="6.8" width="${vbW - 13.6}" height="${vbH - 13.6}" fill="none" stroke="${theme.primary}" stroke-width="${layoutTpl === 'heritage' ? '1.6' : '1.35'}" />
+          <rect x="9.2" y="9.2" width="${vbW - 18.4}" height="${vbH - 18.4}" fill="none" stroke="${theme.accent}" stroke-width="${layoutTpl === 'heritage' ? '0.9' : '0.7'}" />
           <rect x="10.8" y="10.8" width="${vbW - 21.6}" height="${vbH - 21.6}" fill="none" stroke="${theme.primary}" stroke-width="0.35" />
 
           ${cornerSvgMarkup}
+          ${royalRibbonSvg}
         </svg>
       `;
 
-      const watermarkMarkup = appState.showWatermark ? `
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" style="opacity: ${theme.watermarkOpacity};">
-          <div class="${isLandscape ? 'w-[88mm] h-[88mm]' : 'w-[105mm] h-[105mm]'}">
-            ${logoMarkup}
+      // Title Banner Styling per Layout Template
+      let titleBannerMarkup = '';
+      if (layoutTpl === 'ribbon') {
+        titleBannerMarkup = `
+          <div class="inline-flex items-center gap-3 ${isLandscape ? 'px-7 py-1.5' : 'px-9 py-2'} rounded-full border-2 shadow-sm" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : theme.primary};">
+            <span class="w-2 h-2 rotate-45" style="background-color: ${theme.accent};"></span>
+            <div class="text-center">
+              <h2 class="font-cert-display font-extrabold tracking-[0.1em] uppercase leading-none" style="color: ${isPreprinted ? theme.primary : '#ffffff'}; font-size: ${ptSize(isLandscape ? 19 : 21.5)};">
+                ${labels.certTitle}
+              </h2>
+              ${showSubTitle ? `
+                <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif font-bold tracking-[0.28em]' : 'font-cert-display font-semibold tracking-[0.18em]'} mt-1.5 leading-none" style="color: ${isPreprinted ? theme.primaryDark : '#fde68a'}; font-size: ${ptSize(appState.langMode === 'bm_zh' ? (isLandscape ? 13 : 14.5) : 11.5)};">
+                  ${labels.certSubTitle}
+                </div>
+              ` : ''}
+            </div>
+            <span class="w-2 h-2 rotate-45" style="background-color: ${theme.accent};"></span>
           </div>
-        </div>
-      ` : '';
-
-      // Official School Stamp Markup (Controlled by appState.showStamp)
-      let stampMarkup = '';
-      if (appState.showStamp) {
-        if (appState.stampImg) {
-          stampMarkup = `
-            <div class="flex items-center justify-center">
-              <img src="${appState.stampImg}" alt="School Stamp" class="object-contain img-multiply" style="width: ${appState.stampSize}mm; height: ${appState.stampSize}mm; transform: translateY(${appState.stampOffset}px);" />
-            </div>
-          `;
-        } else {
-          stampMarkup = `
-            <div class="rounded-full border border-dashed flex items-center justify-center text-center p-2" style="width: ${appState.stampSize}mm; height: ${appState.stampSize}mm; border-color: ${theme.primary}65; color: ${theme.primary}85; transform: translateY(${appState.stampOffset}px);">
-              <span class="font-bold tracking-wider leading-tight uppercase" style="font-size: ${ptSize(7)};">${labels.stampText}</span>
-            </div>
-          `;
-        }
-      }
-
-      const dateUnderTitleMarkup = (st.tarikh || '').trim() !== '' ? `
-        <div class="text-slate-600 mt-1" style="font-size: ${ptSize(9)};">
-          ${labels.tarikh}: <strong class="text-slate-900 font-semibold">${escapeHtml(st.tarikh)}</strong>
-        </div>
-      ` : '';
-
-      const putDateOnLeft = appState.enableLeftSignatory && appState.datePosition === 'left';
-
-      // Left Signatory Column Markup (Only rendered when appState.enableLeftSignatory is true)
-      const leftSignatoryColMarkup = appState.enableLeftSignatory ? `
-        <div class="flex flex-col items-center text-center w-[62mm] shrink-0">
-          <div class="${isLandscape ? 'h-[11mm]' : 'h-[14mm]'} w-full flex items-end justify-center mb-1 relative">
-            ${appState.sigLeftImg ? `
-              <img src="${appState.sigLeftImg}" alt="Left Signature" class="object-contain ${appState.sigMultiply ? 'img-multiply' : ''}" style="height: ${appState.sigLeftSize}mm; transform: translateY(${appState.sigLeftOffset}px);" />
+        `;
+      } else if (layoutTpl === 'heritage') {
+        titleBannerMarkup = `
+          <div class="${isLandscape ? 'px-8 py-1.5' : 'px-10 py-2'} border-2 border-double" style="border-color: ${theme.primary}; background-color: ${isPreprinted ? 'transparent' : '#ffffff'};">
+            <h2 class="font-cert-display font-extrabold tracking-[0.12em] uppercase leading-none" style="color: ${theme.primary}; font-size: ${ptSize(isLandscape ? 20 : 22.5)};">
+              ${labels.certTitle}
+            </h2>
+            ${showSubTitle ? `
+              <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif font-black tracking-[0.32em]' : 'font-cert-display font-semibold tracking-[0.18em]'} mt-1.5 leading-none" style="color: ${theme.accent}; font-size: ${ptSize(appState.langMode === 'bm_zh' ? (isLandscape ? 14 : 15.5) : 12)};">
+                ${labels.certSubTitle}
+              </div>
             ` : ''}
-          </div>
-          <div class="w-full border-t border-slate-800 pt-1.5">
-            <div class="font-bold uppercase tracking-wide" style="color: ${theme.primaryDark}; font-size: ${ptSize(10)};">
-              (${escapeHtml(appState.sigLeftName)})
-            </div>
-            <div class="font-semibold text-slate-700 leading-tight mt-0.5" style="font-size: ${ptSize(9)};">
-              ${escapeHtml(appState.sigLeftTitle)}
-            </div>
-            ${putDateOnLeft ? dateUnderTitleMarkup : ''}
-          </div>
-        </div>
-      ` : '';
-
-      // Primary Signatory Column Markup (Right)
-      const rightSignatoryColMarkup = `
-        <div class="flex flex-col items-center text-center ${appState.enableLeftSignatory ? 'w-[62mm]' : 'w-[66mm]'} shrink-0">
-          <div class="${isLandscape ? 'h-[11mm]' : 'h-[14mm]'} w-full flex items-end justify-center mb-1 relative">
-            ${appState.sigImg ? `
-              <img src="${appState.sigImg}" alt="Principal Signature" class="object-contain ${appState.sigMultiply ? 'img-multiply' : ''}" style="height: ${appState.sigSize}mm; transform: translateY(${appState.sigOffset}px);" />
-            ` : ''}
-          </div>
-          <div class="w-full border-t border-slate-800 pt-1.5">
-            <div class="font-bold uppercase tracking-wide" style="color: ${theme.primaryDark}; font-size: ${ptSize(10)};">
-              (${escapeHtml(appState.principalName)})
-            </div>
-            <div class="font-semibold text-slate-700 leading-tight mt-0.5" style="font-size: ${ptSize(9)};">
-              ${escapeHtml(appState.principalTitle)}
-            </div>
-            ${!putDateOnLeft ? dateUnderTitleMarkup : ''}
-          </div>
-        </div>
-      `;
-
-      // Footer Assembly
-      let footerMarkup = '';
-      if (appState.enableLeftSignatory) {
-        footerMarkup = `
-          <div class="flex items-start justify-between gap-3">
-            ${leftSignatoryColMarkup}
-            <div class="flex-1 flex items-center justify-center pt-1 min-h-[16mm]">
-              ${stampMarkup}
-            </div>
-            ${rightSignatoryColMarkup}
           </div>
         `;
       } else {
-        footerMarkup = `
-          <div class="flex items-start ${appState.showStamp ? 'justify-between' : 'justify-end'} gap-4">
-            ${appState.showStamp ? `
-              <div class="flex-1 flex items-center justify-center pt-1">
-                ${stampMarkup}
+        // Classic Centered
+        titleBannerMarkup = `
+          <div class="${isLandscape ? 'px-8 py-1.5' : 'px-10 py-2'} rounded-sm border-y" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : theme.accentLight + '65'};">
+            <h2 class="font-cert-display font-extrabold tracking-[0.1em] uppercase leading-none" style="color: ${theme.primary}; font-size: ${ptSize(isLandscape ? 20 : 23)};">
+              ${labels.certTitle}
+            </h2>
+            ${showSubTitle ? `
+              <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif font-bold tracking-[0.28em]' : 'font-cert-display font-semibold tracking-[0.18em]'} mt-1.5 leading-none" style="color: ${theme.primaryDark}; font-size: ${ptSize(appState.langMode === 'bm_zh' ? (isLandscape ? 13.5 : 15) : 12)};">
+                ${labels.certSubTitle}
               </div>
             ` : ''}
-            ${rightSignatoryColMarkup}
           </div>
         `;
       }
 
-      const subTextBasePt = appState.langMode === 'bm_zh'
-        ? (isLandscape ? 10.5 : 11.2)
-        : (isLandscape ? 10 : 10.8);
-
-      const subAppreciationMarkup = (appState.langMode !== 'bm' && (st.teksSub || '').trim() !== '')
-        ? `<p class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif tracking-wide' : 'font-cert-serif italic'} text-slate-700 leading-relaxed max-w-[92%] mx-auto mt-1.5" style="font-size: ${ptSize(subTextBasePt)};">${escapeHtml(st.teksSub)}</p>`
-        : '';
+      // Recipient Name Box Styling per Layout Template
+      const nameBoxStyle = layoutTpl === 'heritage'
+        ? `border: 1.5pt double ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : '#ffffff'};`
+        : `border-top: 1px solid ${theme.primary}30; border-bottom: 1px solid ${theme.primary}30; background-color: ${isPreprinted ? 'transparent' : theme.tintBg};`;
 
       return `
         <div class="a4-sheet ${isLandscape ? 'is-landscape' : ''} ${isPreprinted ? 'is-preprinted' : ''} select-none flex flex-col justify-between" style="${safeInlineStyle}">
@@ -1779,7 +2295,7 @@
 
           <!-- 1. TOP HEADER -->
           <div class="relative z-10">
-            <div class="flex justify-between items-center font-medium text-slate-600 ${isLandscape ? 'mb-1' : 'mb-1.5'}" style="font-size: ${ptSize(9)};">
+            <div class="flex justify-between items-center font-medium text-slate-600 ${isLandscape ? 'mb-1' : 'mb-1.5'} ${layoutTpl === 'ribbon' ? 'pl-6' : ''}" style="font-size: ${ptSize(9)};">
               <div>
                 ${appState.schoolCode ? `<span>${labels.kodSekolah}: <strong class="font-mono text-slate-900">${escapeHtml(appState.schoolCode)}</strong></span>` : ''}
               </div>
@@ -1819,16 +2335,7 @@
                 <div class="h-[1px] flex-1" style="background: linear-gradient(270deg, transparent, ${theme.accent});"></div>
               </div>
 
-              <div class="${isLandscape ? 'px-8 py-1.5' : 'px-10 py-2'} rounded-sm border-y" style="border-color: ${theme.accent}; background-color: ${isPreprinted ? 'transparent' : theme.accentLight + '65'};">
-                <h2 class="font-cert-display font-extrabold tracking-[0.1em] uppercase leading-none" style="color: ${theme.primary}; font-size: ${ptSize(isLandscape ? 20 : 23)};">
-                  ${labels.certTitle}
-                </h2>
-                ${showSubTitle ? `
-                  <div class="${appState.langMode === 'bm_zh' ? 'font-cert-zh-serif font-bold tracking-[0.28em]' : 'font-cert-display font-semibold tracking-[0.18em]'} mt-1.5 leading-none" style="color: ${theme.primaryDark}; font-size: ${ptSize(appState.langMode === 'bm_zh' ? (isLandscape ? 13.5 : 15) : 12)};">
-                    ${labels.certSubTitle}
-                  </div>
-                ` : ''}
-              </div>
+              ${titleBannerMarkup}
             </div>
           </div>
 
@@ -1843,7 +2350,7 @@
               ` : ''}
             </div>
 
-            <div class="${isLandscape ? 'py-1.5 px-6' : 'py-2.5 px-8'} max-w-[94%] mx-auto rounded-sm border-y" style="border-color: ${theme.primary}30; background-color: ${isPreprinted ? 'transparent' : theme.tintBg};">
+            <div class="${isLandscape ? 'py-1.5 px-6' : 'py-2.5 px-8'} max-w-[94%] mx-auto rounded-sm" style="${nameBoxStyle}">
               <div class="font-cert-display font-extrabold tracking-wide uppercase leading-tight" style="color: ${theme.primaryDark}; font-size: ${ptSize(isLandscape ? 19 : 22)};">
                 ${escapeHtml(st.namaBm)}
               </div>
@@ -1928,24 +2435,35 @@
 
       if (activeCertType === 'penyertaan') {
         certTypeBadge.textContent = 'SIJIL PENYERTAAN';
-        certTypeBadge.classList.add('bg-emerald-700');
-        certTypeBadge.classList.remove('bg-blue-900', 'bg-amber-700');
+        certTypeBadge.className = 'px-2 py-0.5 rounded bg-emerald-700 text-white text-xs font-bold';
         if (namaBmLabel) namaBmLabel.textContent = 'Nama Penerima (BM)';
         if (namaCinaLabel) namaCinaLabel.textContent = '中文姓名';
         if (jawatanLabel) jawatanLabel.textContent = 'Nama Aktiviti / Pertandingan (参与活动/比赛)';
         if (programLabel) programLabel.textContent = 'Peringkat / Anjuran / Sesi';
+      } else if (activeCertType === 'pencapaian') {
+        certTypeBadge.textContent = 'SIJIL PENCAPAIAN';
+        certTypeBadge.className = 'px-2 py-0.5 rounded bg-orange-700 text-white text-xs font-bold';
+        if (namaBmLabel) namaBmLabel.textContent = 'Nama Penerima (BM)';
+        if (namaCinaLabel) namaCinaLabel.textContent = '得奖学生中文名';
+        if (jawatanLabel) jawatanLabel.textContent = 'Anugerah / Pencapaian (荣誉奖项/名次)';
+        if (programLabel) programLabel.textContent = 'Pertandingan / Majlis / Sesi';
       } else if (appState.activePreset === 'sumbangan') {
         certTypeBadge.textContent = 'SIJIL PENGHARGAAN';
-        certTypeBadge.classList.add('bg-amber-700');
-        certTypeBadge.classList.remove('bg-blue-900', 'bg-emerald-700');
+        certTypeBadge.className = 'px-2 py-0.5 rounded bg-amber-700 text-white text-xs font-bold';
         if (namaBmLabel) namaBmLabel.textContent = 'Nama Penyumbang / Organisasi (BM)';
         if (namaCinaLabel) namaCinaLabel.textContent = '热心人 / 机构中文名';
         if (jawatanLabel) jawatanLabel.textContent = 'Gelaran / Kategori Sumbangan (表扬名义)';
         if (programLabel) programLabel.textContent = 'Butiran Sumbangan / Program (捐助项目)';
+      } else if (appState.activePreset === 'guru_pibg') {
+        certTypeBadge.textContent = 'SIJIL PENGHARGAAN';
+        certTypeBadge.className = 'px-2 py-0.5 rounded bg-purple-800 text-white text-xs font-bold';
+        if (namaBmLabel) namaBmLabel.textContent = 'Nama Guru / Ahli PIBG (BM)';
+        if (namaCinaLabel) namaCinaLabel.textContent = '教师 / 家长中文名';
+        if (jawatanLabel) jawatanLabel.textContent = 'Jawatan / Penghargaan (职务/表扬名义)';
+        if (programLabel) programLabel.textContent = 'Majlis / Sesi';
       } else {
         certTypeBadge.textContent = 'SIJIL PENGHARGAAN';
-        certTypeBadge.classList.remove('bg-emerald-700', 'bg-amber-700');
-        certTypeBadge.classList.add('bg-blue-900');
+        certTypeBadge.className = 'px-2 py-0.5 rounded bg-blue-900 text-white text-xs font-bold';
         if (namaBmLabel) namaBmLabel.textContent = 'Nama Penerima (BM)';
         if (namaCinaLabel) namaCinaLabel.textContent = '中文姓名';
         if (jawatanLabel) jawatanLabel.textContent = 'Jawatan / Peranan (职务)';
@@ -1957,7 +2475,23 @@
         showKpCheckbox.checked = Boolean(appState.showKpKelas);
       }
 
-      // 5. Orientation Buttons Active State
+      // 5. Visual Layout Template Buttons Sync
+      document.querySelectorAll('.layout-tpl-btn').forEach(btn => {
+        const isMatch = btn.getAttribute('data-layout-btn') === appState.layoutTemplate;
+        if (isMatch) {
+          btn.classList.add('border-2', 'border-blue-900', 'bg-blue-50/70');
+          btn.classList.remove('border', 'border-slate-200', 'bg-white');
+        } else {
+          btn.classList.remove('border-2', 'border-blue-900', 'bg-blue-50/70');
+          btn.classList.add('border', 'border-slate-200', 'bg-white');
+        }
+      });
+      const layoutBadge = document.getElementById('layout-template-badge');
+      if (layoutBadge) {
+        layoutBadge.textContent = LAYOUT_TEMPLATE_NAMES[appState.layoutTemplate] || '经典校徽中轴版';
+      }
+
+      // 6. Orientation Buttons Active State
       document.querySelectorAll('.orient-btn').forEach(btn => {
         const isMatch = btn.getAttribute('data-orient-btn') === appState.orientation;
         if (isMatch) {
@@ -1969,7 +2503,7 @@
         }
       });
 
-      // 6. Theme Swatch Buttons Active State
+      // 7. Theme Swatch Buttons Active State
       document.querySelectorAll('.theme-btn').forEach(btn => {
         const isMatch = btn.getAttribute('data-theme-btn') === appState.theme;
         if (isMatch) {
@@ -1981,7 +2515,7 @@
         }
       });
 
-      // 7. Corner / Pre-Printed Style Buttons & Watermark Checkbox Sync
+      // 8. Corner / Pre-Printed Style Buttons & Watermark Checkbox Sync
       document.querySelectorAll('.corner-style-btn').forEach(btn => {
         const isMatch = btn.getAttribute('data-corner-btn') === appState.cornerStyle;
         if (isMatch) {
@@ -2011,100 +2545,108 @@
         watermarkCheckbox.checked = Boolean(appState.showWatermark);
       }
 
-      // 8. Role Preset, Sumbangan & Participation Sub-Preset Buttons Active State
+      // 9. Role Preset & Expandable Sub-Drawers Active State
       document.querySelectorAll('.role-preset-btn').forEach(btn => {
         const presetAttr = btn.getAttribute('data-role-preset');
         const isMatch = presetAttr === appState.activePreset;
         if (presetAttr === 'penyertaan') {
-          if (isMatch) {
-            btn.classList.add('border-2', 'border-emerald-700', 'bg-emerald-100/80');
-            btn.classList.remove('border', 'border-emerald-300', 'bg-emerald-50/70');
-          } else {
-            btn.classList.remove('border-2', 'border-emerald-700', 'bg-emerald-100/80');
-            btn.classList.add('border', 'border-emerald-300', 'bg-emerald-50/70');
-          }
+          btn.className = isMatch
+            ? 'role-preset-btn p-2 rounded-lg border-2 border-emerald-700 bg-emerald-100/80 text-left transition cursor-pointer'
+            : 'role-preset-btn p-2 rounded-lg border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100/70 text-left transition cursor-pointer';
+        } else if (presetAttr === 'pencapaian') {
+          btn.className = isMatch
+            ? 'role-preset-btn p-2 rounded-lg border-2 border-orange-700 bg-orange-100/90 text-left transition cursor-pointer col-span-2'
+            : 'role-preset-btn p-2 rounded-lg border border-orange-300 bg-orange-50/80 hover:bg-orange-100/80 text-left transition cursor-pointer col-span-2';
         } else if (presetAttr === 'sumbangan') {
-          if (isMatch) {
-            btn.classList.add('border-2', 'border-amber-700', 'bg-amber-100/90');
-            btn.classList.remove('border', 'border-amber-300', 'bg-amber-50/80');
-          } else {
-            btn.classList.remove('border-2', 'border-amber-700', 'bg-amber-100/90');
-            btn.classList.add('border', 'border-amber-300', 'bg-amber-50/80');
-          }
+          btn.className = isMatch
+            ? 'role-preset-btn p-2 rounded-lg border-2 border-amber-700 bg-amber-100/90 text-left transition cursor-pointer'
+            : 'role-preset-btn p-2 rounded-lg border border-amber-300 bg-amber-50/80 hover:bg-amber-100/80 text-left transition cursor-pointer';
+        } else if (presetAttr === 'guru_pibg') {
+          btn.className = isMatch
+            ? 'role-preset-btn p-2 rounded-lg border-2 border-purple-700 bg-purple-100/90 text-left transition cursor-pointer'
+            : 'role-preset-btn p-2 rounded-lg border border-purple-200 bg-purple-50/70 hover:bg-purple-100/80 text-left transition cursor-pointer';
         } else if (presetAttr === 'aktiviti') {
-          if (isMatch) {
-            btn.classList.add('border-2', 'border-indigo-700', 'bg-indigo-100/80');
-            btn.classList.remove('border', 'border-indigo-200', 'bg-indigo-50/60');
-          } else {
-            btn.classList.remove('border-2', 'border-indigo-700', 'bg-indigo-100/80');
-            btn.classList.add('border', 'border-indigo-200', 'bg-indigo-50/60');
-          }
+          btn.className = isMatch
+            ? 'role-preset-btn p-2 rounded-lg border-2 border-indigo-700 bg-indigo-100/80 text-left transition cursor-pointer'
+            : 'role-preset-btn p-2 rounded-lg border border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100/70 text-left transition cursor-pointer';
         } else {
-          if (isMatch) {
-            btn.classList.add('border-2', 'border-blue-900', 'bg-blue-50/70');
-            btn.classList.remove('border', 'border-slate-200', 'bg-white');
-          } else {
-            btn.classList.remove('border-2', 'border-blue-900', 'bg-blue-50/70');
-            btn.classList.add('border', 'border-slate-200', 'bg-white');
-          }
+          btn.className = isMatch
+            ? 'role-preset-btn p-2 rounded-lg border-2 border-blue-900 bg-blue-50/70 text-left transition cursor-pointer'
+            : 'role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer';
         }
       });
 
-      // Sub-drawer 1: Aktiviti
-      const subBox = document.getElementById('aktiviti-subpresets');
-      if (appState.activePreset === 'aktiviti') {
-        subBox.classList.remove('hidden');
-        document.querySelectorAll('.sub-preset-btn').forEach(btn => {
-          const isSub = btn.getAttribute('data-sub-preset') === appState.activeSubPreset;
-          if (isSub) {
-            btn.classList.add('border-2', 'border-indigo-700', 'bg-indigo-100/80');
-            btn.classList.remove('border', 'border-indigo-200', 'bg-white');
-          } else {
-            btn.classList.remove('border-2', 'border-indigo-700', 'bg-indigo-100/80');
-            btn.classList.add('border', 'border-indigo-200', 'bg-white');
-          }
-        });
-      } else {
-        subBox.classList.add('hidden');
-      }
-
-      // Sub-drawer 2: Sumbangan (热心教育/捐助物资)
+      // Sub-drawer 1: Sumbangan
       const sumbanganBox = document.getElementById('sumbangan-subpresets');
       if (appState.activePreset === 'sumbangan') {
         sumbanganBox.classList.remove('hidden');
         document.querySelectorAll('.sumbangan-preset-btn').forEach(btn => {
           const isSumb = btn.getAttribute('data-sumbangan-preset') === appState.activeSumbanganPreset;
-          if (isSumb) {
-            btn.classList.add('border-2', 'border-amber-700', 'bg-amber-100/90');
-            btn.classList.remove('border', 'border-amber-200', 'bg-white');
-          } else {
-            btn.classList.remove('border-2', 'border-amber-700', 'bg-amber-100/90');
-            btn.classList.add('border', 'border-amber-200', 'bg-white');
-          }
+          btn.className = isSumb
+            ? 'sumbangan-preset-btn p-2 rounded-lg border-2 border-amber-700 bg-amber-100/90 text-left transition cursor-pointer'
+            : 'sumbangan-preset-btn p-2 rounded-lg border border-amber-200 bg-white text-left transition cursor-pointer';
         });
       } else {
         sumbanganBox.classList.add('hidden');
       }
 
-      // Sub-drawer 3: Penyertaan
+      // Sub-drawer 2: Guru & PIBG
+      const guruBox = document.getElementById('guru-pibg-subpresets');
+      if (appState.activePreset === 'guru_pibg') {
+        guruBox.classList.remove('hidden');
+        document.querySelectorAll('.guru-preset-btn').forEach(btn => {
+          const isGuru = btn.getAttribute('data-guru-preset') === appState.activeGuruPreset;
+          btn.className = isGuru
+            ? 'guru-preset-btn p-2 rounded-lg border-2 border-purple-700 bg-purple-100/90 text-left transition cursor-pointer'
+            : 'guru-preset-btn p-2 rounded-lg border border-purple-200 bg-white text-left transition cursor-pointer';
+        });
+      } else {
+        guruBox.classList.add('hidden');
+      }
+
+      // Sub-drawer 3: Aktiviti
+      const subBox = document.getElementById('aktiviti-subpresets');
+      if (appState.activePreset === 'aktiviti') {
+        subBox.classList.remove('hidden');
+        document.querySelectorAll('.sub-preset-btn').forEach(btn => {
+          const isSub = btn.getAttribute('data-sub-preset') === appState.activeSubPreset;
+          btn.className = isSub
+            ? 'sub-preset-btn p-2 rounded-lg border-2 border-indigo-700 bg-indigo-100/80 text-left transition cursor-pointer'
+            : 'sub-preset-btn p-2 rounded-lg border border-indigo-200 bg-white text-left transition cursor-pointer';
+        });
+      } else {
+        subBox.classList.add('hidden');
+      }
+
+      // Sub-drawer 4: Pencapaian (Achievements)
+      const achBox = document.getElementById('pencapaian-subpresets');
+      if (appState.activePreset === 'pencapaian') {
+        achBox.classList.remove('hidden');
+        document.querySelectorAll('.ach-preset-btn').forEach(btn => {
+          const isAch = btn.getAttribute('data-ach-preset') === appState.activeAchPreset;
+          btn.className = isAch
+            ? 'ach-preset-btn p-2 rounded-lg border-2 border-orange-700 bg-orange-100/90 text-left transition cursor-pointer'
+            : 'ach-preset-btn p-2 rounded-lg border border-orange-200 bg-white text-left transition cursor-pointer';
+        });
+      } else {
+        achBox.classList.add('hidden');
+      }
+
+      // Sub-drawer 5: Penyertaan
       const partBox = document.getElementById('penyertaan-subpresets');
       if (appState.activePreset === 'penyertaan') {
         partBox.classList.remove('hidden');
         document.querySelectorAll('.part-preset-btn').forEach(btn => {
           const isPart = btn.getAttribute('data-part-preset') === appState.activePartPreset;
-          if (isPart) {
-            btn.classList.add('border-2', 'border-emerald-700', 'bg-emerald-100/80');
-            btn.classList.remove('border', 'border-emerald-200', 'bg-white');
-          } else {
-            btn.classList.remove('border-2', 'border-emerald-700', 'bg-emerald-100/80');
-            btn.classList.add('border', 'border-emerald-200', 'bg-white');
-          }
+          btn.className = isPart
+            ? 'part-preset-btn p-2 rounded-lg border-2 border-emerald-700 bg-emerald-100/80 text-left transition cursor-pointer'
+            : 'part-preset-btn p-2 rounded-lg border border-emerald-200 bg-white text-left transition cursor-pointer';
         });
       } else {
         partBox.classList.add('hidden');
       }
 
-      // 9. Left Signatory Two-Button Control & Card Sync
+      // 10. Left Signatory Two-Button Control & Card Sync
       const btnLeftOff = document.getElementById('btn-left-sig-off');
       const btnLeftOn = document.getElementById('btn-left-sig-on');
       const leftSigCard = document.getElementById('left-signatory-card');
@@ -2138,7 +2680,7 @@
         }
       });
 
-      // 10. School Stamp Two-Button Control & Card Sync
+      // 11. School Stamp Two-Button Control & Card Sync
       const btnStampShow = document.getElementById('btn-stamp-show');
       const btnStampHide = document.getElementById('btn-stamp-hide');
       const stampBadge = document.getElementById('stamp-status-badge');
@@ -2158,7 +2700,7 @@
         stampControlsCard.classList.add('hidden');
       }
 
-      // 11. Batch UI Badges & Student Roster
+      // 12. Batch UI Badges & Student Roster
       updateBatchUI();
     }
 
@@ -2185,9 +2727,13 @@
       const rosterEl = document.getElementById('batch-student-roster');
       rosterEl.innerHTML = appState.students.map((st, i) => {
         const isCurrent = i === idx;
-        const typeTag = (st.certType || appState.certType) === 'penyertaan'
-          ? '<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-semibold mr-1">参与奖</span>'
-          : '<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-xs font-semibold mr-1">表扬/感谢</span>';
+        const cType = st.certType || appState.certType;
+        let typeTag = '<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-xs font-semibold mr-1">表扬/感谢</span>';
+        if (cType === 'penyertaan') {
+          typeTag = '<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-semibold mr-1">参与奖</span>';
+        } else if (cType === 'pencapaian') {
+          typeTag = '<span class="px-1.5 py-0.5 rounded bg-orange-100 text-orange-900 text-xs font-semibold mr-1">荣誉奖</span>';
+        }
         return `
           <button type="button" onclick="selectStudent(${i})" class="w-full text-left px-3.5 py-2.5 flex items-center justify-between gap-2 text-sm hover:bg-indigo-50/50 transition cursor-pointer ${isCurrent ? 'bg-indigo-100/80 font-bold text-indigo-950' : 'text-slate-700'}">
             <div class="truncate">
@@ -2218,11 +2764,13 @@
     }
 
     // ------------------------------------------------------------------------
-    // H. STATE MUTATORS, CERT TYPE, FRAME/PRE-PRINTED MODE & PRESETS
+    // H. STATE MUTATORS, LAYOUT TEMPLATES & CONTENT PRESETS
     // ------------------------------------------------------------------------
     function getActivePresetKey() {
       if (appState.activePreset === 'aktiviti') return appState.activeSubPreset;
       if (appState.activePreset === 'sumbangan') return appState.activeSumbanganPreset;
+      if (appState.activePreset === 'guru_pibg') return appState.activeGuruPreset;
+      if (appState.activePreset === 'pencapaian') return appState.activeAchPreset;
       if (appState.activePreset === 'penyertaan') return appState.activePartPreset;
       return appState.activePreset;
     }
@@ -2240,6 +2788,12 @@
       }
 
       renderAll();
+    }
+
+    function setLayoutTemplate(tplKey) {
+      appState.layoutTemplate = tplKey;
+      renderAll();
+      showToast(`已切换视觉版式：${LAYOUT_TEMPLATE_NAMES[tplKey] || tplKey}`);
     }
 
     function updateCertFontScale(scaleVal) {
@@ -2264,7 +2818,14 @@
         return;
       }
 
-      if (type === 'penghargaan' && appState.activePreset === 'penyertaan') {
+      if (type === 'pencapaian' && appState.activePreset !== 'pencapaian') {
+        appState.activePreset = 'pencapaian';
+        applyPresetObject(appState.activeAchPreset, true);
+        showToast('已切换为「荣誉 / 优异奖状 (Sijil Pencapaian)」');
+        return;
+      }
+
+      if (type === 'penghargaan' && (appState.activePreset === 'penyertaan' || appState.activePreset === 'pencapaian')) {
         appState.activePreset = 'pengawas';
         applyPresetObject('pengawas', true);
         showToast('已切换为「表扬状 / 感谢状 (Sijil Penghargaan)」');
@@ -2272,7 +2833,6 @@
       }
 
       renderAll();
-      showToast(type === 'penyertaan' ? '已切换为「参与活动奖状」' : '已切换为「表扬状 / 感谢状」');
     }
 
     function setFrameStyle(styleKey) {
@@ -2346,6 +2906,8 @@
       let effectiveKey = presetKey;
       if (presetKey === 'aktiviti') effectiveKey = appState.activeSubPreset;
       if (presetKey === 'sumbangan') effectiveKey = appState.activeSumbanganPreset;
+      if (presetKey === 'guru_pibg') effectiveKey = appState.activeGuruPreset;
+      if (presetKey === 'pencapaian') effectiveKey = appState.activeAchPreset;
       if (presetKey === 'penyertaan') effectiveKey = appState.activePartPreset;
       applyPresetObject(effectiveKey, false);
     }
@@ -2360,6 +2922,18 @@
       appState.activePreset = 'sumbangan';
       appState.activeSumbanganPreset = sumbKey;
       applyPresetObject(sumbKey, false);
+    }
+
+    function applyGuruPibgPreset(guruKey) {
+      appState.activePreset = 'guru_pibg';
+      appState.activeGuruPreset = guruKey;
+      applyPresetObject(guruKey, false);
+    }
+
+    function applyAchievementPreset(achKey) {
+      appState.activePreset = 'pencapaian';
+      appState.activeAchPreset = achKey;
+      applyPresetObject(achKey, false);
     }
 
     function applyParticipationPreset(partKey) {
@@ -2381,7 +2955,6 @@
       currentSt.teksBm = preset.teksBm;
       currentSt.teksSub = appState.langMode === 'bm_en' ? preset.teksEn : preset.teksZh;
 
-      // Auto-hide Student IC/Class line when Donor/Guest preset is chosen, restore when student preset is chosen
       if (preset.isDonor) {
         appState.showKpKelas = false;
       } else if ((currentSt.noKpKelas || '').trim() !== '') {
@@ -2391,19 +2964,18 @@
       syncStudentFormInputs();
       renderAll();
       if (!suppressToast) {
-        if (targetType === 'penyertaan') {
-          showToast(`已套用参与奖状预设：${preset.jawatan}`);
-        } else if (appState.activePreset === 'sumbangan') {
-          showToast(`已套用热心教育感谢状：${preset.jawatan}`);
-        } else {
-          showToast(`已套用表扬/感谢状预设：${preset.jawatan}`);
-        }
+        showToast(`已套用模板：${preset.jawatan}`);
       }
     }
 
     function switchTab(tabName) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
       document.getElementById(`panel-${tabName}`).classList.remove('hidden');
+
+      const scrollContainer = document.getElementById('sidebar-scroll-container');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0;
+      }
 
       document.querySelectorAll('.tab-btn').forEach(btn => {
         const active = btn.getAttribute('data-tab') === tabName;
@@ -2604,7 +3176,7 @@
         const noSijil = rawNoSijil !== '' ? rawNoSijil : incrementSerial(baseSerial, counter);
         const namaCina = getCol(['namacina', 'namachina'], 2);
         const noKpKelas = getCol(['nokpkelas', 'nokp', 'kelas'], 3);
-        const jawatan = getCol(['jawatanperanan', 'jawatan', 'peranan', 'aktiviti', 'sumbangan'], 4) || 'PENGAWAS SEKOLAH / 巡察员';
+        const jawatan = getCol(['jawatanperanan', 'jawatan', 'peranan', 'aktiviti', 'sumbangan', 'anugerah'], 4) || 'PENGAWAS SEKOLAH / 巡察员';
         const programSesi = getCol(['programsesi', 'program', 'sesi'], 5) || defaultProgram;
 
         const matchedPreset = matchPresetByRoleKeyword(jawatan);
@@ -2612,6 +3184,8 @@
         let rowCertType = matchedPreset.certType || appState.certType;
         if (rawJenis.includes('penyertaan') || rawJenis.includes('participation') || rawJenis.includes('参与')) {
           rowCertType = 'penyertaan';
+        } else if (rawJenis.includes('pencapaian') || rawJenis.includes('achievement') || rawJenis.includes('荣誉') || rawJenis.includes('优异')) {
+          rowCertType = 'pencapaian';
         } else if (rawJenis.includes('penghargaan') || rawJenis.includes('appreciation') || rawJenis.includes('表扬') || rawJenis.includes('感谢')) {
           rowCertType = 'penghargaan';
         }
@@ -2737,9 +3311,10 @@
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-|-$/g, '');
 
-        const prefix = (currentSt.certType || appState.certType) === 'penyertaan'
+        const cType = currentSt.certType || appState.certType;
+        const prefix = cType === 'penyertaan'
           ? 'sijil-penyertaan'
-          : 'sijil-penghargaan';
+          : (cType === 'pencapaian' ? 'sijil-pencapaian' : 'sijil-penghargaan');
 
         const link = document.createElement('a');
         link.download = `${prefix}-${safeName || 'penerima'}.png`;
