@@ -1,61 +1,63 @@
 <!DOCTYPE html>
-<html lang="zh-MY">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>e-Sijil Sekolah Malaysia — 表扬状 / 感谢状 / 参与奖状生成器</title>
-  <!-- Tailwind CSS CDN -->
+  <title>马来西亚学校官方表扬状 / 感谢状 / 参与奖状生成器 (Sijil Sekolah)</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2canvas CDN for High-DPI 2x PNG Export -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <!-- Google Fonts: Cinzel, Playfair Display, Plus Jakarta Sans, Noto Serif SC, Noto Sans SC -->
+
+  <!-- Google Fonts for Formal Official Certificates (BM, English & Chinese) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet" />
 
-  <!-- Dynamic @page Orientation Style (Updated via JS when switching Portrait / Landscape) -->
+  <!-- html2canvas for High-DPI 2x PNG Export -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <!-- Dynamic @page Orientation Rule -->
   <style id="dynamic-page-style">
-    @page {
-      size: A4 portrait;
-      margin: 0;
-    }
+    @page { size: A4 portrait; margin: 0; }
   </style>
 
   <style>
-    /* UI Base Typography */
-    html {
-      font-size: 16px;
-    }
-    body {
-      font-family: 'Plus Jakarta Sans', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
     }
 
-    /* Certificate Typography Families */
     .font-cert-display {
-      font-family: 'Cinzel', 'Playfair Display', 'Times New Roman', serif;
-    }
-    .font-cert-serif {
-      font-family: 'Playfair Display', 'Noto Serif SC', 'Times New Roman', serif;
-    }
-    .font-cert-zh-serif {
-      font-family: 'Noto Serif SC', 'SimSun', serif;
-    }
-    .font-cert-zh-sans {
-      font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+      font-family: 'Cinzel', Georgia, serif;
     }
 
-    /* Exact A4 Portrait & Landscape Sheet Dimensions */
+    .font-cert-serif {
+      font-family: 'Lora', 'Times New Roman', serif;
+    }
+
+    .font-cert-zh-serif {
+      font-family: 'Noto Serif SC', 'KaiTi', 'STKaiti', serif;
+    }
+
+    .font-cert-zh-sans {
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+
+    .img-multiply {
+      mix-blend-mode: multiply;
+    }
+
+    /* Exact A4 Physical Dimensions */
     .a4-sheet {
-      --safe-v: 21mm;
-      --safe-h: calc(var(--safe-v) + 4mm);
       width: 210mm;
       height: 297mm;
-      padding: var(--safe-v) var(--safe-h);
-      background-color: #fffefc;
+      padding: var(--safe-v, 21mm) var(--safe-h, 25mm);
       position: relative;
-      box-sizing: border-box;
+      background-color: #fffefc;
       overflow: hidden;
-      flex-shrink: 0;
+      box-sizing: border-box;
       color: #0f172a;
     }
 
@@ -64,44 +66,16 @@
       height: 210mm;
     }
 
-    /* Pure Content Mode for Pre-Printed Sijil Paper */
     .a4-sheet.is-preprinted {
-      background-color: #ffffff !important;
+      background-color: #ffffff;
     }
 
-    /* Subtle Drafting Workspace Grid */
-    .preview-workspace {
-      background-color: #e2e8f0;
-      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
-
-    /* White-background removal blend mode for scanned signatures & stamps */
-    .img-multiply {
-      mix-blend-mode: multiply;
-    }
-
-    /* Custom Scrollbars */
-    ::-webkit-scrollbar {
-      width: 7px;
-      height: 7px;
-    }
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-
-    /* ========================================================================
-       PRINT STYLES — Zero-Margin Single & Multi-Page Batch A4 Output
-       ======================================================================== */
+    /* Print Rules */
     @media print {
       html, body {
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
         margin: 0 !important;
         padding: 0 !important;
         background: #ffffff !important;
@@ -116,23 +90,19 @@
       body.print-single-mode #print-mount-single {
         display: block !important;
       }
-      body.print-single-mode #print-mount-batch {
-        display: none !important;
-      }
 
-      body.print-batch-mode #print-mount-single {
-        display: none !important;
-      }
       body.print-batch-mode #print-mount-batch {
         display: block !important;
       }
 
       .print-page-wrapper {
-        margin: 0 !important;
-        padding: 0 !important;
+        width: 100%;
+        height: 100%;
         page-break-after: always;
         break-after: page;
-        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .print-page-wrapper:last-child {
@@ -143,55 +113,52 @@
       .a4-sheet {
         box-shadow: none !important;
         margin: 0 !important;
-        transform: none !important;
       }
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden print-single-mode">
+<body class="bg-slate-200 text-slate-900 h-screen overflow-hidden flex flex-col print-single-mode" style="height: 100dvh;">
 
   <!-- ========================================================================
-       1. TOP HEADER BAR (NO-PRINT)
+       1. TOP NAVIGATION & ACTION BAR (NO-PRINT)
        ======================================================================== -->
-  <header class="no-print bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 z-30 shadow-sm shrink-0">
-    <!-- Left: App Title, Badge & Subtitle -->
-    <div class="flex items-center gap-3.5">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-950 via-blue-900 to-amber-700 text-amber-300 flex items-center justify-center shadow-sm shrink-0">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-        </svg>
+  <header class="no-print bg-blue-950 text-white px-4 py-2.5 border-b border-blue-900 flex flex-wrap items-center justify-between gap-2 shrink-0 z-30 shadow-md">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 font-bold text-base shrink-0">
+        MY
       </div>
       <div>
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <h1 class="font-bold text-slate-900 text-base sm:text-lg tracking-tight">e-Sijil Sekolah Malaysia</h1>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-200">表扬状 / 感谢状 / 参与奖状生成器</span>
+        <div class="flex items-center gap-2">
+          <h1 class="text-sm sm:text-base font-bold tracking-wide text-white">马来西亚学校证书生成器</h1>
+          <span class="hidden md:inline-block text-xs px-2 py-0.5 rounded bg-blue-900 border border-blue-700 text-amber-300 font-medium">
+            Sijil Penghargaan & Penyertaan
+          </span>
         </div>
-        <p class="text-xs text-slate-500 hidden md:block mt-0.5">支持 SJKC / SMJK / SMK / SK • 支持普通白纸打印与文凭纸套打 • Excel CSV 批量打印多页 A4 PDF</p>
+        <p class="text-xs text-blue-200/80 hidden sm:block">支持学生职务表扬状、热心教育捐助物资感谢状、活动参与奖状及 CSV 批量套打</p>
       </div>
     </div>
 
-    <!-- Right: Action Buttons -->
-    <div class="flex items-center gap-2.5 flex-wrap">
+    <div class="flex flex-wrap items-center gap-2">
       <!-- Batch CSV Modal Trigger -->
-      <button type="button" onclick="openBatchModal()" class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-950 border border-indigo-200 shadow-sm transition cursor-pointer">
-        <svg class="w-4 h-4 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <button type="button" onclick="openBatchModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <span>批量 CSV</span>
-        <span id="header-batch-badge" class="px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-indigo-600 text-white">1</span>
+        <span>批量 CSV 名单</span>
+        <span id="header-batch-badge" class="px-1.5 py-0.5 rounded-full bg-indigo-900 text-amber-300 text-xs font-bold">1</span>
       </button>
 
       <!-- Export High-DPI PNG -->
-      <button type="button" id="btn-export-png" onclick="exportCurrentAsPng()" class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 shadow-sm transition cursor-pointer">
-        <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+      <button type="button" id="btn-export-png" onclick="exportCurrentAsPng()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white text-xs sm:text-sm font-semibold shadow-sm transition cursor-pointer">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <span>导出高清 PNG</span>
       </button>
 
-      <!-- Print Single A4 / Save PDF -->
-      <button type="button" onclick="triggerPrint('single')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-blue-950 hover:bg-blue-900 text-white shadow-sm transition cursor-pointer">
-        <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <!-- Print Current Certificate -->
+      <button type="button" onclick="triggerPrint('single')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-bold shadow-sm transition cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
         </svg>
         <span>打印当前页 / PDF</span>
@@ -200,697 +167,608 @@
   </header>
 
   <!-- ========================================================================
-       2. MAIN SPLIT WORKSPACE (NO-PRINT)
+       2. MAIN WORKSPACE: LEFT CONTROL PANEL + RIGHT LIVE A4 PREVIEW (NO-PRINT)
        ======================================================================== -->
-  <main class="no-print flex-1 flex flex-col lg:flex-row overflow-hidden">
+  <main class="no-print flex-1 min-h-0 min-w-0 flex flex-col lg:flex-row overflow-hidden">
 
-    <!-- LEFT EDITOR PANEL (3 Tabs - 480px wide) -->
-    <aside class="w-full lg:w-[480px] bg-white border-b lg:border-b-0 lg:border-r border-slate-200 flex flex-col h-[54vh] lg:h-full shrink-0 z-20">
-      
-      <!-- 3 Navigation Tabs -->
-      <nav class="grid grid-cols-3 border-b border-slate-200 bg-slate-50/90 px-2 pt-2 gap-1 shrink-0" aria-label="Editor Tabs">
-        <button type="button" data-tab="school" onclick="switchTab('school')" class="tab-btn active px-2.5 py-3 text-xs sm:text-sm font-bold rounded-t-xl border-b-2 border-blue-900 bg-white text-blue-950 truncate transition cursor-pointer">
-          1. 学校与版式
-        </button>
-        <button type="button" data-tab="role" onclick="switchTab('role')" class="tab-btn px-2.5 py-3 text-xs sm:text-sm font-medium rounded-t-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 truncate transition cursor-pointer">
-          2. 职务活动内容
-        </button>
-        <button type="button" data-tab="signatory" onclick="switchTab('signatory')" class="tab-btn px-2.5 py-3 text-xs sm:text-sm font-medium rounded-t-xl border-b-2 border-transparent text-slate-600 hover:text-slate-900 hover:bg-white/60 truncate transition cursor-pointer">
-          3. 签名与校章
-        </button>
-      </nav>
+    <!-- LEFT EDITOR SIDEBAR -->
+    <aside class="w-full lg:w-[440px] xl:w-[475px] h-[52vh] lg:h-full min-h-0 bg-white border-b lg:border-b-0 lg:border-r border-slate-300 flex flex-col shrink-0">
 
-      <!-- Scrollable Editor Body -->
-      <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+      <!-- Editor Tabs -->
+      <div class="grid grid-cols-3 bg-slate-100 border-b border-slate-200 shrink-0 text-xs sm:text-sm">
+        <button type="button" data-tab="recipient" onclick="switchTab('recipient')" class="tab-btn active py-2.5 px-2 border-b-2 border-blue-900 bg-white text-blue-950 font-bold transition cursor-pointer">
+          1. 证书与受惠人
+        </button>
+        <button type="button" data-tab="school" onclick="switchTab('school')" class="tab-btn py-2.5 px-2 border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 transition cursor-pointer">
+          2. 学校与签章
+        </button>
+        <button type="button" data-tab="design" onclick="switchTab('design')" class="tab-btn py-2.5 px-2 border-b-2 border-transparent text-slate-600 font-medium hover:text-slate-900 transition cursor-pointer">
+          3. 版面与边框
+        </button>
+      </div>
+
+      <!-- Scrollable Tab Panels -->
+      <div class="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
 
         <!-- ==================================================================
-             TAB 1: 1. 学校与版式 (Sekolah & Tema)
+             TAB 1: CERTIFICATE TYPE, ROLE/DONATION PRESETS & RECIPIENT DETAILS
              ================================================================== -->
-        <section id="panel-school" class="tab-panel space-y-4">
-          
-          <!-- Certificate Type Toggle: Sijil Penghargaan vs Sijil Penyertaan -->
-          <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/60 border border-blue-200 space-y-2.5">
-            <div class="flex items-center justify-between gap-2">
-              <label class="block text-sm font-bold text-slate-900">证书类型 (Jenis Sijil)</label>
-              <span id="cert-type-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-900 text-white">SIJIL PENGHARGAAN</span>
+        <div id="panel-recipient" class="tab-panel space-y-4">
+
+          <!-- Certificate Type Selector -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">证书大类 (Jenis Sijil)</span>
+              <span id="cert-type-badge" class="px-2 py-0.5 rounded bg-blue-900 text-white text-xs font-bold">SIJIL PENGHARGAAN</span>
             </div>
-            <div class="grid grid-cols-2 gap-2.5">
-              <button type="button" data-cert-type="penghargaan" onclick="setCertType('penghargaan')" class="cert-type-btn p-3 rounded-xl border-2 border-blue-900 bg-white text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-blue-950">🏆 表扬状 / 感谢状</div>
-                <div class="text-xs text-slate-600 mt-0.5">Sijil Penghargaan</div>
-              </button>
-              <button type="button" data-cert-type="penyertaan" onclick="setCertType('penyertaan')" class="cert-type-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-800">📜 参与活动奖状</div>
-                <div class="text-xs text-slate-600 mt-0.5">Sijil Penyertaan</div>
-              </button>
-            </div>
-          </div>
-
-          <!-- A4 Orientation Toggle (Portrait vs Landscape) -->
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-            <label class="block text-sm font-bold text-slate-900">纸张方向 (Orientasi Kertas A4)</label>
-            <div class="grid grid-cols-2 gap-2.5">
-              <button type="button" data-orient-btn="portrait" onclick="setOrientation('portrait')" class="orient-btn flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-blue-900 bg-blue-50/70 text-blue-950 text-sm font-bold transition cursor-pointer">
-                <span class="w-3.5 h-5 border-2 border-current rounded-[2px] inline-block shrink-0"></span>
-                <span>A4 竖版 (210×297)</span>
-              </button>
-              <button type="button" data-orient-btn="landscape" onclick="setOrientation('landscape')" class="orient-btn flex items-center justify-center gap-2 p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium transition cursor-pointer">
-                <span class="w-5 h-3.5 border-2 border-current rounded-[2px] inline-block shrink-0"></span>
-                <span>A4 横版 (297×210)</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Frame Style, Pure Content Pre-Printed Sijil Mode, Font Scale & Safe Margin Control -->
-          <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-3.5">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="block text-sm font-bold text-slate-900">边框与套打模式 (Bingkai &amp; Kertas)</label>
-                <span id="frame-mode-pill" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white text-blue-950 border border-amber-300">标准边框版</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" data-corner-btn="songket" onclick="setFrameStyle('songket')" class="corner-style-btn py-2.5 px-3 rounded-xl border-2 border-blue-900 bg-white text-sm font-bold text-blue-950 leading-snug text-left transition cursor-pointer">
-                  经典宋吉花纹<br/><span class="text-xs font-normal text-slate-500">Songket Klasik</span>
-                </button>
-                <button type="button" data-corner-btn="double" onclick="setFrameStyle('double')" class="corner-style-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium text-slate-700 leading-snug text-left transition cursor-pointer">
-                  双线典雅框<br/><span class="text-xs font-normal text-slate-500">Dwi-Garis</span>
-                </button>
-                <button type="button" data-corner-btn="minimal" onclick="setFrameStyle('minimal')" class="corner-style-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium text-slate-700 leading-snug text-left transition cursor-pointer">
-                  简约现代框<br/><span class="text-xs font-normal text-slate-500">Moden Minimalis</span>
-                </button>
-                <button type="button" data-corner-btn="none" onclick="setFrameStyle('none')" class="corner-style-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50/70 text-sm font-medium text-slate-700 leading-snug text-left transition cursor-pointer">
-                  📄 无边框纯内容<br/><span class="text-xs font-normal text-emerald-700">套打文凭纸</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Background Watermark & Top Crest Visibility Toggles -->
-            <div class="pt-2.5 border-t border-amber-200/80 space-y-2">
-              <label class="flex items-center justify-between text-sm text-slate-800 cursor-pointer">
-                <span class="font-semibold">显示中央背景校徽水印 (Tera Air)</span>
-                <input type="checkbox" id="input-showWatermark" checked onchange="updateState('showWatermark', this.checked)" class="rounded text-blue-900 w-4 h-4 cursor-pointer" />
-              </label>
-              <label class="flex items-center justify-between text-sm text-slate-700 cursor-pointer">
-                <span>隐藏顶部校徽（若文凭纸已预印校徽）</span>
-                <input type="checkbox" id="input-hideTopCrest" onchange="updateState('hideTopCrest', this.checked)" class="rounded text-blue-900 w-4 h-4 cursor-pointer" />
-              </label>
-            </div>
-
-            <!-- Certificate Font Scale Slider -->
-            <div class="pt-2.5 border-t border-amber-200/80">
-              <div class="flex justify-between items-center text-sm mb-1.5">
-                <span class="font-bold text-slate-900">证书文字整体大小 (Saiz Fon Sijil)</span>
-                <span id="font-scale-badge" class="font-mono font-bold text-blue-950 bg-white px-2.5 py-0.5 rounded-lg border border-amber-300 text-xs">100% (大字标准)</span>
-              </div>
-              <input type="range" id="input-certFontScale" min="0.90" max="1.15" step="0.05" value="1.00" oninput="updateCertFontScale(Number(this.value))" class="w-full accent-blue-900 cursor-pointer" />
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-                若学生名字较长或内文较多，可微调至 90%–95%；若希望更醒目可调至 105%–115%。
-              </p>
-            </div>
-
-            <!-- Safe Margin Slider -->
-            <div class="pt-2.5 border-t border-amber-200/80">
-              <div class="flex justify-between items-center text-sm mb-1.5">
-                <span class="font-bold text-slate-900">内容安全边距 (Jarak Selamat Teks)</span>
-                <span id="safe-margin-badge" class="font-mono font-bold text-blue-950 bg-white px-2.5 py-0.5 rounded-lg border border-amber-300 text-xs">21mm / 25mm</span>
-              </div>
-              <input type="range" id="input-safeMarginV" min="15" max="32" step="1" value="21" oninput="updateSafeMargin(Number(this.value))" class="w-full accent-blue-900 cursor-pointer" />
-              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-                上下边距 <strong id="safe-v-text">21mm</strong> • 左右边距 <strong id="safe-h-text">25mm</strong>（打印在文凭纸上时可微调以避开纸张花边）。
-              </p>
-            </div>
-          </div>
-
-          <!-- Language Mode Toggle -->
-          <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-2.5">
-            <h3 class="text-sm font-bold text-slate-900">证书语言模式 (Mod Bahasa Sijil)</h3>
-            <div class="space-y-2">
-              <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-blue-900 has-[:checked]:bg-blue-50/50">
-                <input type="radio" name="langMode" value="bm" onchange="updateState('langMode', this.value)" class="text-blue-900 focus:ring-blue-800 w-4 h-4" />
-                <div>
-                  <div class="text-sm font-bold text-slate-900">Bahasa Melayu Sahaja (KPM Rasmi)</div>
-                  <div class="text-xs text-slate-600 mt-0.5">马来西亚教育部标准纯国文格式 (SK / SMK)</div>
-                </div>
-              </label>
-
-              <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-blue-900 has-[:checked]:bg-blue-50/50">
-                <input type="radio" name="langMode" value="bm_zh" checked onchange="updateState('langMode', this.value)" class="text-blue-900 focus:ring-blue-800 w-4 h-4" />
-                <div>
-                  <div class="text-sm font-bold text-slate-900">Dwibahasa: BM + 中文 (SJKC / SMJK)</div>
-                  <div class="text-xs text-slate-600 mt-0.5">华校双语模式（同时显示马来文与中文校名、姓名及奖状内文）</div>
-                </div>
-              </label>
-
-              <label class="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition has-[:checked]:border-blue-900 has-[:checked]:bg-blue-50/50">
-                <input type="radio" name="langMode" value="bm_en" onchange="updateState('langMode', this.value)" class="text-blue-900 focus:ring-blue-800 w-4 h-4" />
-                <div>
-                  <div class="text-sm font-bold text-slate-900">Dwibahasa: BM + English (DLP / Private)</div>
-                  <div class="text-xs text-slate-600 mt-0.5">双语课程学校、私立及国际学校模式</div>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- 5 Official Color Themes -->
-          <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-2.5">
-            <label class="block text-sm font-bold text-slate-900">5 款官方典雅配色主题 (Tema Warna)</label>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <button type="button" data-theme-btn="navy" onclick="updateState('theme', 'navy')" class="theme-btn flex items-center gap-2.5 p-2.5 rounded-xl border-2 border-blue-900 bg-blue-50/50 text-left transition cursor-pointer">
-                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #0f294a 55%, #c59b27 55%);"></span>
-                <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 truncate">Royal Navy</div>
-                  <div class="text-xs text-slate-500">皇室蓝</div>
-                </div>
-              </button>
-
-              <button type="button" data-theme-btn="emerald" onclick="updateState('theme', 'emerald')" class="theme-btn flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
-                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #064e3b 55%, #c59b27 55%);"></span>
-                <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 truncate">Emerald</div>
-                  <div class="text-xs text-slate-500">翡翠绿</div>
-                </div>
-              </button>
-
-              <button type="button" data-theme-btn="maroon" onclick="updateState('theme', 'maroon')" class="theme-btn flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
-                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #7f1d1d 55%, #c59b27 55%);"></span>
-                <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 truncate">Maroon</div>
-                  <div class="text-xs text-slate-500">枣红金</div>
-                </div>
-              </button>
-
-              <button type="button" data-theme-btn="charcoal" onclick="updateState('theme', 'charcoal')" class="theme-btn flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
-                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #1e293b 55%, #b45309 55%);"></span>
-                <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 truncate">Charcoal</div>
-                  <div class="text-xs text-slate-500">经典黑金</div>
-                </div>
-              </button>
-
-              <button type="button" data-theme-btn="purple" onclick="updateState('theme', 'purple')" class="theme-btn flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-left transition cursor-pointer">
-                <span class="w-5 h-5 rounded-full shrink-0 border border-amber-400" style="background: linear-gradient(135deg, #4c1d95 55%, #d97706 55%);"></span>
-                <div class="min-w-0">
-                  <div class="text-xs font-bold text-slate-900 truncate">Purple</div>
-                  <div class="text-xs text-slate-500">紫罗兰</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- School Crest (Lencana Sekolah) -->
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-            <div class="flex items-center gap-3.5">
-              <div id="logo-preview-thumb" class="w-14 h-14 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-1.5 shrink-0 overflow-hidden" style="width: 56px; height: 56px; min-width: 56px; min-height: 56px; max-width: 56px; max-height: 56px;">
-                <!-- Populated dynamically -->
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-bold text-slate-900">学校校徽 (Lencana Sekolah)</div>
-                <p class="text-xs text-slate-600 mt-0.5">上传透明 PNG / JPG 或使用内置矢量校徽</p>
-                <div class="mt-2 flex items-center gap-2">
-                  <label class="px-3 py-1.5 rounded-lg bg-blue-950 hover:bg-blue-900 text-white text-xs font-semibold cursor-pointer transition">
-                    上传校徽
-                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'schoolLogo')" class="hidden" />
-                  </label>
-                  <button type="button" onclick="resetSchoolLogo()" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-medium transition cursor-pointer">
-                    恢复默认校徽
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-2 border-t border-slate-200/80">
-              <div class="flex justify-between text-xs text-slate-700 mb-1">
-                <span class="font-medium">校徽尺寸 (Saiz Lencana)</span>
-                <span id="logo-size-val" class="font-mono font-bold text-slate-900">23 mm</span>
-              </div>
-              <input type="range" min="16" max="32" step="1" value="23" oninput="updateState('logoSizeMm', Number(this.value)); document.getElementById('logo-size-val').textContent = this.value + ' mm';" class="w-full accent-blue-900 cursor-pointer" />
-            </div>
-          </div>
-
-          <!-- School Details Inputs -->
-          <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-3">
-            <div>
-              <label class="block text-sm font-semibold text-slate-800 mb-1">School Name (BM)</label>
-              <input type="text" id="input-schoolName" oninput="updateState('schoolName', this.value)" value="SEKOLAH JENIS KEBANGSAAN (CINA) CHUNG HUA RANTAU" class="w-full px-3.5 py-2 text-sm font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
-            </div>
-
-            <div>
-              <label class="block text-sm font-semibold text-slate-800 mb-1">School Subtitle (中文 / EN)</label>
-              <input type="text" id="input-schoolNameSub" oninput="updateState('schoolNameSub', this.value)" value="晏斗中华国民型华文小学" class="w-full px-3.5 py-2 text-sm font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-sm font-semibold text-slate-800 mb-1">Kod Sekolah</label>
-                <input type="text" id="input-schoolCode" oninput="updateState('schoolCode', this.value)" value="NBC4067" class="w-full px-3.5 py-2 text-sm font-mono font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-slate-800 mb-1">No. Siri Permulaan</label>
-                <input type="text" id="input-noSijil" oninput="updateCurrentStudentField('noSijil', this.value)" value="SP/2026/001" class="w-full px-3.5 py-2 text-sm font-mono font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
-              </div>
-            </div>
-          </div>
-
-        </section>
-
-        <!-- ==================================================================
-             TAB 2: 2. 职务活动与内容 (Jawatan / Penyertaan & Butiran)
-             ================================================================== -->
-        <section id="panel-role" class="tab-panel hidden space-y-4">
-          <div class="flex items-center justify-between gap-2">
-            <div>
-              <h2 class="text-base font-bold text-slate-900">职务 / 活动预设与内容</h2>
-              <p class="text-xs text-slate-600 mt-0.5">选择学生领袖与校园服务职务表扬状，或参与活动奖状模板</p>
-            </div>
-            <span id="student-idx-badge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-blue-100 text-blue-950 shrink-0">#1 / 1</span>
-          </div>
-
-          <!-- Role & Participation Presets -->
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-            <div class="text-sm font-bold text-slate-900">一键预设模板 (Preset Jawatan &amp; Penyertaan)</div>
             <div class="grid grid-cols-2 gap-2">
-              <!-- Row 1: Pengawas Leaders -->
-              <button type="button" data-role-preset="ketua_pengawas" onclick="applyRolePreset('ketua_pengawas')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">👑 巡察员团长</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Ketua Pengawas Sekolah</div>
+              <button type="button" data-cert-type="penghargaan" onclick="setCertType('penghargaan')" class="cert-type-btn p-2.5 rounded-xl border-2 border-blue-900 bg-white text-left transition cursor-pointer">
+                <div class="text-xs sm:text-sm font-bold text-blue-950">表扬状 / 感谢状</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Sijil Penghargaan</div>
+              </button>
+              <button type="button" data-cert-type="penyertaan" onclick="setCertType('penyertaan')" class="cert-type-btn p-2.5 rounded-xl border border-slate-200 bg-white text-left transition cursor-pointer">
+                <div class="text-xs sm:text-sm font-bold text-emerald-900">参与活动奖状</div>
+                <div class="text-[11px] text-slate-500 mt-0.5">Sijil Penyertaan</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Presets: Student Duties, Donations, Events, Participation -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">一键套用职务 / 热心捐助 / 活动模板</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5 text-xs">
+              <button type="button" data-role-preset="ketua_pengawas" onclick="applyRolePreset('ketua_pengawas')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">巡察员团长</div>
+                <div class="text-[10px] text-slate-500 truncate">Ketua Pengawas</div>
+              </button>
+              <button type="button" data-role-preset="penolong_ketua_pengawas" onclick="applyRolePreset('penolong_ketua_pengawas')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">巡察员副团长</div>
+                <div class="text-[10px] text-slate-500 truncate">Pen. Ketua Pengawas</div>
+              </button>
+              <button type="button" data-role-preset="pengawas" onclick="applyRolePreset('pengawas')" class="role-preset-btn p-2 rounded-lg border-2 border-blue-900 bg-blue-50/70 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">巡察员</div>
+                <div class="text-[10px] text-slate-500 truncate">Pengawas Sekolah</div>
               </button>
 
-              <button type="button" data-role-preset="penolong_ketua_pengawas" onclick="applyRolePreset('penolong_ketua_pengawas')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">🛡️ 巡察员副团长</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Pen. Ketua Pengawas</div>
+              <button type="button" data-role-preset="ketua_pss" onclick="applyRolePreset('ketua_pss')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">图书管理员团长</div>
+                <div class="text-[10px] text-slate-500 truncate">Ketua PSS</div>
+              </button>
+              <button type="button" data-role-preset="penolong_ketua_pss" onclick="applyRolePreset('penolong_ketua_pss')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">图书管理员副团长</div>
+                <div class="text-[10px] text-slate-500 truncate">Pen. Ketua PSS</div>
+              </button>
+              <button type="button" data-role-preset="pss" onclick="applyRolePreset('pss')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">图书管理员</div>
+                <div class="text-[10px] text-slate-500 truncate">Pengawas PSS</div>
               </button>
 
-              <!-- Row 2: Pengawas & PSS Head -->
-              <button type="button" data-role-preset="pengawas" onclick="applyRolePreset('pengawas')" class="role-preset-btn p-2.5 rounded-xl border-2 border-blue-900 bg-blue-50/70 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-blue-950">🛡️ 巡察员</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Pengawas Sekolah</div>
+              <button type="button" data-role-preset="ketua_kelas" onclick="applyRolePreset('ketua_kelas')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">班长</div>
+                <div class="text-[10px] text-slate-500 truncate">Ketua Kelas</div>
+              </button>
+              <button type="button" data-role-preset="penolong_ketua" onclick="applyRolePreset('penolong_ketua')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">副班长</div>
+                <div class="text-[10px] text-slate-500 truncate">Pen. Ketua Kelas</div>
+              </button>
+              <button type="button" data-role-preset="ajk_koku" onclick="applyRolePreset('ajk_koku')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">课外活动理事</div>
+                <div class="text-[10px] text-slate-500 truncate">AJK Kokurikulum</div>
               </button>
 
-              <button type="button" data-role-preset="ketua_pss" onclick="applyRolePreset('ketua_pss')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">📖 图书管理员团长</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Ketua Pengawas PSS</div>
+              <button type="button" data-role-preset="bendera" onclick="applyRolePreset('bendera')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">升国旗队员</div>
+                <div class="text-[10px] text-slate-500 truncate">AJK Bendera</div>
+              </button>
+              <button type="button" data-role-preset="siaraya" onclick="applyRolePreset('siaraya')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">校园广播员</div>
+                <div class="text-[10px] text-slate-500 truncate">AJK Siaraya</div>
+              </button>
+              <button type="button" data-role-preset="pengacara" onclick="applyRolePreset('pengacara')" class="role-preset-btn p-2 rounded-lg border border-slate-200 bg-white hover:bg-blue-50/50 text-left transition cursor-pointer">
+                <div class="font-bold text-slate-900 truncate">周会司仪</div>
+                <div class="text-[10px] text-slate-500 truncate">Pengacara Majlis</div>
               </button>
 
-              <!-- Row 3: PSS Vice Head & Librarian -->
-              <button type="button" data-role-preset="penolong_ketua_pss" onclick="applyRolePreset('penolong_ketua_pss')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">📚 图书副团长</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Pen. Ketua Pengawas PSS</div>
+              <!-- Special Category 1: Enthusiastic for Education & Donations (热心教育/捐助物资感谢状) -->
+              <button type="button" data-role-preset="sumbangan" onclick="applyRolePreset('sumbangan')" class="role-preset-btn p-2 rounded-lg border border-amber-300 bg-amber-50/80 hover:bg-amber-100/80 text-left transition cursor-pointer">
+                <div class="font-bold text-amber-950 truncate">热心教育/捐助 ▾</div>
+                <div class="text-[10px] text-amber-800 truncate">Sumbangan / Derma</div>
               </button>
 
-              <button type="button" data-role-preset="pss" onclick="applyRolePreset('pss')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">📚 图书管理员</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Pengawas Pusat Sumber</div>
+              <!-- Special Category 2: Event Committee / Speaker -->
+              <button type="button" data-role-preset="aktiviti" onclick="applyRolePreset('aktiviti')" class="role-preset-btn p-2 rounded-lg border border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100/70 text-left transition cursor-pointer">
+                <div class="font-bold text-indigo-950 truncate">活动工委/嘉宾 ▾</div>
+                <div class="text-[10px] text-indigo-700 truncate">AJK / Penceramah</div>
               </button>
 
-              <!-- Row 4: Class Monitors -->
-              <button type="button" data-role-preset="ketua_kelas" onclick="applyRolePreset('ketua_kelas')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">🎖️ 班长</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Ketua Kelas</div>
-              </button>
-
-              <button type="button" data-role-preset="penolong_ketua" onclick="applyRolePreset('penolong_ketua')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">🏅 副班长</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Penolong Ketua Kelas</div>
-              </button>
-
-              <!-- Row 5: Koku AJK & Flag Raiser -->
-              <button type="button" data-role-preset="ajk_koku" onclick="applyRolePreset('ajk_koku')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">🏆 课外活动理事</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">AJK Kokurikulum</div>
-              </button>
-
-              <button type="button" data-role-preset="bendera" onclick="applyRolePreset('bendera')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">🚩 升国旗队员</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">AJK Menaikkan Bendera</div>
-              </button>
-
-              <!-- Row 6: Broadcaster & Assembly MC -->
-              <button type="button" data-role-preset="siaraya" onclick="applyRolePreset('siaraya')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">🎙️ 校园广播员</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">AJK Siaraya &amp; Radio</div>
-              </button>
-
-              <button type="button" data-role-preset="pengacara" onclick="applyRolePreset('pengacara')" class="role-preset-btn p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer">
-                <div class="text-sm font-bold text-slate-900">🎤 周会司仪</div>
-                <div class="text-xs text-slate-600 truncate mt-0.5">Pengacara Perhimpunan</div>
-              </button>
-
-              <!-- Full-Width Button: Sijil Penghargaan Acara -->
-              <button type="button" data-role-preset="aktiviti" onclick="applyRolePreset('aktiviti')" class="role-preset-btn col-span-2 p-3 rounded-xl border border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100/70 text-left transition cursor-pointer flex items-center justify-between gap-2">
-                <div>
-                  <div class="text-sm font-bold text-indigo-950">✨ 活动工委 / 主讲嘉宾感谢状</div>
-                  <div class="text-xs text-indigo-800 mt-0.5">适用于活动工委、讲座主讲人、运动会工委、校队代表等</div>
-                </div>
-                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-800 text-white shrink-0">活动感谢状</span>
-              </button>
-
-              <!-- Full-Width Button: Sijil Penyertaan -->
-              <button type="button" data-role-preset="penyertaan" onclick="applyRolePreset('penyertaan')" class="role-preset-btn col-span-2 p-3 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100/70 text-left transition cursor-pointer flex items-center justify-between gap-2">
-                <div>
-                  <div class="text-sm font-bold text-emerald-950">📜 参与活动奖状 (Sijil Penyertaan)</div>
-                  <div class="text-xs text-emerald-800 mt-0.5">适用于学生参与比赛、生活营、讲座工作坊、运动会等</div>
-                </div>
-                <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-700 text-white shrink-0">参与奖状</span>
+              <!-- Special Category 3: Participation Certificate -->
+              <button type="button" data-role-preset="penyertaan" onclick="applyRolePreset('penyertaan')" class="role-preset-btn p-2 rounded-lg border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100/70 text-left transition cursor-pointer">
+                <div class="font-bold text-emerald-950 truncate">参与活动奖状 ▾</div>
+                <div class="text-[10px] text-emerald-700 truncate">Sijil Penyertaan</div>
               </button>
             </div>
 
-            <!-- 4 Sub-Presets Revealed When "活动工委/主讲感谢状" Selected -->
-            <div id="aktiviti-subpresets" class="hidden pt-2.5 border-t border-slate-200 space-y-2">
-              <div class="text-xs font-bold text-indigo-900">选择感谢状活动身份：</div>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" data-sub-preset="ajk_program" onclick="applySubPreset('ajk_program')" class="sub-preset-btn px-3 py-2 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-xs font-semibold text-indigo-950 transition cursor-pointer">
-                  📋 活动工委 (AJK Program)
+            <!-- Sub-drawer 1: Enthusiastic for Education & Donations (热心教育 / 捐助物资感谢状) -->
+            <div id="sumbangan-subpresets" class="hidden p-2.5 rounded-xl bg-amber-50/90 border border-amber-300 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-950">选择热心教育 / 捐助感谢状类型：</span>
+                <span class="text-[10px] text-amber-800">自动隐藏学生班级栏</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button type="button" data-sumbangan-preset="sumbangan_barangan" onclick="applySumbanganPreset('sumbangan_barangan')" class="sumbangan-preset-btn p-2 rounded-lg border-2 border-amber-700 bg-amber-100/90 text-left transition cursor-pointer">
+                  <div class="font-bold text-amber-950">热心捐助物资与器材</div>
+                  <div class="text-[10px] text-amber-800">Barangan & Peralatan</div>
                 </button>
-                <button type="button" data-sub-preset="penceramah" onclick="applySubPreset('penceramah')" class="sub-preset-btn px-3 py-2 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-xs font-semibold text-indigo-950 transition cursor-pointer">
-                  🎤 讲座主讲人 (Penceramah)
+                <button type="button" data-sumbangan-preset="sumbangan_dana" onclick="applySumbanganPreset('sumbangan_dana')" class="sumbangan-preset-btn p-2 rounded-lg border border-amber-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-amber-950">热心教育捐献经费</div>
+                  <div class="text-[10px] text-amber-800">Dana Pendidikan</div>
                 </button>
-                <button type="button" data-sub-preset="ajk_sukan" onclick="applySubPreset('ajk_sukan')" class="sub-preset-btn px-3 py-2 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-xs font-semibold text-indigo-950 transition cursor-pointer">
-                  🏃 运动会工委 (AJK Sukan)
+                <button type="button" data-sumbangan-preset="sumbangan_buku" onclick="applySumbanganPreset('sumbangan_buku')" class="sumbangan-preset-btn p-2 rounded-lg border border-amber-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-amber-950">热心捐赠图书与设施</div>
+                  <div class="text-[10px] text-amber-800">Buku & Kemudahan</div>
                 </button>
-                <button type="button" data-sub-preset="peserta" onclick="applySubPreset('peserta')" class="sub-preset-btn px-3 py-2 rounded-lg border border-indigo-200 bg-white hover:bg-indigo-50 text-left text-xs font-semibold text-indigo-950 transition cursor-pointer">
-                  🌟 校队代表表扬 (Wakil)
+                <button type="button" data-sumbangan-preset="sumbangan_organisasi" onclick="applySumbanganPreset('sumbangan_organisasi')" class="sumbangan-preset-btn p-2 rounded-lg border border-amber-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-amber-950">热心赞助单位/社团</div>
+                  <div class="text-[10px] text-amber-800">Penaja & Organisasi</div>
                 </button>
               </div>
             </div>
 
-            <!-- 4 Sub-Presets Revealed When "参与活动奖状" Selected -->
-            <div id="penyertaan-subpresets" class="hidden pt-2.5 border-t border-emerald-200 space-y-2">
-              <div class="text-xs font-bold text-emerald-900">选择参与活动奖状类型（自动切换为 Sijil Penyertaan）：</div>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" data-part-preset="part_pertandingan" onclick="applyParticipationPreset('part_pertandingan')" class="part-preset-btn px-3 py-2 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-xs font-semibold text-emerald-950 transition cursor-pointer">
-                  🏆 比赛 / 竞赛参与
+            <!-- Sub-drawer 2: Event Committee / Speaker -->
+            <div id="aktiviti-subpresets" class="hidden p-2.5 rounded-xl bg-indigo-50/70 border border-indigo-200 space-y-2">
+              <div class="text-xs font-bold text-indigo-950">选择活动工委 / 嘉宾表扬类型：</div>
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button type="button" data-sub-preset="ajk_program" onclick="applySubPreset('ajk_program')" class="sub-preset-btn p-2 rounded-lg border-2 border-indigo-700 bg-indigo-100/80 text-left transition cursor-pointer">
+                  <div class="font-bold text-indigo-950">活动工委</div>
+                  <div class="text-[10px] text-indigo-700">AJK Pelaksana</div>
                 </button>
-                <button type="button" data-part-preset="part_kem" onclick="applyParticipationPreset('part_kem')" class="part-preset-btn px-3 py-2 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-xs font-semibold text-emerald-950 transition cursor-pointer">
-                  ⛺ 生活营 / 领袖培训
+                <button type="button" data-sub-preset="penceramah" onclick="applySubPreset('penceramah')" class="sub-preset-btn p-2 rounded-lg border border-indigo-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-indigo-950">讲座主讲人</div>
+                  <div class="text-[10px] text-indigo-700">Penceramah Jemputan</div>
                 </button>
-                <button type="button" data-part-preset="part_bengkel" onclick="applyParticipationPreset('part_bengkel')" class="part-preset-btn px-3 py-2 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-xs font-semibold text-emerald-950 transition cursor-pointer">
-                  📚 讲座 / 学习工作坊
+                <button type="button" data-sub-preset="ajk_sukan" onclick="applySubPreset('ajk_sukan')" class="sub-preset-btn p-2 rounded-lg border border-indigo-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-indigo-950">运动会工委</div>
+                  <div class="text-[10px] text-indigo-700">AJK Sukan Tahunan</div>
                 </button>
-                <button type="button" data-part-preset="part_sukan" onclick="applyParticipationPreset('part_sukan')" class="part-preset-btn px-3 py-2 rounded-lg border border-emerald-200 bg-white hover:bg-emerald-50 text-left text-xs font-semibold text-emerald-950 transition cursor-pointer">
-                  🏃 运动会 / 体育赛事
+                <button type="button" data-sub-preset="peserta" onclick="applySubPreset('peserta')" class="sub-preset-btn p-2 rounded-lg border border-indigo-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-indigo-950">校队代表</div>
+                  <div class="text-[10px] text-indigo-700">Wakil Sekolah</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sub-drawer 3: Participation Certificate -->
+            <div id="penyertaan-subpresets" class="hidden p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+              <div class="text-xs font-bold text-emerald-950">选择参与活动奖状类型：</div>
+              <div class="grid grid-cols-2 gap-1.5 text-xs">
+                <button type="button" data-part-preset="part_pertandingan" onclick="applyParticipationPreset('part_pertandingan')" class="part-preset-btn p-2 rounded-lg border-2 border-emerald-700 bg-emerald-100/80 text-left transition cursor-pointer">
+                  <div class="font-bold text-emerald-950">学术与才艺比赛</div>
+                  <div class="text-[10px] text-emerald-700">Pertandingan Koakademik</div>
+                </button>
+                <button type="button" data-part-preset="part_kem" onclick="applyParticipationPreset('part_kem')" class="part-preset-btn p-2 rounded-lg border border-emerald-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-emerald-950">领袖培训生活营</div>
+                  <div class="text-[10px] text-emerald-700">Kem Kepimpinan</div>
+                </button>
+                <button type="button" data-part-preset="part_bengkel" onclick="applyParticipationPreset('part_bengkel')" class="part-preset-btn p-2 rounded-lg border border-emerald-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-emerald-950">激励讲座与工作坊</div>
+                  <div class="text-[10px] text-emerald-700">Bengkel & Ceramah</div>
+                </button>
+                <button type="button" data-part-preset="part_sukan" onclick="applyParticipationPreset('part_sukan')" class="part-preset-btn p-2 rounded-lg border border-emerald-200 bg-white text-left transition cursor-pointer">
+                  <div class="font-bold text-emerald-950">常年运动会</div>
+                  <div class="text-[10px] text-emerald-700">Kejohanan Sukan</div>
                 </button>
               </div>
             </div>
           </div>
 
-          <!-- Recipient Details Form -->
-          <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-3">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div class="sm:col-span-2">
-                <label class="block text-sm font-semibold text-slate-800 mb-1">Nama Penerima (BM)</label>
-                <input type="text" id="input-namaBm" oninput="updateCurrentStudentField('namaBm', this.value)" value="TAN WEI MING" class="w-full px-3.5 py-2 text-sm font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
+          <!-- Recipient Form Fields -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800">受惠人 / 捐助人资料</span>
+              <span id="student-idx-badge" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-950">#1 / 1</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">证书编号 (No. Siri)</label>
+                <input type="text" id="input-noSijil" value="SP/2026/001" oninput="updateCurrentStudentField('noSijil', this.value)" class="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
               </div>
               <div>
-                <label class="block text-sm font-semibold text-slate-800 mb-1">中文姓名</label>
-                <input type="text" id="input-namaCina" oninput="updateCurrentStudentField('namaCina', this.value)" value="陈伟明" class="w-full px-3.5 py-2 text-sm font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
+                <label class="block text-xs font-semibold text-slate-700 mb-1">颁发日期 (Tarikh)</label>
+                <input type="text" id="input-tarikh" value="14 November 2026" oninput="updateCurrentStudentField('tarikh', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
               </div>
             </div>
 
-            <!-- Optional No. KP / Kelas / Unit -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div class="sm:col-span-2">
+                <label id="label-nama-bm" class="block text-xs font-semibold text-slate-700 mb-1">Nama Penerima (BM)</label>
+                <input type="text" id="input-namaBm" value="TAN WEI MING" oninput="updateCurrentStudentField('namaBm', this.value)" class="w-full px-2.5 py-1.5 text-xs font-bold uppercase rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
+              </div>
+              <div>
+                <label id="label-nama-cina" class="block text-xs font-semibold text-slate-700 mb-1">中文姓名</label>
+                <input type="text" id="input-namaCina" value="陈伟明" oninput="updateCurrentStudentField('namaCina', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
+              </div>
+            </div>
+
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-sm font-semibold text-slate-800">No. KP / Kelas / Unit</label>
-                <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
-                  <input type="checkbox" id="input-showKpKelas" checked onchange="updateState('showKpKelas', this.checked)" class="rounded text-blue-900 w-4 h-4" />
-                  <span>在证书显示此栏</span>
+                <label class="text-xs font-semibold text-slate-700">身份证 / 班级 (No. KP / Kelas)</label>
+                <label class="inline-flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                  <input type="checkbox" id="input-showKpKelas" checked onchange="updateState('showKpKelas', this.checked)" class="rounded text-blue-900 focus:ring-blue-800" />
+                  <span>显示此行</span>
                 </label>
               </div>
-              <input type="text" id="input-noKpKelas" oninput="updateCurrentStudentField('noKpKelas', this.value)" value="140518-05-1234 • Kelas 6 Bestari" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" placeholder="例如：140518-05-1234 • Kelas 6 Bestari" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label id="label-jawatan-aktiviti" class="block text-sm font-semibold text-slate-800 mb-1">Jawatan / Peranan (职务)</label>
-                <input type="text" id="input-jawatan" oninput="updateCurrentStudentField('jawatan', this.value)" value="PENGAWAS SEKOLAH / 巡察员" class="w-full px-3.5 py-2 text-sm font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
-              </div>
-              <div>
-                <label id="label-program-sesi" class="block text-sm font-semibold text-slate-800 mb-1">Nama Program / Sesi</label>
-                <input type="text" id="input-programSesi" oninput="updateCurrentStudentField('programSesi', this.value)" value="Sesi Persekolahan Tahun 2026" class="w-full px-3.5 py-2 text-sm font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
-              </div>
+              <input type="text" id="input-noKpKelas" value="140518-05-1234 • Kelas 6 Bestari" oninput="updateCurrentStudentField('noKpKelas', this.value)" placeholder="捐助人/嘉宾可留空或取消勾选" class="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
             </div>
 
             <div>
-              <label class="block text-sm font-semibold text-slate-800 mb-1">Teks Sijil BM (马来文内文)</label>
-              <textarea id="input-teksBm" rows="3" oninput="updateCurrentStudentField('teksBm', this.value)" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none leading-relaxed">atas jasa bakti, komitmen tinggi serta dedikasi cemerlang dalam menjalankan tugas dan tanggungjawab yang diamanahkan sepanjang sesi persekolahan ini.</textarea>
+              <label id="label-jawatan-aktiviti" class="block text-xs font-semibold text-slate-700 mb-1">Jawatan / Peranan (职务)</label>
+              <input type="text" id="input-jawatan" value="PENGAWAS SEKOLAH / 巡察员" oninput="updateCurrentStudentField('jawatan', this.value)" class="w-full px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
             </div>
 
             <div>
-              <label class="block text-sm font-semibold text-slate-800 mb-1">Teks Sijil 中文 / EN (双语副文)</label>
-              <textarea id="input-teksSub" rows="2" oninput="updateCurrentStudentField('teksSub', this.value)" class="w-full px-3.5 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none leading-relaxed">感谢您在任期间尽忠职守、热心服务，为维护校园纪律与校风做出积极贡献，特颁此状，以资表扬。</textarea>
+              <label id="label-program-sesi" class="block text-xs font-semibold text-slate-700 mb-1">Nama Program / Sesi</label>
+              <input type="text" id="input-programSesi" value="Sesi Persekolahan Tahun 2026" oninput="updateCurrentStudentField('programSesi', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">马来文表扬/感谢内文 (Teks Penghargaan BM)</label>
+              <textarea id="input-teksBm" rows="3" oninput="updateCurrentStudentField('teksBm', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none leading-relaxed">atas jasa bakti, komitmen tinggi serta dedikasi cemerlang dalam menjalankan tugas dan tanggungjawab yang diamanahkan sepanjang sesi persekolahan ini.</textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">华文 / 英文副内文 (Teks Bahasa Cina / Inggeris)</label>
+              <textarea id="input-teksSub" rows="2" oninput="updateCurrentStudentField('teksSub', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none leading-relaxed">感谢您在任期间尽忠职守、热心服务，为维护校园纪律与校风做出积极贡献，特颁此状，以资表扬。</textarea>
             </div>
           </div>
-
-        </section>
+        </div>
 
         <!-- ==================================================================
-             TAB 3: 3. 签名与校章 (Tandatangan & Cop)
+             TAB 2: SCHOOL IDENTITY, SIGNATORIES & STAMP
              ================================================================== -->
-        <section id="panel-signatory" class="tab-panel hidden space-y-4">
-          
-          <!-- Clear Two-Button Display Controls for Left Signatory & School Stamp -->
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5">
-            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">底部栏位显示设定 (Paparan Bahagian Bawah)</div>
+        <div id="panel-school" class="tab-panel hidden space-y-4">
 
-            <!-- 1. Left Signatory Enable/Disable Buttons -->
-            <div class="pb-3.5 border-b border-slate-200/80 space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-bold text-slate-900">1. 左侧签署人处 (Penandatangan Kiri)</span>
-                <span id="left-sig-status-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700">已关闭</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" id="btn-left-sig-off" onclick="toggleLeftSignatory(false)" class="py-2 px-3 rounded-xl border-2 border-slate-800 bg-slate-800 text-white text-xs font-bold transition cursor-pointer">
-                  ✕ 关闭左侧签署人
-                </button>
-                <button type="button" id="btn-left-sig-on" onclick="toggleLeftSignatory(true)" class="py-2 px-3 rounded-xl border border-slate-300 bg-white hover:bg-indigo-50 text-slate-700 text-xs font-semibold transition cursor-pointer">
-                  ✓ 开启左侧签署人
-                </button>
-              </div>
-              <p class="text-xs text-slate-500">关闭后仅保留右侧主签署人（校长/主办方）；开启后可填写副校长或顾问老师。</p>
-            </div>
+          <!-- School Crest & Name -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">学校标志与名称</div>
 
-            <!-- 2. Official School Stamp Show/Hide Buttons -->
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-bold text-slate-900">2. 学校盖章 (Cop Rasmi Sekolah)</span>
-                <span id="stamp-status-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">已显示</span>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" id="btn-stamp-show" onclick="toggleShowStamp(true)" class="py-2 px-3 rounded-xl border-2 border-blue-900 bg-blue-900 text-white text-xs font-bold transition cursor-pointer">
-                  ✓ 显示学校盖章
-                </button>
-                <button type="button" id="btn-stamp-hide" onclick="toggleShowStamp(false)" class="py-2 px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer">
-                  ✕ 隐藏学校盖章
-                </button>
-              </div>
-              <p class="text-xs text-slate-500">若需要打印后盖实体校章，或使用已预印公章的文凭纸，可选择“隐藏学校盖章”。</p>
-            </div>
-          </div>
-
-          <!-- Official School Stamp Upload & Adjustments (Visible when Stamp is shown) -->
-          <div id="stamp-controls-card" class="p-4 rounded-2xl bg-white border border-slate-200 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-bold text-slate-900">学校盖章设置 (Tetapan Cop Rasmi)</span>
-              <span class="text-xs text-slate-500">支持透明 PNG</span>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <label class="px-3.5 py-2 rounded-lg bg-blue-950 hover:bg-blue-900 text-white text-xs font-semibold cursor-pointer transition">
-                上传电子校章 (PNG)
-                <input type="file" accept="image/*" onchange="handleImageUpload(event, 'stampImg')" class="hidden" />
-              </label>
-              <button type="button" onclick="clearCustomImage('stampImg')" class="px-3 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 text-xs transition cursor-pointer">
-                恢复虚线盖章框
-              </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs text-slate-700 pt-2 border-t border-slate-100">
-              <div>
-                <div class="flex justify-between mb-1">
-                  <span>校章大小</span>
-                  <span id="stamp-size-lbl" class="font-mono font-semibold text-slate-900">25 mm</span>
+            <div class="flex items-center gap-3">
+              <div id="logo-preview-thumb" class="w-12 h-12 rounded-xl border border-slate-300 bg-white flex items-center justify-center p-1 shrink-0 overflow-hidden"></div>
+              <div class="flex-1 space-y-1.5">
+                <div class="flex flex-wrap gap-1.5">
+                  <label class="px-2.5 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-semibold cursor-pointer transition">
+                    <span>上传校徽 (PNG/SVG)</span>
+                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'schoolLogo')" class="hidden" />
+                  </label>
+                  <button type="button" onclick="resetSchoolLogo()" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-medium cursor-pointer transition">
+                    恢复默认
+                  </button>
                 </div>
-                <input type="range" min="18" max="40" value="25" oninput="updateState('stampSize', Number(this.value)); document.getElementById('stamp-size-lbl').textContent = this.value + ' mm';" class="w-full accent-blue-900 cursor-pointer" />
+                <div class="flex items-center justify-between text-xs text-slate-600">
+                  <span>校徽大小：<strong id="logo-size-val">23mm</strong></span>
+                  <input type="range" min="15" max="34" value="23" oninput="document.getElementById('logo-size-val').textContent=this.value+'mm'; updateState('logoSizeMm', Number(this.value));" class="w-28 accent-blue-900" />
+                </div>
+              </div>
+            </div>
+
+            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+              <input type="checkbox" onchange="updateState('hideTopCrest', this.checked)" class="rounded text-blue-900 focus:ring-blue-800" />
+              <span>隐藏顶部校徽（适用于已预印校徽的文凭纸）</span>
+            </label>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">教育部标头 (留空则不显示)</label>
+              <input type="text" value="KEMENTERIAN PENDIDIKAN MALAYSIA" oninput="updateState('kpmHeaderText', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">学校马来文官方全名</label>
+              <input type="text" value="SEKOLAH JENIS KEBANGSAAN (CINA) CHUNG HUA RANTAU" oninput="updateState('schoolName', this.value)" class="w-full px-2.5 py-1.5 text-xs font-bold uppercase rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-2">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">学校华文校名</label>
+                <input type="text" value="晏斗中华国民型华文小学" oninput="updateState('schoolNameSub', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
               </div>
               <div>
-                <div class="flex justify-between mb-1">
-                  <span>上下微调</span>
-                  <span id="stamp-offset-lbl" class="font-mono font-semibold text-slate-900">0 px</span>
-                </div>
-                <input type="range" min="-24" max="24" value="0" oninput="updateState('stampOffset', Number(this.value)); document.getElementById('stamp-offset-lbl').textContent = this.value + ' px';" class="w-full accent-blue-900 cursor-pointer" />
+                <label class="block text-xs font-semibold text-slate-700 mb-1">学校代码</label>
+                <input type="text" value="NBC4067" oninput="updateState('schoolCode', this.value)" class="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
               </div>
             </div>
           </div>
 
-          <!-- Secondary Signatory (Left, revealed immediately when enabled) -->
-          <div id="left-signatory-card" class="hidden p-4 rounded-2xl bg-indigo-50/60 border-2 border-indigo-300 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-bold text-indigo-950">左侧签署人设置 (Penandatangan Kiri)</span>
-              <span class="text-xs font-bold px-2.5 py-0.5 rounded bg-indigo-700 text-white">左侧栏位已开启</span>
-            </div>
+          <!-- Primary Signatory (Principal - Right) -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">主签署人 (右侧 - 校长)</div>
 
-            <!-- Quick Left Signatory Title Presets -->
-            <div class="flex flex-wrap gap-1.5">
-              <button type="button" onclick="applyLeftTitlePreset('GPK Hal Ehwal Murid / 副校长')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-950 transition cursor-pointer">学生事务副校长</button>
-              <button type="button" onclick="applyLeftTitlePreset('GPK Pentadbiran / 行政副校长')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-950 transition cursor-pointer">行政副校长</button>
-              <button type="button" onclick="applyLeftTitlePreset('GPK Kokurikulum / 课外活动副校长')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-950 transition cursor-pointer">课外活动副校长</button>
-              <button type="button" onclick="applyLeftTitlePreset('Guru Penasihat / 顾问老师')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-200 text-xs font-semibold text-indigo-950 transition cursor-pointer">顾问老师</button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">姓名 (Nama)</label>
-                <input type="text" id="input-sigLeftName" oninput="updateState('sigLeftName', this.value)" value="LIM KAH WAI" class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-slate-300 bg-white outline-none uppercase" />
+                <label class="block text-xs font-semibold text-slate-700 mb-1">校长姓名</label>
+                <input type="text" value="CHONG LAI QUEEN" oninput="updateState('principalName', this.value)" class="w-full px-2.5 py-1.5 text-xs font-bold uppercase rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
               </div>
               <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">职称 (BM &amp; 中文/EN)</label>
-                <input type="text" id="input-sigLeftTitle" oninput="updateState('sigLeftTitle', this.value)" value="GPK Hal Ehwal Murid / 副校长" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white outline-none" />
+                <label class="block text-xs font-semibold text-slate-700 mb-1">职称</label>
+                <input type="text" value="Guru Besar / 校长" oninput="updateState('principalTitle', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none" />
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
-              <label class="px-3.5 py-2 rounded-lg bg-indigo-800 hover:bg-indigo-700 text-white text-xs font-semibold cursor-pointer transition">
-                上传左侧签名 (PNG)
-                <input type="file" accept="image/*" onchange="handleImageUpload(event, 'sigLeftImg')" class="hidden" />
-              </label>
-              <button type="button" onclick="clearCustomImage('sigLeftImg')" class="px-3 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
-                清除
-              </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-indigo-200/70 text-xs text-slate-700">
-              <div>
-                <div class="flex justify-between mb-1">
-                  <span>左侧签名大小</span>
-                  <span id="sig-left-size-lbl" class="font-mono font-semibold text-slate-900">16 mm</span>
-                </div>
-                <input type="range" min="11" max="28" value="16" oninput="updateState('sigLeftSize', Number(this.value)); document.getElementById('sig-left-size-lbl').textContent = this.value + ' mm';" class="w-full accent-indigo-800 cursor-pointer" />
-              </div>
-              <div>
-                <div class="flex justify-between mb-1">
-                  <span>左侧上下微调</span>
-                  <span id="sig-left-offset-lbl" class="font-mono font-semibold text-slate-900">0 px</span>
-                </div>
-                <input type="range" min="-24" max="24" value="0" oninput="updateState('sigLeftOffset', Number(this.value)); document.getElementById('sig-left-offset-lbl').textContent = this.value + ' px';" class="w-full accent-indigo-800 cursor-pointer" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Date of Issue (Placed Under Signatory Title) -->
-          <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <label class="block text-sm font-bold text-slate-900">Tarikh Dikeluarkan (颁发日期)</label>
-              <span class="text-xs text-slate-500">显示在签署人职称下方</span>
-            </div>
-            <input type="text" id="input-tarikh" oninput="updateCurrentStudentField('tarikh', this.value)" value="14 November 2026" class="w-full px-3.5 py-2 text-sm font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
-
-            <!-- Date Column Selector (Visible when Left Signatory is enabled) -->
-            <div id="date-position-row" class="hidden pt-1.5">
-              <label class="block text-xs font-semibold text-slate-700 mb-1.5">日期放置位置 (Kedudukan Tarikh)</label>
-              <div class="grid grid-cols-2 gap-2">
-                <button type="button" data-date-pos="right" onclick="updateState('datePosition', 'right')" class="date-pos-btn py-2 px-2.5 rounded-lg border-2 border-blue-900 bg-blue-50/70 text-xs font-bold text-blue-950 transition cursor-pointer">
-                  主签署人职称下方
-                </button>
-                <button type="button" data-date-pos="left" onclick="updateState('datePosition', 'left')" class="date-pos-btn py-2 px-2.5 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 transition cursor-pointer">
-                  左侧签署人职称下方
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Primary Signatory (Right) -->
-          <div class="p-4 rounded-2xl bg-white border border-slate-200 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-bold text-slate-900">主签署人 (校长 / 主办方 — 右侧)</span>
-              <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
-                <input type="checkbox" id="input-sigMultiply" checked onchange="updateState('sigMultiply', this.checked)" class="rounded text-blue-900 w-4 h-4" />
-                <span>自动去白底</span>
-              </label>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">姓名 (Nama)</label>
-                <input type="text" id="input-principalName" oninput="updateState('principalName', this.value)" value="CHONG LAI QUEEN" class="w-full px-3 py-2 text-sm font-bold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none uppercase" />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-700 mb-1">职称 (BM &amp; 中文/EN)</label>
-                <input type="text" id="input-principalTitle" oninput="updateState('principalTitle', this.value)" value="Guru Besar / 校长" class="w-full px-3 py-2 text-sm font-semibold rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-800 outline-none" />
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2 pt-0.5">
-              <label class="px-3.5 py-2 rounded-lg bg-blue-950 hover:bg-blue-900 text-white text-xs font-semibold cursor-pointer transition">
-                上传电子签名 (PNG)
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold cursor-pointer transition">
+                <span>上传电子签名</span>
                 <input type="file" accept="image/*" onchange="handleImageUpload(event, 'sigImg')" class="hidden" />
               </label>
-              <button type="button" onclick="clearCustomImage('sigImg')" class="px-3 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
-                清除
+              <button type="button" onclick="clearCustomImage('sigImg')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-medium cursor-pointer transition">
+                清除签名
               </button>
+              <label class="inline-flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer ml-auto">
+                <input type="checkbox" checked onchange="updateState('sigMultiply', this.checked)" class="rounded text-blue-900" />
+                <span>白底透明化</span>
+              </label>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100 text-xs text-slate-700">
+            <div class="grid grid-cols-2 gap-3 text-xs text-slate-600">
               <div>
-                <div class="flex justify-between mb-1">
-                  <span>签名大小</span>
-                  <span id="sig-size-lbl" class="font-mono font-semibold text-slate-900">16 mm</span>
-                </div>
-                <input type="range" min="11" max="28" value="16" oninput="updateState('sigSize', Number(this.value)); document.getElementById('sig-size-lbl').textContent = this.value + ' mm';" class="w-full accent-blue-900 cursor-pointer" />
+                <div class="flex justify-between mb-1"><span>签名高度</span><strong><span id="sig-size-val">16</span>mm</strong></div>
+                <input type="range" min="10" max="30" value="16" oninput="document.getElementById('sig-size-val').textContent=this.value; updateState('sigSize', Number(this.value));" class="w-full accent-blue-900" />
               </div>
               <div>
-                <div class="flex justify-between mb-1">
-                  <span>上下微调</span>
-                  <span id="sig-offset-lbl" class="font-mono font-semibold text-slate-900">0 px</span>
-                </div>
-                <input type="range" min="-24" max="24" value="0" oninput="updateState('sigOffset', Number(this.value)); document.getElementById('sig-offset-lbl').textContent = this.value + ' px';" class="w-full accent-blue-900 cursor-pointer" />
+                <div class="flex justify-between mb-1"><span>上下微调</span><strong><span id="sig-off-val">0</span>px</strong></div>
+                <input type="range" min="-20" max="20" value="0" oninput="document.getElementById('sig-off-val').textContent=this.value; updateState('sigOffset', Number(this.value));" class="w-full accent-blue-900" />
               </div>
             </div>
           </div>
 
-        </section>
+          <!-- Optional Left Signatory (e.g. Chairman of Board / PIBG / GPK) -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">左侧第二签署人 (董事长/家协/副校长)</span>
+              <span id="left-sig-status-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700">已关闭</span>
+            </div>
 
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btn-left-sig-off" onclick="toggleLeftSignatory(false)" class="py-2 px-3 rounded-xl border-2 border-slate-800 bg-slate-800 text-white text-xs font-bold transition cursor-pointer">
+                单人签署 (默认)
+              </button>
+              <button type="button" id="btn-left-sig-on" onclick="toggleLeftSignatory(true)" class="py-2 px-3 rounded-xl border border-slate-300 bg-white hover:bg-indigo-50 text-slate-700 text-xs font-semibold transition cursor-pointer">
+                开启双人联合签署
+              </button>
+            </div>
+
+            <div id="left-signatory-card" class="hidden pt-2 border-t border-slate-200 space-y-2.5">
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="applyLeftTitlePreset('Pengerusi Lembaga Pengurus / 董事长')" class="px-2 py-1 rounded bg-white border border-slate-300 hover:bg-indigo-50 text-[11px] font-medium cursor-pointer">董事长</button>
+                <button type="button" onclick="applyLeftTitlePreset('Yang Dipertua PIBG / 家教协会主席')" class="px-2 py-1 rounded bg-white border border-slate-300 hover:bg-indigo-50 text-[11px] font-medium cursor-pointer">家协主席</button>
+                <button type="button" onclick="applyLeftTitlePreset('GPK Hal Ehwal Murid / 副校长')" class="px-2 py-1 rounded bg-white border border-slate-300 hover:bg-indigo-50 text-[11px] font-medium cursor-pointer">副校长</button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">左侧签署人姓名</label>
+                  <input type="text" value="LIM KAH WAI" oninput="updateState('sigLeftName', this.value)" class="w-full px-2.5 py-1.5 text-xs font-bold uppercase rounded-lg border border-slate-300 bg-white outline-none" />
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">左侧职称</label>
+                  <input type="text" id="input-sigLeftTitle" value="GPK Hal Ehwal Murid / 副校长" oninput="updateState('sigLeftTitle', this.value)" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white outline-none" />
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <label class="px-2.5 py-1.5 rounded-lg bg-indigo-700 hover:bg-indigo-600 text-white text-xs font-semibold cursor-pointer transition">
+                  <span>上传左侧签名</span>
+                  <input type="file" accept="image/*" onchange="handleImageUpload(event, 'sigLeftImg')" class="hidden" />
+                </label>
+                <button type="button" onclick="clearCustomImage('sigLeftImg')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-medium cursor-pointer transition">
+                  清除
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-xs text-slate-600">
+                <div>
+                  <div class="flex justify-between mb-1"><span>签名高度</span><strong><span id="sig-left-size-val">16</span>mm</strong></div>
+                  <input type="range" min="10" max="30" value="16" oninput="document.getElementById('sig-left-size-val').textContent=this.value; updateState('sigLeftSize', Number(this.value));" class="w-full accent-indigo-700" />
+                </div>
+                <div>
+                  <div class="flex justify-between mb-1"><span>上下微调</span><strong><span id="sig-left-off-val">0</span>px</strong></div>
+                  <input type="range" min="-20" max="20" value="0" oninput="document.getElementById('sig-left-off-val').textContent=this.value; updateState('sigLeftOffset', Number(this.value));" class="w-full accent-indigo-700" />
+                </div>
+              </div>
+
+              <div id="date-position-row" class="hidden pt-1">
+                <span class="block text-xs font-semibold text-slate-700 mb-1">日期显示位置：</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" data-date-pos="right" onclick="updateState('datePosition', 'right')" class="date-pos-btn py-1.5 px-2 rounded-lg border-2 border-blue-900 bg-blue-50/70 text-xs font-bold text-blue-950 cursor-pointer">右侧校长职称下</button>
+                  <button type="button" data-date-pos="left" onclick="updateState('datePosition', 'left')" class="date-pos-btn py-1.5 px-2 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-700 cursor-pointer">左侧签署职称下</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Official School Stamp -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">学校官方盖章 (Cop Rasmi Sekolah)</span>
+              <span id="stamp-status-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">已显示</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" id="btn-stamp-show" onclick="toggleShowStamp(true)" class="py-2 px-3 rounded-xl border-2 border-blue-900 bg-blue-900 text-white text-xs font-bold transition cursor-pointer">
+                显示盖章区
+              </button>
+              <button type="button" id="btn-stamp-hide" onclick="toggleShowStamp(false)" class="py-2 px-3 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer">
+                隐藏盖章区
+              </button>
+            </div>
+
+            <div id="stamp-controls-card" class="space-y-2.5 pt-1">
+              <div class="flex items-center gap-2">
+                <label class="px-2.5 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-semibold cursor-pointer transition">
+                  <span>上传学校盖章图</span>
+                  <input type="file" accept="image/*" onchange="handleImageUpload(event, 'stampImg')" class="hidden" />
+                </label>
+                <button type="button" onclick="clearCustomImage('stampImg')" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-medium cursor-pointer transition">
+                  恢复虚线框
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-xs text-slate-600">
+                <div>
+                  <div class="flex justify-between mb-1"><span>盖章直径</span><strong><span id="stamp-size-val">25</span>mm</strong></div>
+                  <input type="range" min="16" max="38" value="25" oninput="document.getElementById('stamp-size-val').textContent=this.value; updateState('stampSize', Number(this.value));" class="w-full accent-blue-900" />
+                </div>
+                <div>
+                  <div class="flex justify-between mb-1"><span>上下微调</span><strong><span id="stamp-off-val">0</span>px</strong></div>
+                  <input type="range" min="-20" max="20" value="0" oninput="document.getElementById('stamp-off-val').textContent=this.value; updateState('stampOffset', Number(this.value));" class="w-full accent-blue-900" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================================
+             TAB 3: LANGUAGE, ORIENTATION, COLOR THEME & PRE-PRINTED FRAME MODE
+             ================================================================== -->
+        <div id="panel-design" class="tab-panel hidden space-y-4">
+
+          <!-- Language Mode -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">证书语言版本 (Bahasa)</div>
+            <select onchange="updateState('langMode', this.value)" class="w-full px-3 py-2 text-xs sm:text-sm font-semibold rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-blue-800 outline-none">
+              <option value="bm_zh" selected>马来文 + 华文双语 (BM + 中文 - 华小推荐)</option>
+              <option value="bm">纯马来文官方版 (Bahasa Melayu Sahaja)</option>
+              <option value="bm_en">马来文 + 英文双语 (BM + English)</option>
+            </select>
+          </div>
+
+          <!-- A4 Orientation -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">A4 纸张方向 (Orientasi)</div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-orient-btn="portrait" onclick="setOrientation('portrait')" class="orient-btn py-2.5 px-3 rounded-xl border-2 border-blue-900 bg-blue-50/70 text-blue-950 text-xs font-bold transition cursor-pointer">
+                A4 竖版 (210 × 297mm)
+              </button>
+              <button type="button" data-orient-btn="landscape" onclick="setOrientation('landscape')" class="orient-btn py-2.5 px-3 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-medium transition cursor-pointer">
+                A4 横版 (297 × 210mm)
+              </button>
+            </div>
+          </div>
+
+          <!-- Official Color Theme -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">官方配色主题</div>
+            <div class="grid grid-cols-5 gap-2">
+              <button type="button" data-theme-btn="navy" onclick="updateState('theme', 'navy')" class="theme-btn p-2 rounded-xl border-2 border-blue-900 bg-blue-50/50 flex flex-col items-center gap-1 cursor-pointer">
+                <span class="w-6 h-6 rounded-full bg-[#0f294a] border-2 border-[#c59b27]"></span>
+                <span class="text-[11px] font-bold">皇家蓝</span>
+              </button>
+              <button type="button" data-theme-btn="emerald" onclick="updateState('theme', 'emerald')" class="theme-btn p-2 rounded-xl border border-slate-200 bg-white flex flex-col items-center gap-1 cursor-pointer">
+                <span class="w-6 h-6 rounded-full bg-[#064e3b] border-2 border-[#c59b27]"></span>
+                <span class="text-[11px] font-medium">翡翠绿</span>
+              </button>
+              <button type="button" data-theme-btn="maroon" onclick="updateState('theme', 'maroon')" class="theme-btn p-2 rounded-xl border border-slate-200 bg-white flex flex-col items-center gap-1 cursor-pointer">
+                <span class="w-6 h-6 rounded-full bg-[#7f1d1d] border-2 border-[#c59b27]"></span>
+                <span class="text-[11px] font-medium">栗子红</span>
+              </button>
+              <button type="button" data-theme-btn="charcoal" onclick="updateState('theme', 'charcoal')" class="theme-btn p-2 rounded-xl border border-slate-200 bg-white flex flex-col items-center gap-1 cursor-pointer">
+                <span class="w-6 h-6 rounded-full bg-[#1e293b] border-2 border-[#b45309]"></span>
+                <span class="text-[11px] font-medium">尊爵黑</span>
+              </button>
+              <button type="button" data-theme-btn="purple" onclick="updateState('theme', 'purple')" class="theme-btn p-2 rounded-xl border border-slate-200 bg-white flex flex-col items-center gap-1 cursor-pointer">
+                <span class="w-6 h-6 rounded-full bg-[#4c1d95] border-2 border-[#d97706]"></span>
+                <span class="text-[11px] font-medium">帝王紫</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Frame Style & Pre-Printed Sijil Paper Mode -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">边框花纹 / 套打模式</span>
+              <span id="frame-mode-pill" class="px-2 py-0.5 rounded bg-white border border-amber-300 text-blue-950 text-xs font-bold">标准边框版</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button type="button" data-corner-btn="songket" onclick="setFrameStyle('songket')" class="corner-style-btn p-2 rounded-xl border-2 border-blue-900 bg-white font-bold text-blue-950 text-left cursor-pointer">
+                宋吉金边花纹 (Songket)
+              </button>
+              <button type="button" data-corner-btn="double" onclick="setFrameStyle('double')" class="corner-style-btn p-2 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 text-left cursor-pointer">
+                经典几何双框 (Klasik)
+              </button>
+              <button type="button" data-corner-btn="minimal" onclick="setFrameStyle('minimal')" class="corner-style-btn p-2 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 text-left cursor-pointer">
+                简约细线边框 (Minimal)
+              </button>
+              <button type="button" data-corner-btn="none" onclick="setFrameStyle('none')" class="corner-style-btn p-2 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 text-left cursor-pointer">
+                无边框纯内容 (套打纸专用)
+              </button>
+            </div>
+
+            <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer pt-1">
+              <input type="checkbox" id="input-showWatermark" checked onchange="updateState('showWatermark', this.checked)" class="rounded text-blue-900" />
+              <span>显示中央淡色校徽水印</span>
+            </label>
+          </div>
+
+          <!-- Safe Margins & Font Scale -->
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-500">打印安全边距与字号比例</div>
+
+            <div>
+              <div class="flex justify-between text-xs text-slate-700 mb-1">
+                <span>上下/左右安全边距 (<span id="safe-v-text">21mm</span> / <span id="safe-h-text">25mm</span>)</span>
+                <strong id="safe-margin-badge" class="text-blue-950">21mm / 25mm</strong>
+              </div>
+              <input type="range" min="15" max="32" value="21" oninput="updateSafeMargin(Number(this.value))" class="w-full accent-blue-900" />
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs text-slate-700 mb-1">
+                <span>整体字体缩放比例</span>
+                <strong id="font-scale-badge" class="text-blue-950">100% (大字标准)</strong>
+              </div>
+              <input type="range" min="0.90" max="1.15" step="0.01" value="1.00" oninput="updateCertFontScale(Number(this.value))" class="w-full accent-blue-900" />
+            </div>
+          </div>
+
+        </div>
       </div>
     </aside>
 
-    <!-- ======================================================================
-         RIGHT LIVE A4 PREVIEW PANEL
-         ====================================================================== -->
-    <section class="flex-1 preview-workspace relative flex flex-col overflow-hidden">
-      
-      <!-- Top Preview Toolbar -->
-      <div class="bg-white/95 backdrop-blur-sm border-b border-slate-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 z-10 shrink-0">
-        <div class="flex items-center gap-2 text-sm text-slate-700">
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-          <span id="preview-dim-label" class="font-semibold text-slate-800">实时 A4 竖版预览 (210mm × 297mm)</span>
+    <!-- RIGHT LIVE A4 PREVIEW STAGE -->
+    <section class="flex-1 min-h-0 min-w-0 flex flex-col bg-slate-200/90 overflow-hidden">
+
+      <!-- Preview Toolbar -->
+      <div class="no-print bg-white/90 backdrop-blur border-b border-slate-300 px-4 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-3">
+          <span id="preview-dim-label" class="text-xs font-bold text-slate-700">实时 A4 竖版预览 (210mm × 297mm)</span>
+
+          <!-- Batch Navigation Controls (Shown when more than 1 recipient imported) -->
+          <div id="preview-batch-nav" class="hidden items-center gap-1.5 bg-indigo-50 border border-indigo-200 px-2 py-1 rounded-lg">
+            <button type="button" onclick="navigateStudent(-1)" class="w-6 h-6 rounded bg-white hover:bg-indigo-100 border border-indigo-200 text-indigo-900 font-bold text-xs flex items-center justify-center cursor-pointer" title="上一张">&lsaquo;</button>
+            <span class="text-xs font-bold text-indigo-950 px-1.5">
+              第 <span id="nav-idx-display">1</span> / <span id="nav-total-display">1</span> 张
+            </span>
+            <button type="button" onclick="navigateStudent(1)" class="w-6 h-6 rounded bg-white hover:bg-indigo-100 border border-indigo-200 text-indigo-900 font-bold text-xs flex items-center justify-center cursor-pointer" title="下一张">&rsaquo;</button>
+          </div>
         </div>
 
-        <!-- Batch Student Switcher Pill (Shown when > 1 student imported) -->
-        <div id="preview-batch-nav" class="hidden items-center gap-1.5 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-xl">
-          <button type="button" onclick="navigateStudent(-1)" class="px-2.5 py-1 rounded-lg hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition cursor-pointer">
-            &lt; 上一位
-          </button>
-          <span class="text-xs font-bold text-indigo-950 px-2">
-            第 <span id="nav-idx-display">1</span> / <span id="nav-total-display">1</span> 位
-          </span>
-          <button type="button" onclick="navigateStudent(1)" class="px-2.5 py-1 rounded-lg hover:bg-indigo-100 text-indigo-900 text-xs font-bold transition cursor-pointer">
-            下一位 &gt;
-          </button>
-        </div>
-
-        <!-- Zoom Controls: 适应窗口, 75%, 100%, -, + -->
-        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-          <button type="button" id="btn-zoom-fit" onclick="setZoomMode('fit')" class="zoom-preset-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-white shadow-sm text-slate-900 transition cursor-pointer">适应窗口</button>
-          <button type="button" id="btn-zoom-75" onclick="setZoomMode('75')" class="zoom-preset-btn px-2.5 py-1 text-xs font-medium rounded-lg hover:bg-white text-slate-700 transition cursor-pointer">75%</button>
-          <button type="button" id="btn-zoom-100" onclick="setZoomMode('100')" class="zoom-preset-btn px-2.5 py-1 text-xs font-medium rounded-lg hover:bg-white text-slate-700 transition cursor-pointer">100%</button>
+        <!-- Zoom Controls -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+          <button type="button" onclick="stepZoom(-0.08)" class="w-7 h-7 rounded-lg hover:bg-white text-slate-700 font-bold cursor-pointer" title="缩小">−</button>
+          <span id="zoom-pct-label" class="px-2 font-mono font-bold text-slate-800 min-w-[46px] text-center">72%</span>
+          <button type="button" onclick="stepZoom(0.08)" class="w-7 h-7 rounded-lg hover:bg-white text-slate-700 font-bold cursor-pointer" title="放大">+</button>
           <div class="w-[1px] h-4 bg-slate-300 mx-0.5"></div>
-          <button type="button" onclick="stepZoom(-0.1)" title="缩小" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 font-bold text-sm transition cursor-pointer">-</button>
-          <span id="zoom-pct-label" class="text-xs font-mono font-semibold text-slate-700 w-10 text-center">75%</span>
-          <button type="button" onclick="stepZoom(0.1)" title="放大" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white text-slate-700 font-bold text-sm transition cursor-pointer">+</button>
+          <button type="button" id="btn-zoom-fit" onclick="setZoomMode('fit')" class="zoom-preset-btn px-2 py-1 rounded-lg bg-white shadow-sm font-semibold text-slate-900 cursor-pointer">适合屏幕</button>
+          <button type="button" id="btn-zoom-75" onclick="setZoomMode('75')" class="zoom-preset-btn px-2 py-1 rounded-lg font-medium text-slate-700 cursor-pointer">75%</button>
+          <button type="button" id="btn-zoom-100" onclick="setZoomMode('100')" class="zoom-preset-btn px-2 py-1 rounded-lg font-medium text-slate-700 cursor-pointer">100%</button>
         </div>
       </div>
 
       <!-- Centered Scaled A4 Stage -->
-      <div id="preview-scroll-stage" class="flex-1 overflow-auto p-4 sm:p-6 flex justify-center items-start">
-        <div id="a4-outer-box" class="shadow-2xl transition-all duration-150">
+      <div id="preview-scroll-stage" class="flex-1 min-h-0 overflow-auto p-4 sm:p-6 flex justify-center items-start">
+        <div id="a4-outer-box" class="shadow-2xl transition-all duration-150 shrink-0">
           <div id="live-certificate-mount"></div>
         </div>
       </div>
@@ -905,7 +783,7 @@
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
       
       <!-- Modal Header -->
-      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+      <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -913,15 +791,15 @@
             </svg>
           </div>
           <div>
-            <h2 class="text-base sm:text-lg font-bold text-slate-900">批量 CSV 模板下载与上传 (表扬状 / 参与奖状)</h2>
-            <p class="text-xs text-slate-600">支持 Excel UTF-8 BOM 防乱码模板、职务/活动智能匹配内文与一键批量导出多页 A4 PDF</p>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">批量 CSV 模板下载与上传 (表扬状 / 感谢状 / 参与奖状)</h2>
+            <p class="text-xs text-slate-600">支持 Excel UTF-8 BOM 防乱码模板、职务/热心捐助/活动智能匹配内文与批量导出多页 A4 PDF</p>
           </div>
         </div>
         <button type="button" onclick="closeBatchModal()" class="w-9 h-9 rounded-xl hover:bg-slate-200/80 flex items-center justify-center text-slate-600 font-bold text-xl transition cursor-pointer" aria-label="关闭弹窗">&times;</button>
       </div>
 
       <!-- Modal Scrollable Content -->
-      <div class="flex-1 overflow-y-auto p-5 space-y-4">
+      <div class="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
         
         <!-- Step 1: Download Excel-Compatible CSV Template -->
         <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50/70 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -931,7 +809,7 @@
               <h3 class="text-sm sm:text-base font-bold text-emerald-950">下载 Excel 兼容 CSV 模板</h3>
             </div>
             <p class="text-xs text-emerald-800 leading-relaxed">
-              下载 <code class="font-mono font-bold">templat_sijil_sekolah.csv</code>（含团长/副团长、升国旗、广播员、周会司仪与活动参与示例，内置 UTF-8 BOM 防乱码）。
+              下载 <code class="font-mono font-bold">templat_sijil_sekolah.csv</code>（含学生职务、热心教育捐助物资感谢状及活动参与示例，内置 UTF-8 BOM 防乱码）。
             </p>
           </div>
           <button type="button" onclick="downloadExcelCsvTemplate()" class="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold shadow-sm transition cursor-pointer">
@@ -951,7 +829,7 @@
                 <span class="text-sm font-bold text-slate-900">上传 .CSV 文件或粘贴表格</span>
               </div>
               <button type="button" onclick="loadSampleIntoModal()" class="text-xs font-semibold text-indigo-700 hover:underline cursor-pointer">
-                加载 9 人示例
+                加载 10 人示例
               </button>
             </div>
 
@@ -965,7 +843,7 @@
                   </svg>
                 </div>
                 <div class="text-sm font-bold text-indigo-950">点击选择或拖拽 <span class="underline">.CSV 文件</span> 到此处</div>
-                <div class="text-xs text-slate-600 mt-1">支持 UTF-8 / GBK 编码 • 留空内文自动根据职务/活动关键词填充</div>
+                <div class="text-xs text-slate-600 mt-1">支持 UTF-8 / GBK 编码 • 留空内文自动根据职务/捐助/活动关键词填充</div>
               </div>
             </div>
 
@@ -999,7 +877,7 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2">
+      <div class="px-5 py-3.5 border-t border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <button type="button" onclick="closeBatchModal()" class="px-4 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-sm font-semibold transition cursor-pointer">
           关闭窗口
         </button>
@@ -1107,12 +985,13 @@
     };
 
     // ------------------------------------------------------------------------
-    // B. ROLE & PARTICIPATION PRESETS (WITH BM, ZH & EN TEXTS)
+    // B. ROLE, DONATION & PARTICIPATION PRESETS (WITH BM, ZH & EN TEXTS)
     // ------------------------------------------------------------------------
     const ROLE_PRESETS = {
-      // --- SIJIL PENGHARGAAN (表扬状 / 感谢状) ---
+      // --- SIJIL PENGHARGAAN: STUDENT DUTIES (表扬状) ---
       ketua_pengawas: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'KETUA PENGAWAS SEKOLAH / 巡察员团长',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas kepimpinan unggul, kewibawaan serta dedikasi cemerlang dalam menerajui Lembaga Pengawas Sekolah dan menjaga disiplin murid sepanjang sesi persekolahan ini.',
@@ -1121,6 +1000,7 @@
       },
       penolong_ketua_pengawas: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'PENOLONG KETUA PENGAWAS SEKOLAH / 巡察员副团长',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas kepimpinan berdedikasi, komitmen tinggi serta kerjasama erat dalam membantu Ketua Pengawas menerajui Lembaga Pengawas Sekolah sepanjang sesi persekolahan ini.',
@@ -1129,6 +1009,7 @@
       },
       pengawas: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'PENGAWAS SEKOLAH / 巡察员',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas jasa bakti, komitmen tinggi serta dedikasi cemerlang dalam menjalankan tugas dan tanggungjawab yang diamanahkan sepanjang sesi persekolahan ini.',
@@ -1137,6 +1018,7 @@
       },
       ketua_pss: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'KETUA PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员团长',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas kepimpinan cemerlang, kerajinan serta komitmen tinggi dalam menerajui Lembaga Pengawas Pusat Sumber Sekolah dan menyemarakkan budaya membaca.',
@@ -1145,6 +1027,7 @@
       },
       penolong_ketua_pss: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'PENOLONG KETUA PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员副团长',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas sokongan padu, kerajinan serta dedikasi cemerlang dalam membantu Ketua Pengawas Pusat Sumber mengurus operasi perpustakaan sekolah dengan lancar.',
@@ -1153,6 +1036,7 @@
       },
       pss: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'PENGAWAS PUSAT SUMBER SEKOLAH / 图书管理员',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas sumbangan bakti, kerajinan dan komitmen tinggi dalam membantu pengurusan Pusat Sumber Sekolah serta memupuk budaya membaca dalam kalangan murid.',
@@ -1161,6 +1045,7 @@
       },
       ketua_kelas: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'KETUA KELAS / 班长',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas kepimpinan berwibawa, sikap bertanggungjawab serta kerjasama erat dalam membantu guru mengurus disiplin dan kebajikan murid kelas.',
@@ -1169,6 +1054,7 @@
       },
       penolong_ketua: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'PENOLONG KETUA KELAS / 副班长',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas sokongan padu, sikap prihatin dan kerjasama cemerlang dalam membantu Ketua Kelas serta guru melaksanakan tugas harian kelas dengan lancar.',
@@ -1177,6 +1063,7 @@
       },
       ajk_koku: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'AHLI JAWATANKUASA KOKURIKULUM / 课外活动理事',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas penglibatan aktif, semangat berpasukan dan sumbangan cemerlang dalam menjayakan aktiviti unit beruniform, kelab dan persatuan sekolah.',
@@ -1185,6 +1072,7 @@
       },
       bendera: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'AJK MENAIKKAN BENDERA / 升国旗队员',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas komitmen tinggi, disiplin serta tanggungjawab yang cemerlang dalam menjalankan tugas menaikkan bendera semasa perhimpunan rasmi sekolah sepanjang sesi persekolahan ini.',
@@ -1193,6 +1081,7 @@
       },
       siaraya: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'AJK SIARAYA & RADIO SEKOLAH / 校园广播员',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas dedikasi, kemahiran teknikal serta komitmen tinggi dalam mengendalikan sistem siaraya dan penyiaran radio sekolah dengan lancar sepanjang sesi persekolahan ini.',
@@ -1201,14 +1090,18 @@
       },
       pengacara: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'PENGACARA MAJLIS PERHIMPUNAN / 周会司仪',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'atas kewibawaan, kepetahan bertutur serta komitmen tinggi dalam mengendalikan majlis perhimpunan mingguan dan rasmi sekolah dengan penuh tertib dan lancar.',
         teksZh: '感谢您在任期间台风稳健、口齿清晰，出色担任学校周会及各项仪式司仪，使周会流程井然有序、顺利进行，特颁此状，以资表扬。',
         teksEn: 'in recognition of your eloquence, poise, and exemplary commitment as Master of Ceremonies for weekly school assemblies throughout the academic session.'
       },
+
+      // --- SIJIL PENGHARGAAN: EVENTS & GUESTS (活动工委 / 主讲嘉宾感谢状) ---
       ajk_program: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'AHLI JAWATANKUASA PELAKSANA / 活动工委',
         programSesi: 'Program Kecemerlangan Sekolah 2026',
         teksBm: 'atas kerjasama erat, komitmen tinggi dan sumbangan tenaga dalam menjayakan majlis dan program sekolah ini dengan cemerlang.',
@@ -1217,6 +1110,7 @@
       },
       penceramah: {
         certType: 'penghargaan',
+        isDonor: true,
         jawatan: 'PENCERAMAH JEMPUTAN / 讲座主讲人',
         programSesi: 'Ceramah Motivasi & Perkongsian Ilmu 2026',
         teksBm: 'setinggi-tinggi penghargaan dan terima kasih atas kesudian meluangkan masa menyampaikan ceramah serta perkongsian ilmu yang amat bermanfaat kepada warga sekolah.',
@@ -1225,6 +1119,7 @@
       },
       ajk_sukan: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'AHLI JAWATANKUASA KEJOHANAN SUKAN / 运动会工委',
         programSesi: 'Kejohanan Sukan Tahunan Sekolah 2026',
         teksBm: 'atas dedikasi, semangat kesukanan serta kerjasama padu dalam mengurus dan menjayakan Kejohanan Sukan Tahunan Sekolah dengan lancar.',
@@ -1233,6 +1128,7 @@
       },
       peserta: {
         certType: 'penghargaan',
+        isDonor: false,
         jawatan: 'PESERTA / WAKIL SEKOLAH / 校队代表',
         programSesi: 'Pertandingan Koakademik & Sukan Peringkat Daerah 2026',
         teksBm: 'atas penyertaan aktif, semangat juang yang tinggi serta komitmen mengharumkan nama sekolah dalam pertandingan yang disertai.',
@@ -1240,9 +1136,48 @@
         teksEn: 'in recognition of your active participation, determination, and commendable effort in representing the school.'
       },
 
+      // --- SIJIL PENGHARGAAN: ENTHUSIASTIC FOR EDUCATION & DONATIONS (热心教育 / 捐助物资感谢状) ---
+      sumbangan_dana: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'PENYUMBANG DANA PENDIDIKAN / 热心教育赞助人',
+        programSesi: 'Tabung Pembangunan & Kebajikan Murid Tahun 2026',
+        teksBm: 'setinggi-tinggi penghargaan dan jutaan terima kasih atas kemurahan hati, keprihatinan serta sumbangan ikhlas dana pendidikan demi meningkatkan kemudahan dan kebajikan murid-murid sekolah ini.',
+        teksZh: '衷心感谢您热心教育、慷慨解囊，捐献教育经费惠及莘莘学子，助力学校建设与发展，仁风义举，殊堪钦敬，特颁此状，谨致谢忱。',
+        teksEn: 'with deepest gratitude and sincere appreciation for your generosity, philanthropic spirit, and kind financial contribution towards the advancement of education and student welfare.'
+      },
+      sumbangan_barangan: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'PENYUMBANG BARANGAN & PERALATAN / 热心捐助物资',
+        programSesi: 'Sumbangan Keperluan & Peralatan Sekolah Tahun 2026',
+        teksBm: 'setinggi-tinggi penghargaan dan terima kasih atas budi baik serta sumbangan ikhlas barangan keperluan dan peralatan yang amat bermakna kepada warga sekolah ini.',
+        teksZh: '衷心感谢您关怀教育、热心公益，慨然捐助物资与教学器材，充实校园资源并造福全体师生，仁风义举，特颁此状，谨致谢忱。',
+        teksEn: 'in heartfelt appreciation of your kindness and generous donation of essential supplies and equipment to support our school and students.'
+      },
+      sumbangan_buku: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'PENYUMBANG BUKU & KEMUDAHAN / 热心捐赠图书与设施',
+        programSesi: 'Program Pemerkasaan Pusat Sumber & Prasarana Sekolah 2026',
+        teksBm: 'setinggi-tinggi penghargaan dan terima kasih atas sumbangan ikhlas bahan bacaan serta penambahbaikan kemudahan pembelajaran demi memupuk budaya ilmu dalam kalangan murid.',
+        teksZh: '衷心感谢您热心文教、惠赠优质图书与教学设施，营造书香校园并丰富学生学习环境，嘉惠学林，特颁此状，谨致谢忱。',
+        teksEn: 'with sincere gratitude for your generous donation of books and learning facilities to enrich our school library and foster a culture of reading.'
+      },
+      sumbangan_organisasi: {
+        certType: 'penghargaan',
+        isDonor: true,
+        jawatan: 'PENAJA & PENYUMBANG UTAMA / 热心教育赞助单位',
+        programSesi: 'Program & Aktiviti Kecemerlangan Sekolah Tahun 2026',
+        teksBm: 'setinggi-tinggi penghargaan dan jutaan terima kasih atas tajaan, sokongan padu serta sumbangan ikhlas dalam menjayakan program dan pembangunan pendidikan di sekolah ini.',
+        teksZh: '衷心感谢贵机构/社团秉持“取之社会、用之社会”之精神，热心赞助与支持本校教育发展及各项活动，功在教育，特颁此状，谨致谢忱。',
+        teksEn: 'in grateful recognition of your organization’s generous sponsorship, strong support, and commitment towards the educational excellence of our school.'
+      },
+
       // --- SIJIL PENYERTAAN (参与活动奖状) ---
       part_pertandingan: {
         certType: 'penyertaan',
+        isDonor: false,
         jawatan: 'PERTANDINGAN KOAKADEMIK & KESENIAN / 校际学术与才艺比赛',
         programSesi: 'Peringkat Sekolah / Daerah Tahun 2026',
         teksBm: 'dengan penuh komitmen, semangat daya saing yang sihat serta kesungguhan yang tinggi dalam menjayakan pertandingan ini.',
@@ -1251,6 +1186,7 @@
       },
       part_kem: {
         certType: 'penyertaan',
+        isDonor: false,
         jawatan: 'KEM KEPIMPINAN & JATI DIRI MURID / 领袖培训生活营',
         programSesi: 'Anjuran Unit Hal Ehwal Murid & Kokurikulum 2026',
         teksBm: 'dengan penuh disiplin, semangat berpasukan serta komitmen tinggi sepanjang mengikuti semua aktiviti dan modul yang dijalankan.',
@@ -1259,6 +1195,7 @@
       },
       part_bengkel: {
         certType: 'penyertaan',
+        isDonor: false,
         jawatan: 'BENGKEL & CERAMAH MOTIVASI / 激励讲座与学习工作坊',
         programSesi: 'Program Kecemerlangan Murid Tahun 2026',
         teksBm: 'dengan penuh perhatian, minat mendalam serta penglibatan aktif sepanjang bengkel dan sesi perkongsian ilmu ini berlangsung.',
@@ -1267,6 +1204,7 @@
       },
       part_sukan: {
         certType: 'penyertaan',
+        isDonor: false,
         jawatan: 'KEJOHANAN SUKAN & OLAHRAGA SEKOLAH / 常年运动会',
         programSesi: 'Sesi Persekolahan Tahun 2026',
         teksBm: 'dengan penuh semangat kesukanan, kegigihan serta kerjasama berpasukan dalam menjayakan acara sukan sekolah ini.',
@@ -1276,7 +1214,7 @@
     };
 
     // ------------------------------------------------------------------------
-    // C. CSV HEADERS & 9 REALISTIC MALAYSIAN SAMPLE ROWS
+    // C. CSV HEADERS & 10 REALISTIC MALAYSIAN SAMPLE ROWS
     // ------------------------------------------------------------------------
     const CSV_HEADERS = [
       'No_Sijil',
@@ -1370,6 +1308,17 @@
       ],
       [
         'SP/2026/008',
+        'DATO SRI WONG TECK CHAI',
+        '拿督斯里黄德财',
+        '',
+        'PENYUMBANG BARANGAN & PERALATAN / 热心捐助物资',
+        'Sumbangan Keperluan & Peralatan Sekolah Tahun 2026',
+        ROLE_PRESETS.sumbangan_barangan.teksBm,
+        ROLE_PRESETS.sumbangan_barangan.teksZh,
+        '14 November 2026'
+      ],
+      [
+        'SP/2026/009',
         'WONG JUN JIE',
         '黄俊杰',
         '150309-05-7890 • Kelas 5 Bijak',
@@ -1380,7 +1329,7 @@
         '14 November 2026'
       ],
       [
-        'SP/2026/009',
+        'SP/2026/010',
         'MUHAMMAD DANISH BIN ZULKIFLI',
         '',
         '140912-05-2468 • Kelas 6 Pintar',
@@ -1396,15 +1345,15 @@
     // D. APPLICATION STATE
     // ------------------------------------------------------------------------
     const appState = {
-      certType: 'penghargaan',    // 'penghargaan' (表扬状/感谢状) | 'penyertaan' (参与活动奖状)
-      orientation: 'portrait',    // 'portrait' (210x297mm) | 'landscape' (297x210mm)
-      langMode: 'bm_zh',          // 'bm' | 'bm_zh' | 'bm_en'
+      certType: 'penghargaan',         // 'penghargaan' (表扬状/感谢状) | 'penyertaan' (参与活动奖状)
+      orientation: 'portrait',         // 'portrait' (210x297mm) | 'landscape' (297x210mm)
+      langMode: 'bm_zh',               // 'bm' | 'bm_zh' | 'bm_en'
       theme: 'navy',
-      cornerStyle: 'songket',     // 'songket' | 'double' | 'minimal' | 'none' (Pure Content Pre-Printed Mode)
-      showWatermark: true,        // Center background crest watermark
-      hideTopCrest: false,        // Optional hide top crest if pre-printed sijil paper already has crest
-      safeMarginV: 21,            // 15mm to 32mm (default 21mm); horizontal = safeMarginV + 4mm (25mm)
-      certFontScale: 1.00,        // 0.90 to 1.15 multiplier
+      cornerStyle: 'songket',          // 'songket' | 'double' | 'minimal' | 'none' (Pure Content Pre-Printed Mode)
+      showWatermark: true,             // Center background crest watermark
+      hideTopCrest: false,             // Optional hide top crest if pre-printed sijil paper already has crest
+      safeMarginV: 21,                 // 15mm to 32mm (default 21mm); horizontal = safeMarginV + 4mm (25mm)
+      certFontScale: 1.00,             // 0.90 to 1.15 multiplier
 
       // School Identity
       schoolLogo: null,
@@ -1414,15 +1363,16 @@
       schoolNameSub: '晏斗中华国民型华文小学',
       schoolCode: 'NBC4067',
 
-      // Role & Participation Preset Active Tracking
+      // Role, Donation & Participation Preset Active Tracking
       activePreset: 'pengawas',
       activeSubPreset: 'ajk_program',
+      activeSumbanganPreset: 'sumbangan_barangan',
       activePartPreset: 'part_pertandingan',
       showKpKelas: true,
 
       // Signatory & Stamp
-      enableLeftSignatory: false, // Toggleable Left Signatory section (false = closed)
-      datePosition: 'right',      // 'right' (under Principal title) | 'left' (under Left Signatory title)
+      enableLeftSignatory: false,      // Toggleable Left Signatory section (false = closed)
+      datePosition: 'right',           // 'right' (under Principal title) | 'left' (under Left Signatory title)
       principalName: 'CHONG LAI QUEEN',
       principalTitle: 'Guru Besar / 校长',
       sigImg: null,
@@ -1436,7 +1386,7 @@
       sigLeftSize: 16,
       sigLeftOffset: 0,
 
-      showStamp: true,            // Toggleable School Stamp visibility (true = shown, false = hidden)
+      showStamp: true,                 // Toggleable School Stamp visibility (true = shown, false = hidden)
       stampImg: null,
       stampSize: 25,
       stampOffset: 0,
@@ -1495,6 +1445,20 @@
 
     function matchPresetByRoleKeyword(jawatanText) {
       const q = (jawatanText || '').toLowerCase();
+
+      // Enthusiastic for Education & Donations (热心教育 / 捐助物资)
+      if (q.includes('buku') || q.includes('kemudahan') || q.includes('prasarana') || q.includes('图书') || q.includes('设施')) {
+        return ROLE_PRESETS.sumbangan_buku;
+      }
+      if (q.includes('barangan') || q.includes('peralatan') || q.includes('keperluan') || q.includes('物资') || q.includes('器材')) {
+        return ROLE_PRESETS.sumbangan_barangan;
+      }
+      if (q.includes('penaja') || q.includes('tajaan') || q.includes('syarikat') || q.includes('persatuan') || q.includes('赞助单位') || q.includes('社团') || q.includes('商家')) {
+        return ROLE_PRESETS.sumbangan_organisasi;
+      }
+      if (q.includes('penyumbang') || q.includes('sumbangan') || q.includes('derma') || q.includes('dana') || q.includes('热心教育') || q.includes('捐助') || q.includes('捐赠') || q.includes('捐献') || q.includes('赞助')) {
+        return ROLE_PRESETS.sumbangan_dana;
+      }
 
       // Participation keywords (Sijil Penyertaan)
       if (q.includes('kem') || q.includes('perkhemahan') || q.includes('生活营') || q.includes('领袖培训')) {
@@ -1944,7 +1908,7 @@
         ? `<img src="${appState.schoolLogo}" alt="Logo" class="max-w-full max-h-full w-auto h-auto object-contain block" style="max-width: 44px; max-height: 44px;" />`
         : DEFAULT_CREST_SVG;
 
-      // 4. Certificate Type Buttons & Labels Sync
+      // 4. Certificate Type Buttons & Dynamic Form Labels Sync
       document.querySelectorAll('.cert-type-btn').forEach(btn => {
         const isMatch = btn.getAttribute('data-cert-type') === activeCertType;
         if (isMatch) {
@@ -1957,20 +1921,40 @@
       });
 
       const certTypeBadge = document.getElementById('cert-type-badge');
+      const namaBmLabel = document.getElementById('label-nama-bm');
+      const namaCinaLabel = document.getElementById('label-nama-cina');
       const jawatanLabel = document.getElementById('label-jawatan-aktiviti');
       const programLabel = document.getElementById('label-program-sesi');
+
       if (activeCertType === 'penyertaan') {
         certTypeBadge.textContent = 'SIJIL PENYERTAAN';
         certTypeBadge.classList.add('bg-emerald-700');
-        certTypeBadge.classList.remove('bg-blue-900');
+        certTypeBadge.classList.remove('bg-blue-900', 'bg-amber-700');
+        if (namaBmLabel) namaBmLabel.textContent = 'Nama Penerima (BM)';
+        if (namaCinaLabel) namaCinaLabel.textContent = '中文姓名';
         if (jawatanLabel) jawatanLabel.textContent = 'Nama Aktiviti / Pertandingan (参与活动/比赛)';
         if (programLabel) programLabel.textContent = 'Peringkat / Anjuran / Sesi';
+      } else if (appState.activePreset === 'sumbangan') {
+        certTypeBadge.textContent = 'SIJIL PENGHARGAAN';
+        certTypeBadge.classList.add('bg-amber-700');
+        certTypeBadge.classList.remove('bg-blue-900', 'bg-emerald-700');
+        if (namaBmLabel) namaBmLabel.textContent = 'Nama Penyumbang / Organisasi (BM)';
+        if (namaCinaLabel) namaCinaLabel.textContent = '热心人 / 机构中文名';
+        if (jawatanLabel) jawatanLabel.textContent = 'Gelaran / Kategori Sumbangan (表扬名义)';
+        if (programLabel) programLabel.textContent = 'Butiran Sumbangan / Program (捐助项目)';
       } else {
         certTypeBadge.textContent = 'SIJIL PENGHARGAAN';
-        certTypeBadge.classList.remove('bg-emerald-700');
+        certTypeBadge.classList.remove('bg-emerald-700', 'bg-amber-700');
         certTypeBadge.classList.add('bg-blue-900');
+        if (namaBmLabel) namaBmLabel.textContent = 'Nama Penerima (BM)';
+        if (namaCinaLabel) namaCinaLabel.textContent = '中文姓名';
         if (jawatanLabel) jawatanLabel.textContent = 'Jawatan / Peranan (职务)';
         if (programLabel) programLabel.textContent = 'Nama Program / Sesi';
+      }
+
+      const showKpCheckbox = document.getElementById('input-showKpKelas');
+      if (showKpCheckbox) {
+        showKpCheckbox.checked = Boolean(appState.showKpKelas);
       }
 
       // 5. Orientation Buttons Active State
@@ -2027,7 +2011,7 @@
         watermarkCheckbox.checked = Boolean(appState.showWatermark);
       }
 
-      // 8. Role Preset & Participation Sub-Preset Buttons Active State
+      // 8. Role Preset, Sumbangan & Participation Sub-Preset Buttons Active State
       document.querySelectorAll('.role-preset-btn').forEach(btn => {
         const presetAttr = btn.getAttribute('data-role-preset');
         const isMatch = presetAttr === appState.activePreset;
@@ -2038,6 +2022,14 @@
           } else {
             btn.classList.remove('border-2', 'border-emerald-700', 'bg-emerald-100/80');
             btn.classList.add('border', 'border-emerald-300', 'bg-emerald-50/70');
+          }
+        } else if (presetAttr === 'sumbangan') {
+          if (isMatch) {
+            btn.classList.add('border-2', 'border-amber-700', 'bg-amber-100/90');
+            btn.classList.remove('border', 'border-amber-300', 'bg-amber-50/80');
+          } else {
+            btn.classList.remove('border-2', 'border-amber-700', 'bg-amber-100/90');
+            btn.classList.add('border', 'border-amber-300', 'bg-amber-50/80');
           }
         } else if (presetAttr === 'aktiviti') {
           if (isMatch) {
@@ -2058,6 +2050,7 @@
         }
       });
 
+      // Sub-drawer 1: Aktiviti
       const subBox = document.getElementById('aktiviti-subpresets');
       if (appState.activePreset === 'aktiviti') {
         subBox.classList.remove('hidden');
@@ -2075,6 +2068,25 @@
         subBox.classList.add('hidden');
       }
 
+      // Sub-drawer 2: Sumbangan (热心教育/捐助物资)
+      const sumbanganBox = document.getElementById('sumbangan-subpresets');
+      if (appState.activePreset === 'sumbangan') {
+        sumbanganBox.classList.remove('hidden');
+        document.querySelectorAll('.sumbangan-preset-btn').forEach(btn => {
+          const isSumb = btn.getAttribute('data-sumbangan-preset') === appState.activeSumbanganPreset;
+          if (isSumb) {
+            btn.classList.add('border-2', 'border-amber-700', 'bg-amber-100/90');
+            btn.classList.remove('border', 'border-amber-200', 'bg-white');
+          } else {
+            btn.classList.remove('border-2', 'border-amber-700', 'bg-amber-100/90');
+            btn.classList.add('border', 'border-amber-200', 'bg-white');
+          }
+        });
+      } else {
+        sumbanganBox.classList.add('hidden');
+      }
+
+      // Sub-drawer 3: Penyertaan
       const partBox = document.getElementById('penyertaan-subpresets');
       if (appState.activePreset === 'penyertaan') {
         partBox.classList.remove('hidden');
@@ -2175,7 +2187,7 @@
         const isCurrent = i === idx;
         const typeTag = (st.certType || appState.certType) === 'penyertaan'
           ? '<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-semibold mr-1">参与奖</span>'
-          : '<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-xs font-semibold mr-1">表扬状</span>';
+          : '<span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-xs font-semibold mr-1">表扬/感谢</span>';
         return `
           <button type="button" onclick="selectStudent(${i})" class="w-full text-left px-3.5 py-2.5 flex items-center justify-between gap-2 text-sm hover:bg-indigo-50/50 transition cursor-pointer ${isCurrent ? 'bg-indigo-100/80 font-bold text-indigo-950' : 'text-slate-700'}">
             <div class="truncate">
@@ -2210,6 +2222,7 @@
     // ------------------------------------------------------------------------
     function getActivePresetKey() {
       if (appState.activePreset === 'aktiviti') return appState.activeSubPreset;
+      if (appState.activePreset === 'sumbangan') return appState.activeSumbanganPreset;
       if (appState.activePreset === 'penyertaan') return appState.activePartPreset;
       return appState.activePreset;
     }
@@ -2332,6 +2345,7 @@
       appState.activePreset = presetKey;
       let effectiveKey = presetKey;
       if (presetKey === 'aktiviti') effectiveKey = appState.activeSubPreset;
+      if (presetKey === 'sumbangan') effectiveKey = appState.activeSumbanganPreset;
       if (presetKey === 'penyertaan') effectiveKey = appState.activePartPreset;
       applyPresetObject(effectiveKey, false);
     }
@@ -2340,6 +2354,12 @@
       appState.activePreset = 'aktiviti';
       appState.activeSubPreset = subKey;
       applyPresetObject(subKey, false);
+    }
+
+    function applySumbanganPreset(sumbKey) {
+      appState.activePreset = 'sumbangan';
+      appState.activeSumbanganPreset = sumbKey;
+      applyPresetObject(sumbKey, false);
     }
 
     function applyParticipationPreset(partKey) {
@@ -2361,10 +2381,23 @@
       currentSt.teksBm = preset.teksBm;
       currentSt.teksSub = appState.langMode === 'bm_en' ? preset.teksEn : preset.teksZh;
 
+      // Auto-hide Student IC/Class line when Donor/Guest preset is chosen, restore when student preset is chosen
+      if (preset.isDonor) {
+        appState.showKpKelas = false;
+      } else if ((currentSt.noKpKelas || '').trim() !== '') {
+        appState.showKpKelas = true;
+      }
+
       syncStudentFormInputs();
       renderAll();
       if (!suppressToast) {
-        showToast(targetType === 'penyertaan' ? `已套用参与奖状预设：${preset.jawatan}` : `已套用表扬状预设：${preset.jawatan}`);
+        if (targetType === 'penyertaan') {
+          showToast(`已套用参与奖状预设：${preset.jawatan}`);
+        } else if (appState.activePreset === 'sumbangan') {
+          showToast(`已套用热心教育感谢状：${preset.jawatan}`);
+        } else {
+          showToast(`已套用表扬/感谢状预设：${preset.jawatan}`);
+        }
       }
     }
 
@@ -2571,7 +2604,7 @@
         const noSijil = rawNoSijil !== '' ? rawNoSijil : incrementSerial(baseSerial, counter);
         const namaCina = getCol(['namacina', 'namachina'], 2);
         const noKpKelas = getCol(['nokpkelas', 'nokp', 'kelas'], 3);
-        const jawatan = getCol(['jawatanperanan', 'jawatan', 'peranan', 'aktiviti'], 4) || 'PENGAWAS SEKOLAH / 巡察员';
+        const jawatan = getCol(['jawatanperanan', 'jawatan', 'peranan', 'aktiviti', 'sumbangan'], 4) || 'PENGAWAS SEKOLAH / 巡察员';
         const programSesi = getCol(['programsesi', 'program', 'sesi'], 5) || defaultProgram;
 
         const matchedPreset = matchPresetByRoleKeyword(jawatan);
